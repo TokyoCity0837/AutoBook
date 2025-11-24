@@ -16,7 +16,7 @@ public class Vocabulary{
     
     @ManyToOne
     @JoinColumn(name = "book_id", nullable = false)
-    private Book book_id;
+    private Book book;
     
     @Column(name = "word", nullable = false, length = 15)
     private String word;
