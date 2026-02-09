@@ -25,7 +25,7 @@ public class Chapter{
     
     @Column(name = "content", columnDefinition = "TEXT")
     private String content;
-    
+       
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
