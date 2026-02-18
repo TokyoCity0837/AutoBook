@@ -35,3 +35,14 @@ out/
 
 ### VS Code ###
 .vscode/
+*.sql
+!autobook_dump.sql
+
+### Application Properties ###
+application.properties
+application-*.properties
+
+### Database ###
+*.sql
+*.db
+*.sqlite
