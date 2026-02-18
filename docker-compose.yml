@@ -1,21 +1,17 @@
 version: '3.8'
-
 services:
   mysql:
     image: mysql:8.0
     container_name: autobook-db
     restart: unless-stopped
     environment:
-      MYSQL_ROOT_PASSWORD: Dry7249662001
+      MYSQL_ROOT_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_DATABASE: autobook
     ports:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
       - ./autobook_dump.sql:/docker-entrypoint-initdb.d/01-dump.sql
-    command:
-      - --character-set-server=utf8mb4
-      - --collation-server=utf8mb4_unicode_ci
 
 volumes:
   mysql-data:

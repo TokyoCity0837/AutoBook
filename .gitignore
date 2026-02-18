@@ -46,3 +46,4 @@ application-*.properties
 *.sql
 *.db
 *.sqlite
+.env
