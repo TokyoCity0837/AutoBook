@@ -63,6 +63,20 @@ public class FriendService {
         friendRepository.save(request);
     }
     
+    public void cancelFriendRequest(Long requestId, User user) {
+        Friend request = findFriendById(requestId);
+        
+        if (!request.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("You can only cancel your own friend requests");
+        }
+        
+        if (request.getStatus() != FriendshipStatus.PENDING) {
+            throw new RuntimeException("Cannot cancel a processed request");
+        }
+        
+        friendRepository.delete(request);
+    }
+    
     public void removeFriend(User user, User friendToRemove) {
         Optional<Friend> friendship1 = friendRepository.findByUserAndFriend(user, friendToRemove);
         friendship1.ifPresent(friendRepository::delete);
@@ -73,6 +87,10 @@ public class FriendService {
     
     public List<Friend> getFriendRequests(User user) {
         return friendRepository.findByFriendAndStatus(user, FriendshipStatus.PENDING);
+    }
+    
+    public List<Friend> getSentFriendRequests(User user) {
+        return friendRepository.findByUserAndStatus(user, FriendshipStatus.PENDING);
     }
     
     public List<Friend> getFriends(User user) {

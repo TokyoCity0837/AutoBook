@@ -32,7 +32,7 @@ public class CommentService {
         return commentRepository.findByBookOrderByCreatedAtDesc(book);
     }
 
-    public List<Comment> findAllCommentsByUSer(User user){
+    public List<Comment> findAllCommentsByUser(User user){
         return commentRepository.findByUserOrderByCreatedAtDesc(user);
     }
 
