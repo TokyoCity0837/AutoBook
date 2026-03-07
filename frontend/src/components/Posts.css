@@ -1,0 +1,92 @@
+.Post{
+    background-color: rgb(59, 59, 59);  
+    height: 630px;
+    width: 570px;
+    margin-bottom: 50px;
+    border-radius: 70px;
+    background-color: rgb(30, 30, 30);  
+    box-shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
+    padding: 30px;
+}
+
+.user{
+    display: flex; 
+    align-items: center;
+    gap: 8px;
+    width: 300px;
+}
+
+.ProfileImage{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; 
+    background-color: white;
+    margin-right: 10px;
+}
+.userInfo{
+    margin-left: 10px;
+}
+.Nickname{
+    font-size: x-large;
+    color: rgb(255, 255, 255);
+    margin-bottom: 10px;
+}
+.Status{
+    font-size: large;
+    color: rgb(142, 142, 142);
+    display: flex; 
+    align-items: center;
+    gap: 8px;
+}
+.PostText{
+    font-size: large;
+    color: rgb(255, 255, 255);
+    margin-top: 50px;
+    margin-bottom: 30px;
+}
+.postImage{
+    width: 560px;
+    height: 300px;
+}
+.PostLine{
+    background-color: rgb(142, 142, 142);
+    width: 560px;
+    height: 2px;
+    margin-top: 35px;
+}
+.PostAcvtivity{
+    margin-top: 20px;
+    width: 560px;
+    height: 10%;
+    display: flex; 
+    align-items: center;
+    gap: 8px;
+}
+
+.LikeActivity{
+    margin: 30px;
+    width: 100px;
+    height: 50px;
+    text-align: left;
+    display: flex; 
+    align-items: center;
+    gap: 8px;
+}
+
+.CommentActivity{
+    width: 100px;
+    height: 50px;
+    text-align: left;
+    text-align: left;
+    display: flex; 
+    align-items: center;
+    gap: 8px;
+}
+.LikesAmount{
+    color: antiquewhite;
+    font-size: x-large;
+}
+.CommentsAmount{
+    color: antiquewhite;
+    font-size: x-large;
+}

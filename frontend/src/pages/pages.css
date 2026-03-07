@@ -1,0 +1,49 @@
+.content{
+    flex: 1;
+    margin-left: 150px;
+    padding-top: 20px;
+}
+
+.search{
+    width: 630px;
+    height: 70px;
+    background-color: rgb(20, 20, 20);  
+    border: 0;  
+    border-radius: 35px;
+    display: flex; 
+    align-items: center;
+    gap: 8px;
+    position: sticky;
+    top: 20px;     
+    z-index: 10;
+    bottom: 10px;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+}
+
+.searchBar{
+    width: 500px;
+    height: 67px;
+    background-color: rgb(20, 20, 20);  
+    color: antiquewhite;
+    border: 0;  
+    text-align: left;
+    font-size: x-large;
+    margin-left: 20px;
+    border-radius: 33.5px;
+}
+.searchBar:focus {
+    outline: none;
+}
+.searchIcon{
+    width: 50px;
+    height: 50px;
+    margin-left: 20px;
+    margin-top: 1px;
+}
+.PostsContainer{
+    margin-top: 30px;
+    background-color: rgb(45, 45, 45);
+    width: 630px;
+    height: 1200px;
+    padding-top: 50px;
+}

@@ -1,0 +1,118 @@
+.sidebarProfile{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; 
+    background-color: white;
+    margin-top: 30px;
+    margin: 0 auto; 
+}
+.sidebarProfileActive{
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; 
+    background-color: white;
+    margin-top: 30px;
+    margin: 0 auto; 
+    transform: scale(1.05);
+    box-shadow: 0 5px 15px rgb(35, 110, 0);
+}
+
+.sidebarProfile:hover{
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);   
+    cursor: pointer;
+}
+.sidebarLine{
+    background-color: white;
+    width: 60px;
+    height: 2px;
+    margin-top: 20px;
+    margin-left: 20px;
+    margin-right: 20px;
+    margin-bottom: 20px;
+}
+
+.sidebar {
+    height: 96%;
+    position: fixed; 
+    top: 2%; 
+    bottom: 2%;          
+    left: 30px;               
+    width: 100px;                 
+    background-color: rgb(20, 20, 20);                
+    box-sizing: border-box; 
+    border-radius: 50px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    
+}
+
+.icon {
+    width: 50px;         
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    cursor: pointer;
+    margin: 15px;
+    
+}
+
+.sidebarBottom {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.sidebarTop{
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.icon:hover{
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    transform: scale(1.05);   
+    cursor: pointer;
+}
+
+.settings{ 
+    margin-top: auto;
+    width: 40px; 
+    height: 40px; 
+} 
+.settings:hover{ 
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); 
+    transform: scale(1.05); 
+    cursor: pointer; 
+} 
+.logout{ 
+    margin-top: 20px;
+    border-radius: 50%;
+    width: 60px; 
+    height: 60px;
+} 
+.logout:hover{ 
+    box-shadow: 0 4px 9px rgba(0, 0, 0, 0.05); 
+    transform: scale(1.05); 
+    cursor: pointer; 
+}
+
+.SettingsActive{
+    margin-top: auto;
+    width: 40px; 
+    height: 40px; 
+    transform: scale(1.2);
+    animation: spin 7s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg);}
+    100% { transform: rotate(360deg);}
+}
+
+
+
+
