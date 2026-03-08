@@ -2,6 +2,21 @@ import './Posts.css'
 import { FriendFeed } from './Sidebar';
 import BookImage from '../assets/svgs/pictures/BookImage.jpeg'
 
+export function UserInfoForPost(){
+  return(
+    <div className='user'>
+    <div className='ProfileImage'></div>
+    <div className='.userInfo'>
+        <div className='Nickname'>Andrii Dosyn</div>
+        <div className='Status'>
+            <FriendFeed />
+            Friend
+        </div>
+    </div>
+  </div>
+  )
+}
+
 function Like(){
     return(
         <svg
@@ -89,23 +104,28 @@ function More({color = "white", size = 50}){
 
 export function CreationPost(){
   return(
-    <div className='NewPost'>Create a new post!</div>
+    <div className='NewPost'>
+        <div className='user'>
+          <div className='ProfileImage'></div>
+          <div className='.userInfo'>
+              <div className='Nickname'>Andrii Dosyn</div>
+          </div>
+      </div>
+      <textarea
+          maxLength={500}
+          placeholder="Add new post"
+          className="addPostBar"
+          onFocus={e => e.target.placeholder = ''}
+          onBlur={e => e.target.placeholder = 'Add new post'}
+        />
+    </div>
   );
 }
 
 export function Post(){
     return(
         <div className='Post'>
-            <div className='user'>
-                <div className='ProfileImage'></div>
-                <div className='.userInfo'>
-                    <div className='Nickname'>Andrii Dosyn</div>
-                    <div className='Status'>
-                        <FriendFeed />
-                        Friend
-                    </div>
-                </div>
-            </div>
+            <UserInfoForPost />
             <div className='PostText'>
                 Konečne som dokončil prvú časť svojho románu. Dlho som hľadal
                 správny hlas pre túto príbeh — tmavý, melancholický, ale s nádejou na

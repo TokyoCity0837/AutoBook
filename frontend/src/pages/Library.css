@@ -1,0 +1,76 @@
+.libraryWrap {
+    width: 95%;
+
+}
+.booksWrap {
+    margin-top: 30px;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: 40px;
+    margin-bottom: 60px;
+}
+.YBText {
+    font-size: 48px;
+    color: #fff;
+}
+.bookCard {
+    height: 420px;
+    background: #12151C;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
+}
+.bookImg .ImgBook {
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+}
+
+.bookDesc {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+}
+
+.bookTitle {
+    text-align: center;
+    margin-top: 8px;
+    font-size: 22px;
+    max-width: 120px;
+    font-weight: 500;
+}
+
+.bookAuthors {
+    max-width: 100px;
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 300;
+}
+
+.editWrap {
+    align-self: flex-end;
+    margin-right: 10px;
+}
+
+.addNewBook {
+    display: flex;
+    flex-direction: row;
+    background: #12151C;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
+    padding: 0 30px;
+
+    align-items: center;
+
+    color: #fff;
+    font-size: 24px;
+    gap: 12px;
+}
+
+
+.addWrap {
+    display: flex;
+    flex-direction: row;
+    justify-content:space-between;
+}

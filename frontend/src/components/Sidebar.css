@@ -33,13 +33,13 @@
 }
 
 .sidebar {
-    height: 96%;
-    position: fixed; 
-    top: 2%; 
-    bottom: 2%;          
+    height: 96vh;
+    position: sticky; 
+    top: 2vh; 
+    /* bottom: 2%;           */
     left: 30px;               
     width: 100px;                 
-    background-color: rgb(20, 20, 20);                
+    background-color: var(--accent-color);                
     box-sizing: border-box; 
     border-radius: 50px;
     display: flex;

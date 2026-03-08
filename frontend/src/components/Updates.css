@@ -1,0 +1,48 @@
+.bookImg .imgUpdate {
+    width: 6vw;
+    height: 17vh;
+    margin-top: 1.5vh;
+    padding: 1vh;
+
+    object-fit: cover;
+
+    border-radius: 25px;
+}
+.updateBlock {
+    margin: 20px;
+    display: flex;
+    justify-self: center;
+    flex-direction: column;
+    width: max-content;
+    width: calc(50% - 60px);
+    padding: 0.5em;
+    height: 25vh;
+    min-width: 0;
+
+    /* box-shadow: 14px 10px 22.4px rgba(0, 0, 0, 0.25); */
+
+}
+
+.bookInfo {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+.bookText {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+}
+.bookName {
+    text-align: center;
+    margin-bottom: 3vh;
+    font-size: 20px;
+    text-decoration: underline;
+}
+.bookAuthors {
+    text-align: center;
+    font-size: 14px;
+    opacity: 0.7;
+}

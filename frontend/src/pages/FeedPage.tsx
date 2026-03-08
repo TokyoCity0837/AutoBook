@@ -34,7 +34,9 @@ export default function Feed() {
         <div className="UpdatesWrapper">
             <div className="UpdatesContainer">
                 <Update /> 
-                <Update /> 
+                <Update />
+                <Update />  
+                <Update />  
             </div>
         </div>
     </div>
