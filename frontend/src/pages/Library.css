@@ -19,10 +19,12 @@
     background: #12151C;
     border-radius: 20px;
     box-shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
+    width: 220px;
 }
 .bookImg .ImgBook {
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
+    width: 220px;
 }
 
 .bookDesc {
@@ -72,5 +74,32 @@
 .addWrap {
     display: flex;
     flex-direction: row;
-    justify-content:space-between;
+    /* justify-content:space-between;
+    padding-right: 3%; */
+    gap: 60px;
+}
+
+.plus {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    /* margin-top: 30px; */
+    height: 414px;
+    background: darken(var(--bg-color), 10%);
+}
+
+.underLine {
+    text-decoration: underline;
+}
+
+.border {
+    height: 414px;
+    background: var(--accent-color);
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
+    width: 214px;
+    border-style: dashed;
+    border: 3px dashed rgba(255, 255, 255, 0.6);
+
+
 }

@@ -32,21 +32,33 @@ export function Book({edit = false}) {
                     {edit && <Edit />}    
                 </div>
             </div>    
-
         </div>
+    );
+}
+
+export function Plus() {
+    return (
+        <svg width="128" height="128" viewBox="0 0 164 164" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" clip-rule="evenodd" d="M112.75 87.125H87.125V112.75C87.125 115.569 84.8341 117.875 82 117.875C79.1659 117.875 76.875 115.569 76.875 112.75V87.125H51.25C48.4159 87.125 46.125 84.8188 46.125 82C46.125 79.1812 48.4159 76.875 51.25 76.875H76.875V51.25C76.875 48.4312 79.1659 46.125 82 46.125C84.8341 46.125 87.125 48.4312 87.125 51.25V76.875H112.75C115.584 76.875 117.875 79.1812 117.875 82C117.875 84.8188 115.584 87.125 112.75 87.125ZM82 0C36.7104 0 0 36.695 0 82C0 127.305 36.7104 164 82 164C127.29 164 164 127.305 164 82C164 36.695 127.29 0 82 0Z" fill="white"/>
+        </svg>
+
     );
 }
 
 export default function Library() {
     return (
-        <div className="content">
             <div className="libraryWrap">
-                <div className="yourBooks">
-                    <div className="addWrap">                    
+                <div className="yourBooks">                   
                         <div className="YBText">Your books</div>
-                        <div className="addNewBook">New book <Edit /> </div>
-                    </div>
                     <div className="booksWrap">
+                        <div className="border">
+                            <div className="plus">
+                                <Plus />
+                            </div>  
+                            {/* <div className="bookDesc">
+                                <div className="bookTitle">New book</div>
+                            </div>  */}
+                        </div>
                         <Book edit={true} />
                         <Book edit={true} />
                         <Book edit={true} />
@@ -69,6 +81,5 @@ export default function Library() {
                     </div>
                 </div>
             </div>
-        </div>
     );
   }

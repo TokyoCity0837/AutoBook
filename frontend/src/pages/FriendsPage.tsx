@@ -1,9 +1,10 @@
 import './pages.css'
+import '../index.css'
 
 export default function Friends() {
     return (
-        <div className="content">
-        <h1>Hello1</h1>
+        <div>
+            <div className="friend"></div>
         </div>
     );
   }

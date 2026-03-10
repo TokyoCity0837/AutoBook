@@ -35,7 +35,7 @@
 .sidebar {
     height: 96vh;
     position: sticky; 
-    top: 2vh; 
+    top: 2% !important; 
     /* bottom: 2%;           */
     left: 30px;               
     width: 100px;                 
@@ -45,9 +45,10 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 20px;
+    padding-top: 20px !important;
     padding-bottom: 20px;
     z-index: 10000;
+    margin-top: 2vh;
 }
 
 .icon {
