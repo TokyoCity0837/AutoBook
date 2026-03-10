@@ -1,6 +1,7 @@
 import './pages.css'
 import BookImage1 from '../assets/svgs/pictures/book1.jpg'
 import './Library.css'
+import { Link } from 'react-router-dom';
 
 export function Edit() {
     return (
@@ -21,7 +22,7 @@ export function Edit() {
 
 export function Book({edit = false}) {
     return (
-        <div className="bookCard">
+        <Link to="/book" className="bookCard">
             <div className="bookImg">
                 <img src={BookImage1} alt="book" className='ImgBook' width={220} height={270}/>
             </div>
@@ -32,7 +33,7 @@ export function Book({edit = false}) {
                     {edit && <Edit />}    
                 </div>
             </div>    
-        </div>
+        </Link>
     );
 }
 

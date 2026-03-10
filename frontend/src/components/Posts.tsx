@@ -17,13 +17,13 @@ export function UserInfoForPost(){
   )
 }
 
-function Like(){
+export function Like({size = 36}){
     return(
         <svg
         version="1.1"
         xmlns="http://www.w3.org/2000/svg"
-        width="36px"
-        height="36px"
+        width={size}
+        height={size}
         viewBox="0 0 32 32"
         xmlSpace="preserve"
         fill="#000000"
@@ -41,11 +41,11 @@ function Like(){
     );
 }
 
-function Comment() {
+export function Comment({size = 28}) {
     return (
         <svg
-    width="28px"
-    height="28px"
+    width={size}
+    height={size}
     viewBox="0 0 32 32"
     version="1.1"
     xmlns="http://www.w3.org/2000/svg"
@@ -151,3 +151,5 @@ export function Post(){
         </div>
     );
 }
+
+export { FriendFeed };

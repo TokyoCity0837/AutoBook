@@ -7,6 +7,7 @@ import Friends from './pages/FriendsPage';
 import Edits from './pages/EditsPage';
 import Settings from './pages/SettingsPage';
 import Profile from './pages/ProfilePage';
+import BookDetails from './pages/BookPage';
 
 function Autobook() {
   return (
@@ -19,6 +20,7 @@ function Autobook() {
           <Route path="/requests" element={<Edits />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
+          <Route path="/book" element={<BookDetails />} />
         </Routes>
       </Layout>
     </Router>

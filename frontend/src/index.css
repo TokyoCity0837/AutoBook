@@ -13,6 +13,7 @@ html, body, #root {
 :root {
     --bg-color: #191D26;
     --accent-color: #12151C;
+    --shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
 }
 
 .layout {
