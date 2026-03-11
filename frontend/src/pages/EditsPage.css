@@ -1,0 +1,121 @@
+* {
+    box-sizing: border-box; 
+}
+
+.content {
+    display: flex;
+    flex-direction: column;
+    padding-top: 20px;
+    margin-left: 40px;
+    gap: 20px;
+    padding-left: 40px;
+    width: 100%;
+    flex: 1;
+    align-items: center;
+}
+
+.editsWrapper{
+    width: 95%;
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    gap: 5%;
+}
+
+.sentEditsWrapper{
+    width: 35vw;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 60px;
+    background: var(--accent-color);
+    padding: 30px;
+    border-radius: 80px;
+    height: fit-content;
+    gap: 15px;
+}
+
+.incomingEditsWrapper{
+    width: 35vw;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 60px;
+    background: var(--accent-color);
+    padding: 30px; 
+    border-radius: 80px;
+    height: fit-content;
+    gap: 15px;
+}
+.sentText {
+    font-size: 40px;
+    color: #fff;
+    margin-left: 20px;
+}
+.incomingText {
+    font-size: 40px;
+    color: #fff;
+    margin-left: 20px;
+}
+.user {
+    display: flex; 
+    align-items: center;
+    gap: 8px;
+    width: 300px;
+}
+
+.ProfileImage {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%; 
+    background-color: white;
+    margin-right: 2px;
+}
+
+.userInfo {
+    margin-left: 10px;
+}
+
+.Nickname {
+    font-size: x-large;
+    color: rgb(255, 255, 255);
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 5px;
+}
+.friendship{
+    margin-left: 15px;
+    margin-top: 2px;
+}
+
+.requestingBook{
+    font-size: medium;
+    color: rgb(179, 179, 179);
+    text-decoration: underline;
+}
+
+.Status {
+    font-size: large;
+    color: rgb(142, 142, 142);
+    display: flex; 
+    align-items: center;
+    gap: 8px;
+}
+
+.editRequest {
+    background-color: rgb(16, 16, 16);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;  
+    box-shadow: 0 12px 30px rgba(12, 12, 12, 0.4);
+    padding: 15px;
+    border-radius: 50px; 
+    margin-bottom: 20px; 
+}
+.status-icon{
+    width: 48px;
+    height: 48px;
+    margin: 10px;
+}
+

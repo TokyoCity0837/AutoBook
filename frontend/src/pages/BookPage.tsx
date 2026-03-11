@@ -1,6 +1,6 @@
 import './pages.css'
 import BookImage1 from '../assets/svgs/pictures/book1.jpg'
-import './bookPage.css'
+import './BookPage.css'
 import { FriendFeed } from '../components/Sidebar'
 import { Like, Comment } from '../components/Posts'
 
