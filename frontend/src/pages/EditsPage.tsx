@@ -34,10 +34,12 @@ function EditRequest({ status }: EditRequestProps) {
   ); 
 }
 
-function Accept(){
+export function Accept({size = 26, className = "status-icon"}){
   return(
     <svg
-      className="status-icon"
+      width={size}
+      height={size}
+      className={className}
       viewBox="0 0 26 26"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -52,10 +54,10 @@ function Accept(){
   );
 }
 
-function Reject(){
+export function Reject({className = "status-icon"}){
   return(
     <svg
-      className="status-icon"
+      className={className}
       viewBox="0 0 24 24"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -92,7 +94,7 @@ function Processing(){
 
 export default function Edits() {
     return (
-      <div className="content">
+      <div>
             <div className='editsWrapper'>
               <div className='sentEditsWrapper'>
                 <div className="sentText">Sent requests</div>

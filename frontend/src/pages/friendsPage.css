@@ -1,0 +1,37 @@
+.friendsPageWrap {
+    display: flex;
+    flex-direction: column;
+    width: 95%;
+}
+.friendsWrap {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-top: 30px;
+    gap: 40px;
+    margin-bottom: 60px;
+}
+.acceptFriend {
+    width: 24px;
+    height: 24px;
+}
+.friendsActions {
+    display: flex;
+    justify-items: flex-end;
+    flex-direction: row;
+    margin-top: 8px;
+    gap: 10px;
+}
+.addFriend {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #fff;
+    padding: 6px 8px;
+    background: var(--accent-color);
+    font-size: 18px;
+    opacity: 1;
+    font-weight: 400;
+    border-radius: 10px;
+    box-shadow: var(--shadow);
+}
