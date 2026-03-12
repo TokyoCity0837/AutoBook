@@ -1,6 +1,6 @@
-import './pages.css'
+import '../assets/styles/pages.css'
 import '../index.css'
-import './friendsPage.css'
+import '../assets/styles/friendsPage.css'
 import { Accept, Reject } from './EditsPage'
 
 function FrinedForPage() {
@@ -53,6 +53,16 @@ export default function Friends() {
                 <IncomingFrined />
                 <IncomingFrined />
                 <IncomingFrined />
+            </div>
+            <div className="YBText">Folowing</div>
+            <div className="friendsWrap">
+                <FrinedForPage />
+                <FrinedForPage />
+                <FrinedForPage />
+                <FrinedForPage />
+                <FrinedForPage />
+                <FrinedForPage />
+                <FrinedForPage />
             </div>
         </div>
     );

@@ -1,6 +1,6 @@
-import './Posts.css'
+import '../assets/styles/Posts.css'
 import { FriendFeed } from './Sidebar';
-import BookImage from '../assets/svgs/pictures/BookImage.jpeg'
+import BookImage from '../assets/pictures/BookImage.jpeg'
 
 export function UserInfoForPost(){
   return(

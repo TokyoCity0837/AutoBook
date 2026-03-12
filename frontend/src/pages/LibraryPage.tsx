@@ -1,6 +1,6 @@
-import './pages.css'
-import BookImage1 from '../assets/svgs/pictures/book1.jpg'
-import './Library.css'
+import '../assets/styles/pages.css'
+import BookImage1 from '../assets/pictures/book1.jpg'
+import '../assets/styles/Library.css'
 import { Link } from 'react-router-dom';
 
 export function Edit() {

@@ -1,6 +1,6 @@
-import './Updates.css'
-import '../pages/pages.css'
-import book1 from '../assets/svgs/pictures/book1.jpg'
+import '../assets/styles/Updates.css'
+import '../assets/styles/pages.css'
+import book1 from '../assets/pictures/book1.jpg'
 import { UserInfoForPost } from './Posts';
 
 export function Update(){

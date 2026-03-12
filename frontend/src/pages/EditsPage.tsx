@@ -1,5 +1,5 @@
 import {FriendFeed} from '../components/Sidebar.tsx'
-import './EditsPage.css'
+import '../assets/styles/EditsPage.css'
 
 type Status = 'Approved' | 'Rejected' | 'Processing';
 

@@ -1,4 +1,4 @@
-import "./SideBar.css";
+import "../assets/styles/SideBar.css";
 import { NavLink } from "react-router-dom";
 
 export function FeedActive(){

@@ -1,4 +1,4 @@
-import './pages.css'
+import '../assets/styles/pages.css'
 
 export default function Feed() {
     return (
