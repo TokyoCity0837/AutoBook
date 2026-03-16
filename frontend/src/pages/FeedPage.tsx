@@ -1,3 +1,4 @@
+import React from 'react'
 import '../assets/styles/pages.css'
 import { Post, CreationPost } from "../components/Posts"
 import { Update } from "../components/Updates"

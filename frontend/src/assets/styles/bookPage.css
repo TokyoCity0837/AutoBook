@@ -137,3 +137,20 @@
     margin-right: 4px;
     margin-left: 20px;
 }
+
+/* ── BookPage адаптивність ── */
+@media (max-width: 1100px) {
+    .ImgBookDecs { width: 300px; height: auto; }
+    .bookInfoDecs { width: 55vw; }
+}
+
+@media (max-width: 900px) {
+    .bookDetailsWrap { flex-direction: column; align-items: center; padding-bottom: 80px; }
+    .bookImageDesc { position: static; width: 100%; align-items: center; }
+    .ImgBookDecs { width: 70vw; height: auto; }
+    .bookInfoDecs { margin-left: 0; width: 90vw; margin-top: 20px; }
+    .bookDescription { font-size: 18px; }
+    .comments { padding: 20px; }
+    .updateText { padding-left: 20px; }
+    .likeAndForwards { padding-left: 20px; }
+}

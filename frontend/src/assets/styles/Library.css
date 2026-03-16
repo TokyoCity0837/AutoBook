@@ -104,3 +104,10 @@
 
 
 }
+/* ── Library адаптивність ── */
+@media (max-width: 900px) {
+    .libraryWrap { width: 100%; padding: 0 10px; box-sizing: border-box; padding-bottom: 80px; }
+    .YBText { font-size: 32px; }
+    .booksWrap { gap: 20px; justify-content: center; }
+    .addWrap { gap: 20px; flex-wrap: wrap; }
+}

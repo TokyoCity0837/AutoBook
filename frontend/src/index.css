@@ -22,3 +22,37 @@ html, body, #root {
     justify-content: center;
     width: 98vw;
 }
+
+/* ── Global overflow fix ── */
+html, body {
+    overflow-x: hidden;
+}
+
+/* ── Layout: sidebar зверху при вузьких екранах ── */
+@media (max-width: 900px) {
+    .layout {
+        flex-direction: column;
+        width: 100vw;
+    }
+}
+
+::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 100px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255,255,255,0.35);
+  }
+  
+  /* Firefox */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15)
+                 transparent;
+  }

@@ -2,6 +2,7 @@ import '../assets/styles/pages.css'
 import BookImage1 from '../assets/pictures/book1.jpg'
 import '../assets/styles/Library.css'
 import { Link } from 'react-router-dom';
+import React from 'react';
 
 export function Edit() {
     return (

@@ -2,13 +2,24 @@ import '../assets/styles/pages.css'
 import '../index.css'
 import '../assets/styles/friendsPage.css'
 import { Accept, Reject } from './EditsPage'
+import { Link } from 'react-router-dom';
+import React from 'react';
+import { FriendFeed } from '../components/Sidebar';
 
-function FrinedForPage() {
+function FrinedForPage({friend = true}) {
     return (
         <div className='user'>
             <div className='ProfileImage'></div>
             <div className='.userInfo'>
-                <div className='Nickname'>Andrii Dosyn</div>
+                <Link to="/profile" className='linkToProfile'>
+                    <div className='Nickname'>Andrii Dosyn</div>
+                </Link>
+                {friend && (
+                    <div className='Status'>
+                        <FriendFeed />
+                        Friend
+                    </div>
+                )}
             </div>
         </div>
     );
@@ -19,7 +30,9 @@ function IncomingFrined() {
         <div className='user incomingUser'>
             <div className='ProfileImage'></div>
             <div className='.userInfo'>
-                <div className='Nickname'>Andrii Dosyn</div>
+                <Link to="/profile" className='linkToProfile'>
+                    <div className='Nickname'>Andrii Dosyn</div>
+                </Link>
                 <div className="friendsActions">
                     <div className="addFriend">
                         Add <Accept size={16} className='acceptFriend'/>
@@ -56,13 +69,13 @@ export default function Friends() {
             </div>
             <div className="YBText">Folowing</div>
             <div className="friendsWrap">
-                <FrinedForPage />
-                <FrinedForPage />
-                <FrinedForPage />
-                <FrinedForPage />
-                <FrinedForPage />
-                <FrinedForPage />
-                <FrinedForPage />
+                <FrinedForPage friend={false}/>
+                <FrinedForPage friend={false}/>
+                <FrinedForPage friend={false}/>
+                <FrinedForPage friend={false}/>
+                <FrinedForPage friend={false}/>
+                <FrinedForPage friend={false}/>
+                <FrinedForPage friend={false}/>
             </div>
         </div>
     );

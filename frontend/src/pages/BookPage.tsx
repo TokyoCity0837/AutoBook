@@ -3,6 +3,7 @@ import BookImage1 from '../assets/pictures/book1.jpg'
 import '../assets/styles/BookPage.css'
 import { FriendFeed } from '../components/Sidebar'
 import { Like, Comment } from '../components/Posts'
+import React from 'react'
 
 function Plus() {
     return (

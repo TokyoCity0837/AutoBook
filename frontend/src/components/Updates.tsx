@@ -2,6 +2,8 @@ import '../assets/styles/Updates.css'
 import '../assets/styles/pages.css'
 import book1 from '../assets/pictures/book1.jpg'
 import { UserInfoForPost } from './Posts';
+import React from 'react';
+
 
 export function Update(){
     return(

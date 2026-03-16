@@ -133,27 +133,56 @@
 }
 
 .PostAcvtivity {
-    margin-top: 20px;
-    width: 560px;
+    display: flex;
+    margin-top: 1vh;
+    width: 100%;
+    /* margin-left: 2%; */
     height: 10%;
     display: flex; 
     align-items: center;
     gap: 8px;
+    align-items: center;
+    font-size: 16px;
 }
 
-.LikeActivity, .CommentActivity, .ShareActivity, .MoreActivity {
+.postActionActivity {
     display: flex;
     align-items: center;
     gap: 8px;
-    width: 100px;
+    padding: 0 3%;
+    /* width: 20%; */
     height: 50px;
 }
 
-.LikeActivity { margin: 30px; }
-.ShareActivity { margin-left: 30px; }
-.MoreActivity { margin-left: 150px; }
+.ShareActivity { 
+    display: flex;
+    flex: 1;
+    justify-content: flex-end;
+ }
 
-.LikesAmount, .CommentsAmount, .ShareAmount {
-    color: antiquewhite;
-    font-size: x-large;
+.postActionAmount {
+    color: #fff;
+    font-size: 20px;
+}
+
+/* ── Posts адаптивність ── */
+@media (max-width: 1100px) {
+    .Post { width: 460px; }
+    .NewPost { width: 460px; }
+    .postImage { width: 100%; height: auto; }
+    .PostLine { width: 100%; }
+    .PostAcvtivity { width: 100%; }
+    .addPostBar { width: 400px; }
+}
+
+@media (max-width: 900px) {
+    .search { width: 100%; }
+    .searchBar { width: 100%; }
+    .Post { width: calc(100vw - 40px); height: auto; border-radius: 40px; padding: 20px; box-sizing: border-box; }
+    .NewPost { width: calc(100vw - 40px); height: auto; box-sizing: border-box; }
+    .addPostBar { width: 100%; box-sizing: border-box; }
+    .postImage { width: 100%; height: auto; border-radius: 20px; }
+    .PostLine { width: 100%; }
+    .PostAcvtivity { width: 100%; }
+    .MoreActivity { margin-left: auto; }
 }

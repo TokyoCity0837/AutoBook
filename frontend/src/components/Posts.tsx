@@ -1,13 +1,17 @@
 import '../assets/styles/Posts.css'
 import { FriendFeed } from './Sidebar';
 import BookImage from '../assets/pictures/BookImage.jpeg'
+import React from 'react';
+import { Link } from 'react-router-dom';
 
 export function UserInfoForPost(){
   return(
     <div className='user'>
     <div className='ProfileImage'></div>
     <div className='.userInfo'>
-        <div className='Nickname'>Andrii Dosyn</div>
+      <Link to="/profile" className='linkToProfile'>
+          <div className='Nickname'>Andrii Dosyn</div>
+      </Link>
         <div className='Status'>
             <FriendFeed />
             Friend
@@ -108,7 +112,9 @@ export function CreationPost(){
         <div className='user'>
           <div className='ProfileImage'></div>
           <div className='.userInfo'>
+            <Link to="/profile" className='linkToProfile'>
               <div className='Nickname'>Andrii Dosyn</div>
+            </Link>
           </div>
       </div>
       <textarea
@@ -132,20 +138,23 @@ export function Post(){
                 konci. Dúfam, že vás prvá kapitola zaujme rovnako ako mňa pri písaní
             </div>
             <div className='postImage'>
-                <img src={BookImage} alt="book" width={560} height={300}/>
+                <img src={BookImage} alt="book" className='postImage'/>
             </div>
             <div className='PostLine'></div>
             <div className='PostAcvtivity'>
-                <div className='LikeActivity'><Like />
-                    <div className='LikesAmount'>2.4k</div>
+                <div className='postActionActivity'>
+                    <Like />
+                    <div className='postActionAmount'>2.4k</div>
                 </div>
-                <div className='CommentActivity'><Comment />
-                    <div className='CommentsAmount'>1.5k</div>
+                <div className='postActionActivity'>
+                    <Comment />
+                    <div className='postActionAmount'>1.5k</div>
                 </div>
-                <div className='ShareActivity'><Share />
-                    <div className='ShareAmount'>832</div>
+                <div className='postActionActivity'>
+                    <Share />
+                    <div className='postActionAmount'>832</div>
                 </div>
-                <div className='MoreActivity'><More /></div>
+                <div className='ShareActivity'><More /></div>
             </div>
 
         </div>

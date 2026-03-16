@@ -36,7 +36,7 @@
     height: 96vh;
     position: sticky; 
     top: 2% !important; 
-    /* bottom: 2%;           */
+    bottom: 2%;          
     left: 30px;               
     width: 100px;                 
     background-color: var(--accent-color);                
@@ -117,3 +117,24 @@
 
 
 
+
+/* ── Sidebar: bottom nav на малих екранах ── */
+@media (max-width: 900px) {
+    .sidebar {
+        position: fixed;
+        bottom: 0; left: 0; top: auto !important;
+        width: 100vw; height: 70px;
+        flex-direction: row;
+        justify-content: space-around;
+        border-radius: 24px 24px 0 0;
+        margin-top: 0;
+        padding: 0 10px !important;
+        z-index: 10000;
+    }
+    .sidebarTop, .sidebarBottom { flex-direction: row; gap: 0; }
+    .sidebarLine { display: none; }
+    .sidebarProfile, .sidebarProfileActive { width: 40px; height: 40px; margin: 0; }
+    .icon { margin: 6px; width: 40px; height: 40px; }
+    .settings, .SettingsActive { margin-top: 0; }
+    .logout { margin-top: 0; width: 40px; height: 40px; }
+}

@@ -1,0 +1,210 @@
+.profileWrap {
+    width: 95%;
+}
+.mainProfileInfo {
+    background: var(--accent-color);
+    margin-top: 30px;
+
+    padding: 46px;
+
+    border-radius: 40px;
+
+}
+.topBar {
+    display: flex;
+    flex-direction: row;
+    
+    justify-content: space-between;
+
+    color: #fff;
+
+    margin-bottom: 24px;
+}
+.profileImage {
+    width: 96px;
+    height: 96px;
+    background: #fff;
+    border-radius: 100%;
+}
+.profilePicAndName {
+    display: flex;
+    flex-direction: row;
+}
+.nameBox {
+    display: flex;
+    flex-direction: column;
+
+    padding-left: 20px;
+    margin-top: -4px;
+}
+.name {
+    font-size: 48px;
+}
+.nickname {
+    margin-top: 2px;
+    font-size: 24px;
+    opacity: 0.8;
+}
+.folowersAndFriends {
+    display: flex;
+    flex-direction: row;
+    padding: 20px;
+    gap: 60px;
+    margin-top: -18px;
+    font-size: 20px;
+}
+.friendsFeedWrap {
+    width: fit-content;
+    height: fit-content;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    gap: 6px;
+    margin-bottom: 6px; 
+    
+}
+.ffBox {
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.aboutMe {
+    color: #fff;
+    font-size: 20px;
+}
+
+.mainPoststAndInfo {
+    margin-top: 30px;
+    /* padding: 46px; */
+
+    display: flex;
+    /* justify-content: space-between; */
+    align-items: flex-start;
+}
+.profileAndBooks {
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+
+    position: sticky;
+    top: 1vh;
+}
+.profileInformation {
+    padding: 30px;
+    padding-top: 15px;
+    background: var(--accent-color);
+    border-radius: 32px;
+    /* width: 100px; */
+    font-size: 32px;
+    color: #fff;
+    line-height: 2;
+    font-weight: 400;
+
+
+}
+.infoBox {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2vw;
+    font-size: 22px;
+    color: #fff;
+    line-height: 2;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+}
+.infoBox:last-child {
+    border: none;
+}
+.infoText {
+    opacity: 0.8;
+    font-size: 18px;
+}
+.infoValue {
+    text-align: center;
+    font-size: 18px;
+}
+.postsContainer {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.authorBooks {
+    padding: 30px;
+    background: var(--accent-color);
+    border-radius: 32px;
+    display: flex;
+    justify-content: space-around;
+    flex: 1;
+    bottom: 10vh;
+    margin-top: 3vh;
+    gap: 4vw;
+}
+
+.bookImgProfile .ImgBookProfile {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    width: 150px;
+}
+.bookCardProfile {
+    height: fit-content;
+    background: #12151C;
+    border-radius: 20px;
+    box-shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
+    width: 150px;
+    text-decoration: none;
+    padding: 0 0 2vh 0;
+}
+
+.bookDescProfile {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #fff;
+    text-align: center;
+}
+
+.bookTitleProfile {
+    margin-top: 10px;
+    font-size: 18px;
+    max-width: 120px;
+    font-weight: 500;
+    line-height: 1.5;
+}
+.bookAuthorsProfile {
+    max-width: 100px;
+    margin-top: 8px;
+    font-size: 12px;
+    line-height: 1.4;
+    font-weight: 300;
+    opacity: 0.7;
+}
+
+/* ── Profile адаптивність ── */
+@media (max-width: 1400px) {
+    .profileInformation { font-size: 26px; }
+    .infoBox { font-size: 18px; }
+    .name { font-size: 38px; }
+}
+
+@media (max-width: 1100px) {
+    .mainPoststAndInfo { flex-direction: column; }
+    .profileAndBooks { width: 100%; flex-shrink: 1; }
+    .postsContainer { margin-top: 20px; width: 100%; }
+    .profileInformation { font-size: 24px; }
+    .folowersAndFriends { gap: 30px; }
+}
+
+@media (max-width: 900px) {
+    .profileWrap { width: 100%; padding: 0 10px; box-sizing: border-box; padding-bottom: 80px; }
+    .mainProfileInfo { padding: 24px; border-radius: 24px; }
+    .topBar { flex-direction: column; gap: 12px; }
+    .name { font-size: 30px; }
+    .nickname { font-size: 18px; }
+    .folowersAndFriends { padding: 0; margin-top: 0; gap: 24px; }
+    .profileInformation { font-size: 20px; padding: 16px; }
+    .infoBox { font-size: 15px; gap: 8px; }
+    .aboutMe { font-size: 16px; }
+}
