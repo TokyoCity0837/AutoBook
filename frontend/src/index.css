@@ -23,12 +23,9 @@ html, body, #root {
     width: 98vw;
 }
 
-/* ── Global overflow fix ── */
 html, body {
     overflow-x: hidden;
 }
-
-/* ── Layout: sidebar зверху при вузьких екранах ── */
 @media (max-width: 900px) {
     .layout {
         flex-direction: column;

@@ -55,7 +55,6 @@
 }
 
 
-/* ── pages: ховаємо Updates на середніх, адаптуємо контент ── */
 @media (max-width: 1400px) {
     .UpdatesWrapper,
     .UpdatesContainer { display: none; }

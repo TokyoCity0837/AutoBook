@@ -13,6 +13,7 @@
 .YBText {
     font-size: 48px;
     color: #fff;
+    font-weight: 600;
 }
 .bookCard {
     height: 420px;
@@ -104,7 +105,7 @@
 
 
 }
-/* ── Library адаптивність ── */
+
 @media (max-width: 900px) {
     .libraryWrap { width: 100%; padding: 0 10px; box-sizing: border-box; padding-bottom: 80px; }
     .YBText { font-size: 32px; }

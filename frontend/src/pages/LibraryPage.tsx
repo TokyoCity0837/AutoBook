@@ -51,16 +51,13 @@ export default function Library() {
     return (
             <div className="libraryWrap">
                 <div className="yourBooks">                   
-                        <div className="YBText">Your books</div>
+                    <div className="YBText">Your books</div>
                     <div className="booksWrap">
-                        <div className="border">
+                        <Link to='/editor' className="border">
                             <div className="plus">
                                 <Plus />
                             </div>  
-                            {/* <div className="bookDesc">
-                                <div className="bookTitle">New book</div>
-                            </div>  */}
-                        </div>
+                        </Link>
                         <Book edit={true} />
                         <Book edit={true} />
                         <Book edit={true} />

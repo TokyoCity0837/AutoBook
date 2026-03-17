@@ -165,7 +165,6 @@
     font-size: 20px;
 }
 
-/* ── Posts адаптивність ── */
 @media (max-width: 1100px) {
     .Post { width: 460px; }
     .NewPost { width: 460px; }

@@ -118,7 +118,6 @@
 }
 
 
-/* ── EditsPage адаптивність ── */
 @media (max-width: 1100px) {
     .editsWrapper { gap: 5%; }
     .sentEditsWrapper, .incomingEditsWrapper { width: 44vw; }

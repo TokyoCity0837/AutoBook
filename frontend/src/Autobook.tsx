@@ -8,6 +8,10 @@ import Edits from './pages/EditsPage';
 import Settings from './pages/SettingsPage';
 import Profile from './pages/ProfilePage';
 import BookDetails from './pages/BookPage';
+import EditorPage from './pages/EditorPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import React from 'react';
 
 function Autobook() {
   return (
@@ -21,6 +25,9 @@ function Autobook() {
           <Route path="/settings" element={<Settings />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/book" element={<BookDetails />} />
+          <Route path="/editor" element={<EditorPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Routes>
       </Layout>
     </Router>

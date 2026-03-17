@@ -138,7 +138,6 @@
     margin-left: 20px;
 }
 
-/* ── BookPage адаптивність ── */
 @media (max-width: 1100px) {
     .ImgBookDecs { width: 300px; height: auto; }
     .bookInfoDecs { width: 55vw; }

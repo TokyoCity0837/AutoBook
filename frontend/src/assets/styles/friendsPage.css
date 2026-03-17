@@ -39,7 +39,6 @@
     text-decoration: none;
 }
 
-/* ── FriendsPage адаптивність ── */
 @media (max-width: 900px) {
     .friendsPageWrap { width: 100%; padding: 0 10px; box-sizing: border-box; padding-bottom: 80px; }
     .friendsWrap { gap: 20px; justify-content: center; }

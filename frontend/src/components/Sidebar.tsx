@@ -1,6 +1,6 @@
 import React from "react";
 import "../assets/styles/SideBar.css";
-import { NavLink } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
 
 export function FeedActive(){
     return(
@@ -168,7 +168,7 @@ export default function Sidebar() {
         <NavLink to="/settings" className="settings">
                 {({ isActive }) => (isActive ? <SettingsActive /> : <Settings />)}
         </NavLink>
-        <div className="logout"><Logout /></div>
+        <Link to='/login' className="logout"><Logout /></Link>
       </div>
     );
   }
