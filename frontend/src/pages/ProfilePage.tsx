@@ -34,7 +34,7 @@ export default function Profile() {
                                 Andrii Dosyn
                             </div>
                             <div className="nickname">
-                                dosi#1837132
+                                @d.osid.osid.osid.osi
                             </div>
                         </div>
                     </div>

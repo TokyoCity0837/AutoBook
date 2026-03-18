@@ -1,21 +1,23 @@
 import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
-import { Extension } from '@tiptap/core'
 import Placeholder from '@tiptap/extension-placeholder'
+import { Extension } from '@tiptap/core'
 import { TextStyleKit } from '@tiptap/extension-text-style'
-import FontFamily from '@tiptap/extension-font-family'
-import Underline from '@tiptap/extension-underline'
 import TextAlign from '@tiptap/extension-text-align'
 import CharacterCount from '@tiptap/extension-character-count'
 import { PaginationPlus, PAGE_SIZES } from 'tiptap-pagination-plus'
-import { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef, useEffect } from 'react'
+import { Document, Paragraph, TextRun, HeadingLevel, Packer, AlignmentType } from 'docx'
+import { saveAs } from 'file-saver'
+import { pdf, Document as PdfDocument, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import '../assets/styles/editorPage.css'
 import { Update } from './BookPage'
-import React from 'react'
 
+// ─── Types ───────────────────────────────────────────────────────
 interface SubChapter { id: number; title: string }
 interface Chapter    { id: number; title: string; sub: SubChapter[]; content: string }
 
+// ─── Constants ───────────────────────────────────────────────────
 const FONTS = [
     { label: 'Georgia',         value: 'Georgia, serif' },
     { label: 'Times New Roman', value: '"Times New Roman", serif' },
@@ -23,7 +25,7 @@ const FONTS = [
     { label: 'Inter',           value: 'Inter, sans-serif' },
     { label: 'Courier New',     value: '"Courier New", monospace' },
 ]
-const SIZES        = [11, 12, 13, 14, 15, 16, 18, 20, 22, 24, 28, 32]
+const SIZES        = [11, 12, 13, 14, 15, 16, 18, 20, 24, 28, 32]
 const LINE_HEIGHTS = [
     { label: 'Single (1.0)',  value: '1.0' },
     { label: 'Compact (1.3)', value: '1.3' },
@@ -32,35 +34,23 @@ const LINE_HEIGHTS = [
     { label: 'Double (2.0)', value: '2.0' },
 ]
 const PARA_STYLES = [
-    { label: 'No indent',    firstIndent: '0',    spacing: '0' },
+    { label: 'No indent',    firstIndent: '0',    spacing: '0.8em' },
     { label: 'First indent', firstIndent: '2em',  spacing: '0' },
     { label: 'Spaced',       firstIndent: '0',    spacing: '1.4em' },
     { label: 'Book style',   firstIndent: '1.5em',spacing: '0' },
 ]
 
-// A4 page config
 const A4 = {
-    pageHeight:          1122, 
-    pageWidth:           794,
-    pageGap:             40,
-    pageGapBorderSize:   0,
-    pageGapBorderColor:  '#2a2e3a',
-    pageBreakBackground: '#2a2e3a',
-    marginTop:           48,
-    marginBottom:        68,
-    marginLeft:          68,
-    marginRight:         68,
-    contentMarginTop:    0,
-    contentMarginBottom: 0,
-    pageHeaderHeight:    20,
-    pageFooterHeight:    0,
-    headerRight:         '{page}',
-    headerLeft:          '',
-    footerRight:         '',
-    footerLeft:          '',
+    pageHeight: 1122, pageWidth: 794,
+    pageGap: 40, pageGapBorderSize: 0,
+    pageGapBorderColor: '#2a2e3a', pageBreakBackground: '#2a2e3a',
+    marginTop: 76, marginBottom: 76, marginLeft: 68, marginRight: 68,
+    contentMarginTop: 0, contentMarginBottom: 0,
+    pageHeaderHeight: 28, pageFooterHeight: 0,
+    headerRight: 'Page {page}', headerLeft: '', footerRight: '', footerLeft: '',
 }
 
-// Tab
+// ─── Tab indent extension ─────────────────────────────────────────
 const TabIndent = Extension.create({
     name: 'tabIndent',
     addKeyboardShortcuts() {
@@ -73,7 +63,7 @@ const TabIndent = Extension.create({
     },
 })
 
-// SVG Icons
+// ─── SVG Icons ───────────────────────────────────────────────────
 const I = {
     Bold:        () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M6 4h8a4 4 0 0 1 0 8H6V4Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M6 12h9a4 4 0 0 1 0 8H6v-8Z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
     Italic:      () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><line x1="19" y1="4" x2="10" y2="4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="14" y1="20" x2="5" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="15" y1="4" x2="9" y2="20" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
@@ -97,9 +87,255 @@ const I = {
     Trash:       () => <svg width="12" height="12" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>,
     Check:       () => <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>,
     Focus:       () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 9V6a1 1 0 0 1 1-1h3M3 15v3a1 1 0 0 0 1 1h3M21 9V6a1 1 0 0 0-1-1h-3M21 15v3a1 1 0 0 1-1 1h-3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
+    Chapters:    () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="7" height="18" rx="1" stroke="currentColor" strokeWidth="2"/><line x1="14" y1="7" x2="21" y2="7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="14" y1="12" x2="21" y2="12" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="14" y1="17" x2="18" y2="17" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
+    PanelRight:  () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2"/><line x1="15" y1="3" x2="15" y2="21" stroke="currentColor" strokeWidth="2"/></svg>,
+    Export:      () => <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><polyline points="7 10 12 15 17 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/><line x1="12" y1="15" x2="12" y2="3" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>,
 }
 
-// Dropdown
+// ─── Export menu ──────────────────────────────────────────────────
+function ExportMenu({ editor, bookTitle, font, fontSize, lineHeight }: {
+    editor: any; bookTitle: string; font: string; fontSize: number; lineHeight: string
+}) {
+    const [open, setOpen] = useState(false)
+    const ref = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        const fn = (e: MouseEvent) => {
+            if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
+        }
+        document.addEventListener('mousedown', fn)
+        return () => document.removeEventListener('mousedown', fn)
+    }, [])
+
+    const exportPDF = async () => {
+        setOpen(false)
+        if (!editor) return
+    
+        // Парсимо HTML з редактора
+        const htmlContent = editor.getHTML()
+        const parser = new DOMParser()
+        const doc = parser.parseFromString(htmlContent, 'text/html')
+        const blocks = Array.from(doc.body.children)
+    
+        const fontName = font.split(',')[0].replace(/"/g, '').trim()
+        const fontSizePt = Math.round(fontSize * 0.75)
+    
+        const styles = StyleSheet.create({
+            page: {
+                paddingTop: 76,
+                paddingBottom: 76,
+                paddingLeft: 68,
+                paddingRight: 68,
+                fontFamily: 'Times-Roman', // вбудований шрифт
+                fontSize: fontSizePt,
+                lineHeight: parseFloat(lineHeight),
+            },
+            h1: { fontSize: fontSizePt * 1.9, fontFamily: 'Times-Bold', marginBottom: 32 },
+            h2: { fontSize: fontSizePt * 1.45, fontFamily: 'Times-Bold', marginBottom: 10 },
+            h3: { fontSize: fontSizePt * 1.15, fontFamily: 'Times-Bold', marginBottom: 8 },
+            p:  { marginBottom: 0, textIndent: 0 },
+            bold: { fontFamily: 'Times-Bold' },
+            italic: { fontFamily: 'Times-Italic' },
+        })
+    
+        // Конвертуємо блоки в PDF елементи
+        const renderBlock = (block: Element, index: number) => {
+            const tag  = block.tagName.toLowerCase()
+            const text = block.textContent ?? ''
+            const el   = block as HTMLElement
+        
+            // Читаємо вирівнювання з inline стилю або атрибуту
+            const textAlign = el.style.textAlign || 
+                              el.getAttribute('data-text-align') || 
+                              'left'
+        
+            const alignMap: Record<string, any> = {
+                left:    'left',
+                center:  'center',
+                right:   'right',
+                justify: 'justify',
+            }
+            const align = alignMap[textAlign] ?? 'left'
+        
+            if (tag === 'h1') return (
+                <Text key={index} style={{ ...styles.h1, textAlign: align }}>{text}</Text>
+            )
+            if (tag === 'h2') return (
+                <Text key={index} style={{ ...styles.h2, textAlign: align }}>{text}</Text>
+            )
+            if (tag === 'h3') return (
+                <Text key={index} style={{ ...styles.h3, textAlign: align }}>{text}</Text>
+            )
+        
+            return (
+                <Text key={index} style={{ ...styles.p, textAlign: align }}>{text}</Text>
+            )
+        }
+    
+        const MyDoc = (
+            <PdfDocument>
+                <Page size="A4" style={styles.page}>
+                    {blocks.map((block, i) => renderBlock(block, i))}
+                </Page>
+            </PdfDocument>
+        )
+    
+        try {
+            const blob = await pdf(MyDoc).toBlob()
+            saveAs(blob, `${bookTitle}.pdf`)
+        } catch (err) {
+            console.error('PDF error:', err)
+            alert(`Помилка: ${err}`)
+        }
+    }
+
+
+
+    const exportDOCX = async () => {
+        setOpen(false)
+        if (!editor) return
+
+        const htmlContent = editor.getHTML()
+
+        // Парсимо HTML і конвертуємо в docx елементи
+        const parser = new DOMParser()
+        const doc    = parser.parseFromString(htmlContent, 'text/html')
+        const blocks = Array.from(doc.body.children)
+
+        const fontSizePt = Math.round(fontSize * 0.75) // px → pt
+
+        const docChildren = blocks.map(block => {
+            const tag  = block.tagName.toLowerCase()
+            const text = block.textContent ?? ''
+
+            // Заголовки
+            const headingMap: Record<string, typeof HeadingLevel[keyof typeof HeadingLevel]> = {
+                h1: HeadingLevel.HEADING_1,
+                h2: HeadingLevel.HEADING_2,
+                h3: HeadingLevel.HEADING_3,
+            }
+            if (headingMap[tag]) {
+                return new Paragraph({
+                    text,
+                    heading: headingMap[tag],
+                    spacing: { after: 200 },
+                })
+            }
+
+            // Звичайний параграф зі збереженням форматування
+            const runs: TextRun[] = []
+            const inlineNodes = Array.from(block.childNodes)
+
+            if (inlineNodes.length === 0) {
+                runs.push(new TextRun({
+                    text,
+                    font: font.split(',')[0].replace(/"/g, '').trim(),
+                    size: fontSizePt * 2,          // docx використовує half-points
+                }))
+            } else {
+                inlineNodes.forEach(node => {
+                    if (node.nodeType === Node.TEXT_NODE) {
+                        runs.push(new TextRun({
+                            text: node.textContent ?? '',
+                            font: font.split(',')[0].replace(/"/g, '').trim(),
+                            size: fontSizePt * 2,
+                        }))
+                    } else if (node.nodeType === Node.ELEMENT_NODE) {
+                        const el = node as HTMLElement
+                        const elTag = el.tagName.toLowerCase()
+                        runs.push(new TextRun({
+                            text: el.textContent ?? '',
+                            bold:      elTag === 'strong' || elTag === 'b',
+                            italics:   elTag === 'em' || elTag === 'i',
+                            underline: elTag === 'u' ? {} : undefined,
+                            strike:    elTag === 's' || elTag === 'del',
+                            font: font.split(',')[0].replace(/"/g, '').trim(),
+                            size: fontSizePt * 2,
+                        }))
+                    }
+                })
+            }
+
+            // Вирівнювання
+            const alignMap: Record<string, AlignmentType> = {
+                left:    AlignmentType.LEFT,
+                center:  AlignmentType.CENTER,
+                right:   AlignmentType.RIGHT,
+                justify: AlignmentType.JUSTIFIED,
+            }
+            const textAlign = (block as HTMLElement).style.textAlign || 'left'
+
+            return new Paragraph({
+                children: runs,
+                alignment: alignMap[textAlign] ?? AlignmentType.LEFT,
+                spacing: {
+                    line: Math.round(parseFloat(lineHeight) * 240), // 240 = single in docx
+                    after: 0,
+                },
+            })
+        })
+
+        const wordDoc = new Document({
+            sections: [{
+                properties: {
+                    page: {
+                        size: { width: 11906, height: 16838 }, // A4 в twips
+                        margin: { top: 1440, bottom: 1440, left: 1361, right: 1361 }, // ~25mm
+                    },
+                },
+                children: docChildren,
+            }],
+        })
+
+        const blob = await Packer.toBlob(wordDoc)
+        saveAs(blob, `${bookTitle}.docx`)
+    }
+
+    const exportTXT = () => {
+        setOpen(false)
+        const text = editor?.getText() ?? ''
+        const blob = new Blob([text], { type: 'text/plain' })
+        const url  = URL.createObjectURL(blob)
+        const a    = document.createElement('a')
+        a.href = url; a.download = `${bookTitle}.txt`; a.click()
+        URL.revokeObjectURL(url)
+    }
+
+    return (
+        <div className="tbDropdown" ref={ref}>
+            <button className="tbDropdownBtn exportBtn" onClick={() => setOpen(o => !o)} title="Export">
+                <I.Export /><span className="exportLabel">Export</span><I.ChevronDown />
+            </button>
+            {open && (
+                <div className="tbDropdownMenu exportMenu">
+                    <div className="exportItem" onClick={exportPDF}>
+                        <span className="exportItemIcon">📄</span>
+                        <div>
+                            <div className="exportItemTitle">PDF</div>
+                            <div className="exportItemSub">Точний A4, висока якість</div>
+                        </div>
+                    </div>
+                    <div className="exportItem" onClick={exportDOCX}>
+                        <span className="exportItemIcon">📝</span>
+                        <div>
+                            <div className="exportItemTitle">Word (.docx)</div>
+                            <div className="exportItemSub">Зі шрифтом, розміром, форматуванням</div>
+                        </div>
+                    </div>
+                    <div className="exportItem" onClick={exportTXT}>
+                        <span className="exportItemIcon">📃</span>
+                        <div>
+                            <div className="exportItemTitle">Plain text (.txt)</div>
+                            <div className="exportItemSub">Без форматування</div>
+                        </div>
+                    </div>
+                </div>
+            )}
+        </div>
+    )
+}
+
+// ─── Dropdown ─────────────────────────────────────────────────────
 function Dropdown({ label, options, onSelect, width }: {
     label: string; options: { label: string; value: string }[]
     onSelect: (v: string) => void; width?: number
@@ -129,7 +365,7 @@ function Dropdown({ label, options, onSelect, width }: {
     )
 }
 
-// Toolbar
+// ─── Toolbar ─────────────────────────────────────────────────────
 function Toolbar({ editor, font, fontSize, lineHeight, paraStyle, focusMode,
     setFont, setFontSize, setLineHeight, setParaStyle, setFocusMode }: {
     editor: any; font: string; fontSize: number; lineHeight: string; paraStyle: number; focusMode: boolean
@@ -179,7 +415,7 @@ function Toolbar({ editor, font, fontSize, lineHeight, paraStyle, focusMode,
     )
 }
 
-// Editable label
+// ─── Editable label ───────────────────────────────────────────────
 function EditableLabel({ value, onChange, className }: { value: string; onChange: (v: string) => void; className?: string }) {
     const [editing, setEditing] = useState(false)
     const [draft, setDraft] = useState(value)
@@ -194,7 +430,7 @@ function EditableLabel({ value, onChange, className }: { value: string; onChange
     return <span className={`editableLabel ${className ?? ''}`} onDoubleClick={() => { setDraft(value); setEditing(true) }}>{value}</span>
 }
 
-// Chapters sidebar
+// ─── Chapters sidebar ─────────────────────────────────────────────
 function ChaptersSidebar({ chapters, activeId, onSelect, onUpdate }: {
     chapters: Chapter[]; activeId: number; onSelect: (id: number) => void; onUpdate: (chs: Chapter[]) => void
 }) {
@@ -245,7 +481,7 @@ function ChaptersSidebar({ chapters, activeId, onSelect, onUpdate }: {
     )
 }
 
-// Right panel
+// ─── Right panel ──────────────────────────────────────────────────
 function RightPanel({ wordCount, charCount }: { wordCount: number; charCount: number }) {
     const [tab, setTab] = useState<'vc' | 'edits'>('edits')
     const readingMinutes = Math.max(1, Math.round(wordCount / 200))
@@ -276,22 +512,25 @@ function RightPanel({ wordCount, charCount }: { wordCount: number; charCount: nu
     )
 }
 
-// Main
+// ─── Main ─────────────────────────────────────────────────────────
 const INITIAL_CHAPTERS: Chapter[] = [
     { id: 1, title: 'Chapter 1', sub: [{ id: 11, title: 'Chapter 1.1' }, { id: 12, title: 'Chapter 1.2' }], content: '' },
     { id: 2, title: 'Chapter 2', sub: [{ id: 21, title: 'Chapter 2.1' }], content: '' },
 ]
 
 export default function EditorPage() {
-    const [chapters, setChapters]     = useState<Chapter[]>(INITIAL_CHAPTERS)
-    const [activeId, setActiveId]     = useState(INITIAL_CHAPTERS[0].id)
-    const [bookTitle, setBookTitle]   = useState('Fourth wing')
-    const [font, setFont]             = useState('Georgia, serif')
-    const [fontSize, setFontSize]     = useState(15)
-    const [lineHeight, setLineHeight] = useState('1.8')
-    const [paraStyle, setParaStyle]   = useState(0)
-    const [focusMode, setFocusMode]   = useState(false)
-    const [saved, setSaved]           = useState(true)
+    const [chapters, setChapters]         = useState<Chapter[]>(INITIAL_CHAPTERS)
+    const [activeId, setActiveId]         = useState(INITIAL_CHAPTERS[0].id)
+    const [bookTitle, setBookTitle]       = useState('Fourth wing')
+    const [font, setFont]                 = useState('Georgia, serif')
+    const [fontSize, setFontSize]         = useState(15)
+    const [lineHeight, setLineHeight]     = useState('1.8')
+    const [paraStyle, setParaStyle]       = useState(0)
+    const [focusMode, setFocusMode]       = useState(false)
+    const [showChapters, setShowChapters] = useState(true)
+    const [showRight, setShowRight]       = useState(true)
+    const [zoom, setZoom]                 = useState(100)
+    const [saved, setSaved]               = useState(true)
     const contentRef = useRef<Record<number, string>>({})
 
     const activeChapter = chapters.find(c => c.id === activeId)
@@ -300,9 +539,9 @@ export default function EditorPage() {
     const editor = useEditor({
         extensions: [
             StarterKit,
-            TabIndent,
             Placeholder.configure({ placeholder: 'Start writing your chapter…' }),
             TextStyleKit,
+            TabIndent,
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
             CharacterCount,
             PaginationPlus.configure(A4),
@@ -314,6 +553,21 @@ export default function EditorPage() {
         },
     })
 
+    const centerRef = useRef<HTMLDivElement>(null)
+    const [zoomBarLeft, setZoomBarLeft] = useState('50%')
+
+    // Перераховуємо позицію при зміні панелей або розміру
+    useEffect(() => {
+        const recalc = () => {
+            if (!centerRef.current) return
+            const rect = centerRef.current.getBoundingClientRect()
+            setZoomBarLeft(`${rect.left + rect.width / 2}px`)
+        }
+        recalc()
+        window.addEventListener('resize', recalc)
+        return () => window.removeEventListener('resize', recalc)
+    }, [showChapters, showRight]) // ← перераховуємо при зміні панелей
+
     useEffect(() => {
         if (!editor) return
         editor.chain().focus().updatePageSize(PAGE_SIZES.A4).run()
@@ -322,12 +576,25 @@ export default function EditorPage() {
     useEffect(() => {
         if (!editor) return
         editor.commands.setContent(contentRef.current[activeId] ?? '', false)
-    }, [activeId])
+    }, [activeId])  
+
+    // Ctrl+Scroll зум — тільки над editorCenter
+    useEffect(() => {
+        const handleWheel = (e: WheelEvent) => {
+            if (!e.ctrlKey) return
+            e.preventDefault()
+            setZoom(z => {
+                const delta = e.deltaY > 0 ? -5 : 5
+                return Math.min(200, Math.max(30, z + delta))
+            })
+        }
+        const center = document.querySelector('.editorCenter')
+        center?.addEventListener('wheel', handleWheel, { passive: false })
+        return () => center?.removeEventListener('wheel', handleWheel)
+    }, [])
 
     const handleSave = () => {
-        console.log('Save:', chapters.map(ch => (
-            { ...ch, content: contentRef.current[ch.id] ?? '' }
-        )))
+        console.log('Save:', chapters.map(ch => ({ ...ch, content: contentRef.current[ch.id] ?? '' })))
         setSaved(true)
     }
 
@@ -338,31 +605,51 @@ export default function EditorPage() {
         <div className={`editorPageWrap${focusMode ? ' focusMode' : ''}`}>
             {!focusMode && (
                 <div className="editorTopBar">
-                    <input className="editorBookTitle" value={bookTitle}
-                        onChange={e => setBookTitle(e.target.value)} spellCheck={false} />
+                    <input
+                        className="editorBookTitle"
+                        value={bookTitle}
+                        onChange={e => setBookTitle(e.target.value)}
+                        spellCheck={false}
+                    />
+                    <button
+                        className={`toolbarBtn panelToggleBtn${showChapters ? ' active' : ''}`}
+                        onClick={() => setShowChapters(v => !v)}
+                        title="Toggle chapters"
+                    ><I.Chapters /></button>
+                    <button
+                        className={`toolbarBtn panelToggleBtn${showRight ? ' active' : ''}`}
+                        onClick={() => setShowRight(v => !v)}
+                        title="Toggle right panel"
+                    ><I.PanelRight /></button>
+    
                     <Toolbar editor={editor} font={font} fontSize={fontSize}
                         lineHeight={lineHeight} paraStyle={paraStyle} focusMode={focusMode}
                         setFont={setFont} setFontSize={setFontSize}
                         setLineHeight={setLineHeight} setParaStyle={setParaStyle}
                         setFocusMode={setFocusMode} />
-                    <button className={`editorSaveBtn${saved ? ' saved' : ''}`} onClick={handleSave}>
-                        {saved ? <><I.Check /> Saved</> : 'Save'}
-                    </button>
+    
+                    <div className="topBarRight">
+                        <ExportMenu editor={editor} bookTitle={bookTitle} font={font} fontSize={fontSize} lineHeight={lineHeight} />
+                        <button className={`editorSaveBtn${saved ? ' saved' : ''}`} onClick={handleSave}>
+                            {saved ? <><I.Check /> Saved</> : 'Save'}
+                        </button>
+                    </div>
                 </div>
             )}
-
+    
             <div className="editorBody">
-                {!focusMode && (
+                {!focusMode && showChapters && (
                     <ChaptersSidebar chapters={chapters} activeId={activeId}
                         onSelect={setActiveId} onUpdate={setChapters} />
                 )}
-
-                <div className="editorCenter">
+    
+                <div className="editorCenter" ref={centerRef}>
                     {focusMode && (
                         <div className="focusModeBar">
                             <button className="focusExitBtn" onClick={() => setFocusMode(false)}>Exit focus mode</button>
                         </div>
                     )}
+    
                     <div
                         className="editorPaper"
                         style={{
@@ -371,15 +658,29 @@ export default function EditorPage() {
                             lineHeight,
                             '--para-indent': ps.firstIndent,
                             '--para-spacing': ps.spacing,
+                            transform: `scale(${zoom / 100})`,
+                            transformOrigin: 'top center',
+                            marginBottom: zoom < 100
+                                ? `${(zoom / 100 - 1) * 100}%`
+                                : '0',
                         } as any}
                     >
                         <EditorContent editor={editor} className="tiptapEditor" />
                     </div>
+    
+                    <div className="zoomBar" style={{ left: zoomBarLeft }}>
+                        <button className="zoomBtn" onClick={() => setZoom(z => Math.max(30, z - 10))}>−</button>
+                        <input className="zoomSlider" type="range" min={30} max={200} step={5}
+                            value={zoom} onChange={e => setZoom(+e.target.value)} />
+                        <button className="zoomBtn" onClick={() => setZoom(z => Math.min(200, z + 10))}>+</button>
+                        <span className="zoomLabel">{zoom}%</span>
+                        <button className="zoomBtn zoomReset" onClick={() => setZoom(100)} title="Reset">↺</button>
+                    </div>
                 </div>
-
-                {!focusMode && <RightPanel wordCount={wordCount} charCount={charCount} />}
+    
+                {!focusMode && showRight && <RightPanel wordCount={wordCount} charCount={charCount} />}
             </div>
-
+    
             {!focusMode && (
                 <div className="editorStatusBar">
                     <span>{wordCount} words · {charCount} chars</span>
