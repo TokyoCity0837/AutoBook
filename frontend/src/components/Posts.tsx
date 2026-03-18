@@ -1,164 +1,95 @@
 import '../assets/styles/Posts.css'
-import { FriendFeed } from './Sidebar';
+import { FriendFeed } from './Sidebar'
 import BookImage from '../assets/pictures/BookImage.jpeg'
-import React from 'react';
-import { Link } from 'react-router-dom';
+import React from 'react'
+import { Link } from 'react-router-dom'
 
-export function UserInfoForPost(){
-  return(
-    <div className='user'>
-    <div className='ProfileImage'></div>
-    <div className='.userInfo'>
-      <Link to="/profile" className='linkToProfile'>
-          <div className='Nickname'>Andrii Dosyn</div>
-      </Link>
-        <div className='Status'>
-            <FriendFeed />
-            Friend
-        </div>
-    </div>
-  </div>
-  )
-}
-
-export function Like({size = 36}){
-    return(
-        <svg
-        version="1.1"
-        xmlns="http://www.w3.org/2000/svg"
-        width={size}
-        height={size}
-        viewBox="0 0 32 32"
-        xmlSpace="preserve"
-        fill="#000000"
-        >
-        <g strokeWidth="0" />
-        <g strokeLinecap="round" strokeLinejoin="round" />
-        <g>
-          <path
-            className="bentblocks_een"
-            fill="#ffffff"
-            d="M21.081,6C23.752,6.031,26,8.766,26,12c0,5.106-6.47,10.969-10.001,13.593C12.466,22.974,6,17.12,6,12c0-3.234,2.248-5.969,4.918-6C13.586,6.175,13.926,6.801,16,8.879C18.069,6.806,18.418,6.173,21.081,6 M20.911,4.006L20.912,4C18.993,4,17.259,4.785,16,6.048C14.741,4.785,13.007,4,11.088,4l0.001,0.006C7.044,3.936,4,7.719,4,12c0,8,11.938,16,11.938,16h0.124C16.062,28,28,20,28,12C28,7.713,24.951,3.936,20.911,4.006z"
-          />
-        </g>
-      </svg>
-    );
-}
-
-export function Comment({size = 28}) {
+export function UserInfoForPost() {
     return (
-        <svg
-    width={size}
-    height={size}
-    viewBox="0 0 32 32"
-    version="1.1"
-    xmlns="http://www.w3.org/2000/svg"
-    xmlnsXlink="http://www.w3.org/1999/xlink"
-    fill="#000000"
-  >
-    <g strokeWidth="0" />
-    <g strokeLinecap="round" strokeLinejoin="round" />
-    <g>
-      <title>comment-2</title>
-      <desc>Created with Sketch Beta.</desc>
-      <defs />
-      <g transform="translate(-152.000000, -255.000000)" fill="#ffffff">
-        <path
-          d="M168,281 C166.832,281 165.704,280.864 164.62,280.633 L159.912,283.463 L159.975,278.824 C156.366,276.654 154,273.066 154,269 C154,262.373 160.268,257 168,257 C175.732,257 182,262.373 182,269 C182,275.628 175.732,281 168,281 L168,281 Z M168,255 C159.164,255 152,261.269 152,269 C152,273.419 154.345,277.354 158,279.919 L158,287 L165.009,282.747 C165.979,282.907 166.977,283 168,283 C176.836,283 184,276.732 184,269 C184,261.269 176.836,255 168,255 L168,255 Z M175,266 L161,266 C160.448,266 160,266.448 160,267 C160,267.553 160.448,268 161,268 L175,268 C175.552,268 176,267.553 176,267 C176,266.448 175.552,266 175,266 L175,266 Z M173,272 L163,272 C162.448,272 162,272.447 162,273 C162,273.553 162.448,274 163,274 L173,274 C173.552,274 174,273.553 174,273 C174,272.447 173.552,272 173,272 L173,272 Z"
-        />
-      </g>
-    </g>
-  </svg>
-    );
-  }
-
-function Share({color = "white", size = 30}){
-  return(
-    <svg
-      width={size}
-      height={size}
-      viewBox="-0.5 0 25 25"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-    >
-      <path
-        d="M13.47 4.13998C12.74 4.35998 12.28 5.96 12.09 7.91C6.77997 7.91 2 13.4802 2 20.0802C4.19 14.0802 8.99995 12.45 12.14 12.45C12.34 14.21 12.79 15.6202 13.47 15.8202C15.57 16.4302 22 12.4401 22 9.98006C22 7.52006 15.57 3.52998 13.47 4.13998Z"
-        stroke={color}
-        strokeWidth="1.5"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
+        <div className="user">
+            <div className="ProfileImage" />
+            <div className="userInfo">
+                <Link to="/profile" className="Nickname">Andrii Dosyn</Link>
+                <div className="Status"><FriendFeed size={14} />Friend</div>
+            </div>
+        </div>
+    )
 }
 
-function More({color = "white", size = 50}){
-  return(
-    <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill={color}
-    xmlns="http://www.w3.org/2000/svg"
-  >
-    <path d="M8 12a2 2 0 1 1-4 0 2 2 0 0 1 4 0Zm10-2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-6 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z"/>
-  </svg>
-  );
+function IconHeart({ size = 18 }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M12 21C12 21 3 15.5 3 9.5C3 7.015 4.985 5 7.5 5C8.986 5 10.306 5.71 11.155 6.808C11.568 7.344 11.775 7.612 12 7.612C12.225 7.612 12.432 7.344 12.845 6.808C13.694 5.71 15.014 5 16.5 5C19.015 5 21 7.015 21 9.5C21 15.5 12 21 12 21Z" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    )
 }
 
-export function CreationPost(){
-  return(
-    <div className='NewPost'>
-        <div className='user'>
-          <div className='ProfileImage'></div>
-          <div className='.userInfo'>
-            <Link to="/profile" className='linkToProfile'>
-              <div className='Nickname'>Andrii Dosyn</div>
-            </Link>
-          </div>
-      </div>
-      <textarea
-          maxLength={500}
-          placeholder="Add new post"
-          className="addPostBar"
-          onFocus={e => e.target.placeholder = ''}
-          onBlur={e => e.target.placeholder = 'Add new post'}
-        />
-    </div>
-  );
+function IconComment({ size = 17 }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M21 12C21 16.418 16.97 20 12 20C10.5 20 9.093 19.673 7.857 19.09L3 20L4.338 16.063C3.493 14.973 3 13.542 3 12C3 7.582 7.03 4 12 4C16.97 4 21 7.582 21 12Z" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    )
 }
 
-export function Post(){
-    return(
-        <div className='Post'>
+function IconShare({ size = 17 }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+            <path d="M13.47 4.14C12.74 4.36 12.28 5.96 12.09 7.91C6.78 7.91 2 13.48 2 20.08C4.19 14.08 8.99 12.45 12.14 12.45C12.34 14.21 12.79 15.62 13.47 15.82C15.57 16.43 22 12.44 22 9.98C22 7.52 15.57 3.53 13.47 4.14Z" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    )
+}
+
+function IconMore({ size = 18 }) {
+    return (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill="rgba(255,255,255,0.35)">
+            <circle cx="5" cy="12" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="19" cy="12" r="1.5"/>
+        </svg>
+    )
+}
+
+export function Like({ size = 18 }) { return <IconHeart size={size} /> }
+export function Comment({ size = 17 }) { return <IconComment size={size} /> }
+
+export function CreationPost() {
+    return (
+        <div className="NewPost">
+            <div className="newPostTop">
+                <div className="ProfileImage" />
+                <div className="Nickname">Andrii Dosyn</div>
+            </div>
+            <textarea
+                maxLength={500}
+                placeholder="Write a post"
+                className="addPostBar"
+                onFocus={e => e.target.placeholder = ''}
+                onBlur={e => e.target.placeholder = "What's on your mind?"}
+            />
+        </div>
+    )
+}
+
+export function Post() {
+    return (
+        <div className="Post">
             <UserInfoForPost />
-            <div className='PostText'>
+            <div className="PostText">
                 Konečne som dokončil prvú časť svojho románu. Dlho som hľadal
                 správny hlas pre túto príbeh — tmavý, melancholický, ale s nádejou na
                 konci. Dúfam, že vás prvá kapitola zaujme rovnako ako mňa pri písaní
             </div>
-            <div className='postImage'>
-                <img src={BookImage} alt="book" className='postImage'/>
+            <div className="postImage">
+                <img src={BookImage} alt="book" />
             </div>
-            <div className='PostLine'></div>
-            <div className='PostAcvtivity'>
-                <div className='postActionActivity'>
-                    <Like />
-                    <div className='postActionAmount'>2.4k</div>
-                </div>
-                <div className='postActionActivity'>
-                    <Comment />
-                    <div className='postActionAmount'>1.5k</div>
-                </div>
-                <div className='postActionActivity'>
-                    <Share />
-                    <div className='postActionAmount'>832</div>
-                </div>
-                <div className='ShareActivity'><More /></div>
+            <div className="PostLine" />
+            <div className="PostAcvtivity">
+                <div className="LikeActivity"><IconHeart size={22} /><span className="LikesAmount">2.4k</span></div>
+                <div className="CommentActivity"><IconComment size={22}/><span className="CommentsAmount">148</span></div>
+                <div className="ShareActivity"><IconShare size={22}/><span className="ShareAmount">32</span></div>
+                <div className="MoreActivity"><IconMore size={26}/></div>
             </div>
-
         </div>
-    );
+    )
 }
 
-export { FriendFeed };
+export { FriendFeed }

@@ -1,9 +1,211 @@
+import { useState } from 'react'
 import '../assets/styles/pages.css'
+import '../assets/styles/settingsPage.css'
+import React from 'react'
 
-export default function Feed() {
+export function IconUser({size=18}) {
+    return <svg width={size} height={size} viewBox="0 0 24 24" fill="none"><circle cx="12" cy="8" r="4" stroke="currentColor" strokeWidth="2"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+}
+function IconLock() {
+    return <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><rect x="5" y="11" width="14" height="10" rx="2" stroke="currentColor" strokeWidth="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+}
+function IconEye() {
+    return <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" stroke="currentColor" strokeWidth="2"/><circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2"/></svg>
+}
+function IconEyeOff() {
+    return <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><line x1="1" y1="1" x2="23" y2="23" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+}
+function IconShield() {
+    return <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+}
+function IconTrash() {
+    return <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><polyline points="3 6 5 6 21 6" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/><path d="M19 6l-1 14H6L5 6M10 11v6M14 11v6M9 6V4h6v2" stroke="currentColor" strokeWidth="2" strokeLinecap="round"/></svg>
+}
+function IconCheck() {
+    return <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><polyline points="20 6 9 17 4 12" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"/></svg>
+}
+
+function Toggle({ value, onChange }: { value: boolean; onChange: (v: boolean) => void }) {
     return (
-        <div className="content">
-        <h1>Hello1</h1>
+        <div className={`settingsToggle${value ? ' on' : ''}`} onClick={() => onChange(!value)}>
+            <div className="settingsToggleThumb" />
         </div>
-    );
-  }
+    )
+}
+
+function Section({ icon, title, children }: { icon: React.ReactNode; title: string; children: React.ReactNode }) {
+    return (
+        <div className="settingsSection">
+            <div className="settingsSectionHead">
+                <span className="settingsSectionIcon">{icon}</span>
+                <span className="settingsSectionTitle">{title}</span>
+            </div>
+            <div className="settingsSectionBody">{children}</div>
+        </div>
+    )
+}
+
+function Field({ label, hint, row, children }: { label: string; hint?: string; row?: boolean; children: React.ReactNode }) {
+    return (
+        <div className={`settingsField${row ? ' row' : ''}`}>
+            <div className="settingsFieldLabel">
+                <span>{label}</span>
+                {hint && <span className="settingsFieldHint">{hint}</span>}
+            </div>
+            <div className="settingsFieldControl">{children}</div>
+        </div>
+    )
+}
+
+function SaveToast({ visible }: { visible: boolean }) {
+    return (
+        <div className={`settingsSaveToast${visible ? ' visible' : ''}`}>
+            <IconCheck /> Saved
+        </div>
+    )
+}
+
+export default function SettingsPage() {
+    const [displayName, setDisplayName] = useState('Andrii Dosyn')
+    const [bio, setBio]                 = useState('Passionate reader and writer.')
+
+    const [currentPass, setCurrentPass] = useState('')
+    const [newPass, setNewPass]         = useState('')
+    const [confirmPass, setConfirmPass] = useState('')
+    const [showCurrent, setShowCurrent] = useState(false)
+    const [showNew, setShowNew]         = useState(false)
+
+    const [privacy, setPrivacy]         = useState<'PUBLIC' | 'PRIVATE'>('PUBLIC')
+
+    const [toast, setToast] = useState(false)
+    const showToast = () => { setToast(true); setTimeout(() => setToast(false), 2200) }
+
+    const passMatch   = confirmPass === '' || newPass === confirmPass
+    const passReady   = currentPass.length > 0 && newPass.length >= 8 && passMatch && confirmPass.length > 0
+
+    const passStrength = newPass.length === 0 ? 0
+        : newPass.length < 5 ? 1
+        : newPass.length < 8 ? 2
+        : 3
+
+    return (
+        <div className="settingsWrap">
+            <SaveToast visible={toast} />
+
+            <div className="settingsHeader">
+                <div className="settingsTitle">Settings</div>
+            </div>
+
+            <div className="settingsGrid">
+
+                <Section icon={<IconUser />} title="Profile">
+                    <div className="settingsAvatarRow">
+                        <div className="settingsAvatar" />
+                        <div className="settingsAvatarActions">
+                            <button className="settingsBtnSecondary">Change photo</button>
+                            <button className="settingsBtnGhost">Remove</button>
+                        </div>
+                    </div>
+
+                    <Field label="Display name">
+                        <input className="settingsInput" value={displayName}
+                            onChange={e => setDisplayName(e.target.value)} />
+                    </Field>
+
+                    <Field label="Username" hint="Cannot be changed">
+                        <input className="settingsInput" value="@dosi#1837132" disabled />
+                    </Field>
+
+                    <Field label="Bio">
+                        <textarea className="settingsTextarea" value={bio}
+                            onChange={e => setBio(e.target.value)}
+                            placeholder="Tell something about yourself..." rows={3} />
+                        <span className="settingsCharCount">{bio.length} / 300</span>
+                    </Field>
+
+                    <button className="settingsBtnPrimary" onClick={showToast}>Save profile</button>
+                </Section>
+
+                <Section icon={<IconLock />} title="Password">
+                    <Field label="Current password">
+                        <div className="settingsInputWrap">
+                            <input className="settingsInput" type={showCurrent ? 'text' : 'password'}
+                                value={currentPass} onChange={e => setCurrentPass(e.target.value)}
+                                placeholder="••••••••" />
+                            <button className="settingsEye" onClick={() => setShowCurrent(s => !s)}>
+                                {showCurrent ? <IconEyeOff /> : <IconEye />}
+                            </button>
+                        </div>
+                    </Field>
+
+                    <Field label="New password" hint="Min. 8 characters">
+                        <div className="settingsInputWrap">
+                            <input className="settingsInput" type={showNew ? 'text' : 'password'}
+                                value={newPass} onChange={e => setNewPass(e.target.value)}
+                                placeholder="New password" />
+                            <button className="settingsEye" onClick={() => setShowNew(s => !s)}>
+                                {showNew ? <IconEyeOff /> : <IconEye />}
+                            </button>
+                        </div>
+                        {newPass.length > 0 && (
+                            <div className="settingsPassStrength">
+                                {[1,2,3].map(i => (
+                                    <div key={i} className={`settingsPassBar${passStrength >= i ? ` s${passStrength}` : ''}`} />
+                                ))}
+                                <span className="settingsPassLabel">
+                                    {passStrength === 1 ? 'Weak' : passStrength === 2 ? 'Fair' : 'Strong'}
+                                </span>
+                            </div>
+                        )}
+                    </Field>
+
+                    <Field label="Confirm password">
+                        <input className={`settingsInput${!passMatch ? ' error' : ''}`}
+                            type={showNew ? 'text' : 'password'}
+                            value={confirmPass} onChange={e => setConfirmPass(e.target.value)}
+                            placeholder="Repeat new password" />
+                        {!passMatch && <span className="settingsError">Passwords don't match</span>}
+                    </Field>
+
+                    <button className="settingsBtnPrimary" disabled={!passReady} onClick={showToast}>
+                        Change password
+                    </button>
+                </Section>
+
+                {/* ── Privacy ── */}
+                <Section icon={<IconShield />} title="Privacy">
+                    <Field label="Account visibility">
+                        <div className="settingsSegment">
+                            <button className={`settingsSegmentBtn${privacy === 'PUBLIC' ? ' active' : ''}`}
+                                onClick={() => setPrivacy('PUBLIC')}>Public</button>
+                            <button className={`settingsSegmentBtn${privacy === 'PRIVATE' ? ' active' : ''}`}
+                                onClick={() => setPrivacy('PRIVATE')}>Private</button>
+                        </div>
+                        <p className="settingsHintText">
+                            {privacy === 'PUBLIC'
+                                ? 'Anyone can find and view your profile.'
+                                : 'Only approved followers can see your content.'}
+                        </p>
+                    </Field>
+
+
+                    <button className="settingsBtnPrimary" onClick={showToast}>Save privacy</button>
+                </Section>
+
+                {/* ── Danger ── */}
+                <Section icon={<IconTrash />} title="Danger zone">
+                    <div className="settingsDangerBlock">
+                        <div>
+                            <div className="settingsDangerTitle">Delete account</div>
+                            <div className="settingsDangerDesc">
+                                Permanently removes your account and all data. Cannot be undone.
+                            </div>
+                        </div>
+                        <button className="settingsBtnDanger">Delete account</button>
+                    </div>
+                </Section>
+
+            </div>
+        </div>
+    )
+}

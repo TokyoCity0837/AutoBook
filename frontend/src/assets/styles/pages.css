@@ -2,33 +2,28 @@
     display: flex;
     flex-direction: column;
     padding-top: 20px;
-    margin-left: 70px;
-    gap: 20px;
-    padding-left: 40px;
-
+    margin-left: 50px;
+    padding-left: 30px;
     width: fit-content;
-
     flex: 1;
     align-items: center;
 }
-  
+
 .PostsContainer {
-    width: 630px;
-    height: 100%;
-    padding-top: 20px;
+    width: 560px;
+    padding-top: 16px;
     padding-bottom: 20px;
 }
-  
 
 .searchAndUpdates {
     display: flex;
     align-items: flex-start;
-    gap: 16px;
+    gap: 14px;
     position: sticky;
     top: 20px;
     z-index: 10;
-    width: fit-content; 
-    height: 70px; 
+    width: fit-content;
+    height: 52px;
 }
 
 .UpdatesWrapper {
@@ -52,21 +47,31 @@
     box-shadow: 0 8px 20px rgba(0,0,0,0.6);
     padding-bottom: 20px;
     align-content: flex-start;
+    padding: 16px;
+    box-sizing: border-box;
+    overflow-y: auto;
+
+    overflow-x: hidden;
 }
 
+/* ── Shared page title ── */
+.YBText {
+    font-size: 24px;
+    font-weight: 500;
+    color: #fff;
+    margin-top: 28px;
+    margin-bottom: 14px;
+}
 
+/* ── Responsive ── */
 @media (max-width: 1400px) {
     .UpdatesWrapper,
     .UpdatesContainer { display: none; }
 }
 
 @media (max-width: 1100px) {
-    .content {
-        margin-left: 20px;
-        padding-left: 10px;
-    }
-    .PostsContainer { width: 520px; }
-    .search { width: 480px; }
+    .content { margin-left: 20px; padding-left: 10px; }
+    .PostsContainer { width: 460px; }
 }
 
 @media (max-width: 900px) {
@@ -80,6 +85,6 @@
         align-items: center;
     }
     .PostsContainer { width: 100%; }
-    .search { width: calc(100vw - 40px); box-sizing: border-box; }
     .searchAndUpdates { width: 100%; height: auto; }
+    .YBText { font-size: 20px; margin-top: 20px; }
 }

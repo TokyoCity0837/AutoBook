@@ -1,135 +1,147 @@
-.sidebarProfile{
-    width: 60px;
-    height: 60px;
-    border-radius: 50%; 
-    background-color: white;
-    margin-top: 30px;
-    margin: 0 auto; 
-}
-.sidebarProfileActive{
-    width: 60px;
-    height: 60px;
-    border-radius: 50%; 
-    background-color: white;
-    margin-top: 30px;
-    margin: 0 auto; 
-    transform: scale(1.05);
-    box-shadow: 0 5px 15px rgb(35, 110, 0);
-}
-
-.sidebarProfile:hover{
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    transform: scale(1.05);   
-    cursor: pointer;
-}
-.sidebarLine{
-    background-color: white;
-    width: 60px;
-    height: 2px;
-    margin-top: 20px;
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-bottom: 20px;
-}
-
 .sidebar {
     height: 96vh;
-    position: sticky; 
-    top: 2% !important; 
-    bottom: 2%;          
-    left: 30px;               
-    width: 100px;                 
-    background-color: var(--accent-color);                
-    box-sizing: border-box; 
-    border-radius: 50px;
+    position: sticky;
+    top: 2%;
+    width: 80px;
+    background-color: var(--accent-color);
+    box-sizing: border-box;
+    border-radius: 40px;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding-top: 20px !important;
-    padding-bottom: 20px;
+    padding: 18px 0;
     z-index: 10000;
     margin-top: 2vh;
+    flex-shrink: 0;
+
+    left: 30px;
 }
 
-.icon {
-    width: 50px;         
-    height: 50px;
+.sidebarTop {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    justify-content: center;
+
+    width: 100%;
+}
+
+.sidebarProfile {
+    width: 46px;
+    height: 46px;
     border-radius: 50%;
+    background-color: white;
+    margin: 0 auto;
+
+    transition: transform 0.15s, box-shadow 0.15s;
     cursor: pointer;
-    margin: 15px;
-    
+    display: block;
+}
+.sidebarProfileActive {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background-color: white;
+    margin: 0 auto;
+
+    transform: scale(1.06);
+    box-shadow: 0 0 0 2px rgba(40, 233, 40, 0.5);
+    display: block;
+}
+.sidebarProfile:hover {
+    transform: scale(1.06);
+}
+
+.sidebarLine {
+    background-color: rgba(255,255,255,0.15);
+    width: 36px;
+    height: 1.5px;
+    margin: 14px auto;
 }
 
 .sidebarBottom {
     display: flex;
     flex-direction: column;
     align-items: center;
+    gap: 12px;
 }
-.sidebarTop{
+
+.icon {
+    width: 44px;
+    height: 44px;
     display: flex;
-    flex-direction: column;
     align-items: center;
-}
-.icon:hover{
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-    transform: scale(1.05);   
+    justify-content: center;
+    border-radius: 14px;
+    
     cursor: pointer;
+    transition: background 0.15s, transform 0.15s;
+    color: rgba(255,255,255,0.45);
+}
+.icon:hover {
+    background: rgba(255,255,255,0.07);
+    color: #fff;
+}
+.icon svg { 
+    width: 32px; 
+    height: 32px; 
 }
 
-.settings{ 
-    margin-top: auto;
-    width: 40px; 
-    height: 40px; 
-} 
-.settings:hover{ 
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05); 
-    transform: scale(1.05); 
-    cursor: pointer; 
-} 
-.logout{ 
-    margin-top: 20px;
-    border-radius: 50%;
-    width: 60px; 
-    height: 60px;
-} 
-.logout:hover{ 
-    box-shadow: 0 4px 9px rgba(0, 0, 0, 0.05); 
-    transform: scale(1.05); 
-    cursor: pointer; 
+.icon .activeIcon {
+    background: rgba(255,255,255,0.12);
+    border-radius: 12px;
+    padding: 8px;
 }
 
-.SettingsActive{
+.settings {
     margin-top: auto;
-    width: 40px; 
-    height: 40px; 
-    transform: scale(1.2);
-    animation: spin 7s linear infinite;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: opacity 0.15s;
+    opacity: 0.45;
+}
+.settings:hover { 
+    opacity: 1; 
+}
+.settings svg {
+     width: 32px; 
+     height: 32px; 
+     color: #fff; 
+}
+
+.SettingsActive {
+    margin-top: auto;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 1;
+    animation: spin 8s linear infinite;
+}
+.SettingsActive svg { 
+    width: 32px; 
+    height: 32px; 
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg);}
-    100% { transform: rotate(360deg);}
+    0%   { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-@media (max-width: 900px) {
-    .sidebar {
-        position: fixed;
-        bottom: 0; left: 0; top: auto !important;
-        width: 100vw; height: 70px;
-        flex-direction: row;
-        justify-content: space-around;
-        border-radius: 24px 24px 0 0;
-        margin-top: 0;
-        padding: 0 10px !important;
-        z-index: 10000;
-    }
-    .sidebarTop, .sidebarBottom { flex-direction: row; gap: 0; }
-    .sidebarLine { display: none; }
-    .sidebarProfile, .sidebarProfileActive { width: 40px; height: 40px; margin: 0; }
-    .icon { margin: 6px; width: 40px; height: 40px; }
-    .settings, .SettingsActive { margin-top: 0; }
-    .logout { margin-top: 0; width: 40px; height: 40px; }
+.logout {
+    margin-top: 10px;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border-radius: 12px;
+    transition: background 0.15s;
 }
+.logout:hover { background: rgba(169,66,66,0.12); }
+.logout svg { width: 28px; height: 28px; }

@@ -1,5 +1,5 @@
 import '../assets/styles/pages.css'
-import { FriendFeed } from '../components/Sidebar';
+import { IconUser } from '../pages/SettingsPage';
 import '../assets/styles/profilePage.css'
 import { Post } from '../components/Posts'
 import React from 'react';
@@ -34,24 +34,31 @@ export default function Profile() {
                                 Andrii Dosyn
                             </div>
                             <div className="nickname">
-                                @d.osid.osid.osid.osi
+                                d.osid.osid.osid.osi
                             </div>
                         </div>
                     </div>
                     <div className="folowersAndFriends">
                         <div className="ffBox">
-                            <div className="friendsFeedWrap">
-                                <FriendFeed size={32}/> 
-                                Folowers
+                            <div className="ffCount">2.4k</div>
+                            <div className="ffLabel">
+                                <IconUser size={18} />
+                                Followers
                             </div>
-                            2.4k
                         </div>
                         <div className="ffBox">
-                            <div className="friendsFeedWrap">
-                                <FriendFeed size={32}/>
-                                Friends 
+                            <div className="ffCount">183</div>
+                            <div className="ffLabel">
+                                <IconUser size={18} />
+                                Following
                             </div>
-                             27
+                        </div>
+                        <div className="ffBox">
+                            <div className="ffCount">27</div>
+                            <div className="ffLabel">
+                                <IconUser size={18} />
+                                Friends
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -62,7 +69,7 @@ export default function Profile() {
             <div className="mainPoststAndInfo">
                 <div className="profileAndBooks">
 
-                    <div className="profileInformation">
+                    {/* <div className="profileInformation">
                         Information
                         <div className="infoBox">
                             <div className="infoText">Age</div>
@@ -88,9 +95,11 @@ export default function Profile() {
                             <div className="infoText">Genres</div>
                             <div className="infoValue">Thriller, Mystery </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     <div className="authorBooks">
+                        <BookForProfile />
+                        <BookForProfile />
                         <BookForProfile />
                         <BookForProfile />
                     </div>

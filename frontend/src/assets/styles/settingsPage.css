@@ -1,0 +1,243 @@
+.settingsWrap {
+    width: 95%;
+    padding-bottom: 60px;
+    max-width: 640px;
+}
+
+.settingsHeader {
+    margin-top: 30px;
+    margin-bottom: 24px;
+}
+.settingsTitle {
+    font-size: 40px;
+    font-weight: 500;
+    color: #fff;
+}
+
+.settingsGrid {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+/* ── Section ── */
+.settingsSection {
+    background: var(--accent-color);
+    border-radius: 28px;
+    overflow: hidden;
+}
+.settingsSectionHead {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 18px 26px;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+}
+.settingsSectionIcon { color: rgba(255,255,255,0.45); display: flex; }
+.settingsSectionTitle { font-size: 18px; font-weight: 500; color: #fff; }
+.settingsSectionBody {
+    padding: 22px 26px;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+/* ── Field ── */
+.settingsField {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+}
+.settingsField.row {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+}
+.settingsFieldLabel {
+    display: flex;
+    justify-content: space-between;
+    font-size: 13px;
+    color: rgba(255,255,255,0.55);
+}
+.settingsFieldHint { font-size: 12px; color: rgba(255,255,255,0.22); }
+.settingsFieldControl { display: flex; flex-direction: column; gap: 5px; }
+
+/* ── Inputs ── */
+.settingsInput {
+    width: 100%;
+    height: 44px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 14px;
+    padding: 0 14px;
+    outline: none;
+    box-sizing: border-box;
+    transition: border-color 0.18s, background 0.18s;
+    font-family: inherit;
+}
+.settingsInput::placeholder { color: rgba(255,255,255,0.18); }
+.settingsInput:focus { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.07); }
+.settingsInput:disabled { opacity: 0.35; cursor: not-allowed; }
+.settingsInput.error { border-color: rgba(239,68,68,0.45); background: rgba(239,68,68,0.05); }
+
+.settingsTextarea {
+    width: 100%;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 12px;
+    color: #fff;
+    font-size: 14px;
+    padding: 11px 14px;
+    outline: none;
+    box-sizing: border-box;
+    resize: vertical;
+    min-height: 76px;
+    font-family: inherit;
+    line-height: 1.5;
+    transition: border-color 0.18s, background 0.18s;
+}
+.settingsTextarea::placeholder { color: rgba(255,255,255,0.18); }
+.settingsTextarea:focus { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.07); }
+.settingsCharCount { font-size: 11px; color: rgba(255,255,255,0.18); align-self: flex-end; margin-top: -2px; }
+
+.settingsInputWrap { position: relative; }
+.settingsInputWrap .settingsInput { padding-right: 42px; }
+.settingsEye {
+    position: absolute; right: 11px; top: 50%; transform: translateY(-50%);
+    background: transparent; border: none; color: rgba(255,255,255,0.28);
+    cursor: pointer; display: flex; transition: color 0.15s;
+}
+.settingsEye:hover { color: rgba(255,255,255,0.55); }
+.settingsError { font-size: 12px; color: #ef4444; }
+
+/* ── Password strength ── */
+.settingsPassStrength {
+    display: flex; align-items: center; gap: 5px; margin-top: 2px;
+}
+.settingsPassBar {
+    flex: 1; height: 3px; border-radius: 100px;
+    background: rgba(255,255,255,0.1); transition: background 0.3s;
+}
+.settingsPassBar.s1 { background: #ef4444; }
+.settingsPassBar.s2 { background: #f97316; }
+.settingsPassBar.s3 { background: #22c55e; }
+.settingsPassLabel { font-size: 11px; color: rgba(255,255,255,0.35); min-width: 36px; text-align: right; }
+
+/* ── Avatar ── */
+.settingsAvatarRow { display: flex; align-items: center; gap: 18px; }
+.settingsAvatar {
+    width: 64px; height: 64px;
+    border-radius: 50%; background: #fff; flex-shrink: 0;
+}
+.settingsAvatarActions { display: flex; gap: 8px; }
+
+/* ── Buttons ── */
+.settingsBtnPrimary {
+    height: 44px; padding: 0 22px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; color: #fff;
+    font-size: 14px; font-weight: 500;
+    cursor: pointer; align-self: flex-start;
+    transition: background 0.18s; font-family: inherit;
+}
+.settingsBtnPrimary:hover:not(:disabled) { background: rgba(255,255,255,0.13); }
+.settingsBtnPrimary:disabled { opacity: 0.3; cursor: not-allowed; }
+
+.settingsBtnSecondary {
+    height: 34px; padding: 0 14px;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 9px; color: rgba(255,255,255,0.65);
+    font-size: 13px; cursor: pointer;
+    transition: background 0.15s; font-family: inherit;
+}
+.settingsBtnSecondary:hover { background: rgba(255,255,255,0.11); color: #fff; }
+
+.settingsBtnGhost {
+    height: 34px; padding: 0 14px;
+    background: transparent; border: none;
+    color: rgba(255,255,255,0.28);
+    font-size: 13px; cursor: pointer;
+    transition: color 0.15s; font-family: inherit;
+}
+.settingsBtnGhost:hover { color: rgba(255,255,255,0.55); }
+
+/* ── Toggle ── */
+.settingsToggle {
+    width: 42px; height: 24px; border-radius: 12px;
+    background: rgba(255,255,255,0.1);
+    cursor: pointer; position: relative;
+    transition: background 0.2s; flex-shrink: 0;
+}
+.settingsToggle.on { background: rgba(255,255,255,0.32); }
+.settingsToggleThumb {
+    position: absolute; top: 3px; left: 3px;
+    width: 18px; height: 18px; border-radius: 50%;
+    background: rgba(255,255,255,0.5);
+    transition: transform 0.2s, background 0.2s;
+}
+.settingsToggle.on .settingsToggleThumb { transform: translateX(18px); background: #fff; }
+
+/* ── Segment ── */
+.settingsSegment {
+    display: flex; background: rgba(255,255,255,0.05);
+    border-radius: 10px; padding: 3px; gap: 3px; width: fit-content;
+}
+.settingsSegmentBtn {
+    padding: 6px 18px; border-radius: 8px; border: none;
+    background: transparent; color: rgba(255,255,255,0.38);
+    font-size: 13px; cursor: pointer;
+    transition: background 0.15s, color 0.15s; font-family: inherit;
+}
+.settingsSegmentBtn.active { background: rgba(255,255,255,0.11); color: #fff; }
+.settingsHintText { font-size: 12px; color: rgba(255,255,255,0.22); margin: 2px 0 0; line-height: 1.5; }
+
+/* ── Danger ── */
+.settingsDangerBlock {
+    display: flex; justify-content: space-between;
+    align-items: center; gap: 20px;
+    padding: 14px 18px;
+    background: rgba(239,68,68,0.05);
+    border: 1px solid rgba(239,68,68,0.12);
+    border-radius: 14px;
+}
+.settingsDangerTitle { font-size: 14px; font-weight: 500; color: rgba(255,100,100,0.85); margin-bottom: 3px; }
+.settingsDangerDesc { font-size: 12px; color: rgba(255,255,255,0.28); line-height: 1.5; }
+.settingsBtnDanger {
+    height: 38px; padding: 0 18px;
+    background: rgba(239,68,68,0.12);
+    border: 1px solid rgba(239,68,68,0.25);
+    border-radius: 10px; color: #ff6060;
+    font-size: 13px; font-weight: 500;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    transition: background 0.15s; font-family: inherit;
+}
+.settingsBtnDanger:hover { background: rgba(239,68,68,0.22); }
+
+/* ── Toast ── */
+.settingsSaveToast {
+    position: fixed; bottom: 30px; right: 30px;
+    background: var(--accent-color);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px; padding: 10px 18px;
+    color: #fff; font-size: 13px; font-weight: 500;
+    display: flex; align-items: center; gap: 7px;
+    z-index: 1000; box-shadow: 0 8px 28px rgba(0,0,0,0.4);
+    transform: translateY(12px); opacity: 0;
+    transition: transform 0.22s, opacity 0.22s;
+    pointer-events: none;
+}
+.settingsSaveToast.visible { transform: translateY(0); opacity: 1; }
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+    .settingsWrap { width: 100%; padding: 0 10px 80px; box-sizing: border-box; }
+    .settingsTitle { font-size: 30px; }
+    .settingsSectionBody { padding: 18px; }
+    .settingsSectionHead { padding: 14px 18px; }
+    .settingsDangerBlock { flex-direction: column; align-items: flex-start; }
+    .settingsSaveToast { bottom: 88px; right: 14px; left: 14px; }
+}
