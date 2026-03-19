@@ -12,6 +12,8 @@ import { saveAs } from 'file-saver'
 import { pdf, Document as PdfDocument, Page, Text, View, StyleSheet } from '@react-pdf/renderer'
 import '../assets/styles/editorPage.css'
 import { Update } from './BookPage'
+import type { AlignmentType as AlignmentTypeType } from "docx"
+
 
 // ─── Types ───────────────────────────────────────────────────────
 interface SubChapter { id: number; title: string }
@@ -257,19 +259,20 @@ function ExportMenu({ editor, bookTitle, font, fontSize, lineHeight }: {
             }
 
             // Вирівнювання
-            const alignMap: Record<string, AlignmentType> = {
-                left:    AlignmentType.LEFT,
-                center:  AlignmentType.CENTER,
-                right:   AlignmentType.RIGHT,
+            const alignMap = {
+                left: AlignmentType.LEFT,
+                center: AlignmentType.CENTER,
+                right: AlignmentType.RIGHT,
                 justify: AlignmentType.JUSTIFIED,
-            }
+            } as const
+            
             const textAlign = (block as HTMLElement).style.textAlign || 'left'
-
+            
             return new Paragraph({
                 children: runs,
-                alignment: alignMap[textAlign] ?? AlignmentType.LEFT,
+                alignment: alignMap[textAlign as keyof typeof alignMap] ?? AlignmentType.LEFT,
                 spacing: {
-                    line: Math.round(parseFloat(lineHeight) * 240), // 240 = single in docx
+                    line: Math.round(parseFloat(lineHeight) * 240),
                     after: 0,
                 },
             })
@@ -575,21 +578,26 @@ export default function EditorPage() {
 
     useEffect(() => {
         if (!editor) return
-        editor.commands.setContent(contentRef.current[activeId] ?? '', false)
+        editor.commands.setContent(contentRef.current[activeId] ?? '', {})
     }, [activeId])  
 
     // Ctrl+Scroll зум — тільки над editorCenter
     useEffect(() => {
-        const handleWheel = (e: WheelEvent) => {
-            if (!e.ctrlKey) return
-            e.preventDefault()
+        const handleWheel = (e: Event) => {
+            const wheel = e as WheelEvent
+    
+            if (!wheel.ctrlKey) return
+            wheel.preventDefault()
+    
             setZoom(z => {
-                const delta = e.deltaY > 0 ? -5 : 5
+                const delta = wheel.deltaY > 0 ? -5 : 5
                 return Math.min(200, Math.max(30, z + delta))
             })
         }
+    
         const center = document.querySelector('.editorCenter')
         center?.addEventListener('wheel', handleWheel, { passive: false })
+    
         return () => center?.removeEventListener('wheel', handleWheel)
     }, [])
 
