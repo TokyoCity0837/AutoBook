@@ -581,7 +581,7 @@ export default function EditorPage() {
         editor.commands.setContent(contentRef.current[activeId] ?? '', {})
     }, [activeId])  
 
-    // Ctrl+Scroll зум — тільки над editorCenter
+    // Ctrl+Scroll
     useEffect(() => {
         const handleWheel = (e: Event) => {
             const wheel = e as WheelEvent
