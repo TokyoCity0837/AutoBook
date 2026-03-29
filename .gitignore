@@ -47,3 +47,21 @@ application-*.properties
 *.db
 *.sqlite
 .env
+
+### Python ###
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+dist/
+build/
+.env
+.venv/
+venv/
+data/profiles/
+*.json
+!openapi.json
+.idea/
+.vscode/
+*.swp
+*.swo

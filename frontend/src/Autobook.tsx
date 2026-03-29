@@ -11,6 +11,7 @@ import BookDetails from './pages/BookPage';
 import EditorPage from './pages/EditorPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
+import PostPage from './pages/PostPage';
 import React from 'react';
 
 function Autobook() {
@@ -28,6 +29,7 @@ function Autobook() {
           <Route path="/editor" element={<EditorPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/post/:id" element={<PostPage />} />
         </Routes>
       </Layout>
     </Router>

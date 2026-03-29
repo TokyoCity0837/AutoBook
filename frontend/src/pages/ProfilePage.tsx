@@ -1,8 +1,7 @@
 import '../assets/styles/pages.css'
-import { IconUser } from '../pages/SettingsPage';
+import { IconUser } from '../components/Icons';
 import '../assets/styles/profilePage.css'
 import { Post } from '../components/Posts'
-import React from 'react';
 import { Link } from 'react-router-dom';
 import BookImage1 from '../assets/pictures/book1.jpg'
 
@@ -10,12 +9,12 @@ function BookForProfile() {
     return (
         <Link to="/book" className="bookCardProfile">
             <div className="bookImgProfile">
-                <img src={BookImage1} alt="book" className='ImgBookProfile' width={150} height={190}/>
+                <img src={BookImage1} alt="book" className='ImgBookProfile' width={150} height={190} />
             </div>
             <div className="bookDescProfile">
                 <div className="bookTitleProfile">Wind in the willows</div>
                 <div className="bookAuthorsProfile">Anton Hrimov Andrii Dosyn</div>
-            </div>    
+            </div>
         </Link>
     );
 }
@@ -27,7 +26,7 @@ export default function Profile() {
                 <div className="topBar">
                     <div className="profilePicAndName">
                         <div className="profileImage">
-                        
+
                         </div>
                         <div className="nameBox">
                             <div className="name">
@@ -63,7 +62,7 @@ export default function Profile() {
                     </div>
                 </div>
                 <div className="aboutMe">
-                Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
+                    Lorem ipsum dolor sit amet consectetur adipiscing elit. Quisque faucibus ex sapien vitae pellentesque sem placerat. In id cursus mi pretium tellus duis convallis. Tempus leo eu aenean sed diam urna tempor. Pulvinar vivamus fringilla lacus nec metus bibendum egestas. Iaculis massa nisl malesuada lacinia integer nunc posuere. Ut hendrerit semper vel class aptent taciti sociosqu. Ad litora torquent per conubia nostra inceptos himenaeos.
                 </div>
             </div>
             <div className="mainPoststAndInfo">
@@ -103,7 +102,7 @@ export default function Profile() {
                         <BookForProfile />
                         <BookForProfile />
                     </div>
-                    
+
                 </div>
                 <div className="postsContainer">
                     <Post />
@@ -114,4 +113,4 @@ export default function Profile() {
             </div>
         </div>
     );
-  }
+}

@@ -1,4 +1,4 @@
-import {FriendFeed} from '../components/Sidebar.tsx'
+import { IconFriends } from '../components/Icons'
 import '../assets/styles/EditsPage.css'
 
 type Status = 'Approved' | 'Rejected' | 'Processing';
@@ -17,25 +17,25 @@ function EditRequest({ status }: EditRequestProps) {
 
 
   return (
-  <div className='editRequest'>
-        <div className='user'>
-            <div className='ProfileImage'></div>
-            <div className='userInfo'>
-                <div className='Nickname'>Andrii Dosyn
-                  <div className='friendship'><FriendFeed /></div>
-                </div>
-                <div className='requestingBook'>The Night We Met</div>
-            </div>
+    <div className='editRequest'>
+      <div className='user'>
+        <div className='ProfileImage'></div>
+        <div className='userInfo'>
+          <div className='Nickname'>Andrii Dosyn
+            <div className='friendship'><IconFriends /></div>
           </div>
-         <div className='requestStatus'>
-            {statusJSX[status]}
-        </div> 
-  </div>
-  ); 
+          <div className='requestingBook'>The Night We Met</div>
+        </div>
+      </div>
+      <div className='requestStatus'>
+        {statusJSX[status]}
+      </div>
+    </div>
+  );
 }
 
-export function Accept({size = 26, className = "status-icon"}){
-  return(
+export function Accept({ size = 26, className = "status-icon" }) {
+  return (
     <svg
       width={size}
       height={size}
@@ -54,8 +54,8 @@ export function Accept({size = 26, className = "status-icon"}){
   );
 }
 
-export function Reject({className = "status-icon"}){
-  return(
+export function Reject({ className = "status-icon" }) {
+  return (
     <svg
       className={className}
       viewBox="0 0 24 24"
@@ -76,8 +76,8 @@ export function Reject({className = "status-icon"}){
   );
 }
 
-function Processing(){
-  return(
+function Processing() {
+  return (
     <svg
       className="status-icon"
       viewBox="0 0 22 22"
@@ -93,37 +93,37 @@ function Processing(){
 }
 
 export default function Edits() {
-    return (
-      <div>
-            <div className='editsWrapper'>
-              <div className='sentEditsWrapper'>
-                <div className="sentText">Sent requests</div>
-                <div className='requestsBody'>
-                  <EditRequest status = 'Approved' />
-                  <EditRequest status = 'Rejected' />
-                  <EditRequest status = 'Processing' />
-                </div>
-              </div>
-              <div className='incomingEditsWrapper'>
-                <div className="incomingText">Incoming requests</div>
-                <div className='requestsBody'>
-                  <EditRequest status = 'Approved' />
-                  <EditRequest status = 'Rejected' />
-                  <EditRequest status = 'Processing' />
-                  <EditRequest status = 'Processing' />
-                  <EditRequest status = 'Rejected' />
-                  <EditRequest status = 'Rejected' />
-                  <EditRequest status = 'Approved' />
-                  <EditRequest status = 'Approved' />
-                  <EditRequest status = 'Rejected' />
-                  <EditRequest status = 'Processing' />
-                  <EditRequest status = 'Processing' />
-                  <EditRequest status = 'Rejected' />
-                  <EditRequest status = 'Rejected' />
-                  <EditRequest status = 'Approved' />
-                </div>
-              </div>
-            </div>
+  return (
+    <div>
+      <div className='editsWrapper'>
+        <div className='sentEditsWrapper'>
+          <div className="sentText">Sent requests</div>
+          <div className='requestsBody'>
+            <EditRequest status='Approved' />
+            <EditRequest status='Rejected' />
+            <EditRequest status='Processing' />
+          </div>
+        </div>
+        <div className='incomingEditsWrapper'>
+          <div className="incomingText">Incoming requests</div>
+          <div className='requestsBody'>
+            <EditRequest status='Approved' />
+            <EditRequest status='Rejected' />
+            <EditRequest status='Processing' />
+            <EditRequest status='Processing' />
+            <EditRequest status='Rejected' />
+            <EditRequest status='Rejected' />
+            <EditRequest status='Approved' />
+            <EditRequest status='Approved' />
+            <EditRequest status='Rejected' />
+            <EditRequest status='Processing' />
+            <EditRequest status='Processing' />
+            <EditRequest status='Rejected' />
+            <EditRequest status='Rejected' />
+            <EditRequest status='Approved' />
+          </div>
+        </div>
       </div>
-    );
-  }
+    </div>
+  );
+}

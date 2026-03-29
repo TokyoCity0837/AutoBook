@@ -7,54 +7,50 @@
     width: fit-content;
     flex: 1;
     align-items: center;
+    min-width: 0;
 }
 
 .PostsContainer {
     width: 560px;
     padding-top: 16px;
+    /* margin-top: -55vh; */
     padding-bottom: 20px;
 }
 
 .searchAndUpdates {
     display: flex;
     align-items: flex-start;
-    gap: 14px;
-    position: sticky;
-    top: 20px;
-    z-index: 10;
+    gap: 40px;
     width: fit-content;
-    height: 52px;
+    height: 1%;
+
+    position: sticky;
+    z-index: 9999;
+    top: 2vh;
 }
 
 .UpdatesWrapper {
-    height: fit-content; 
     display: flex;
     flex-direction: column;
+    align-self: flex-start;
 }
 
 .UpdatesContainer {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    
-    gap: 8px;
-    height: fit-content;
+    gap: 12px;
     width: fit-content;
-    max-width: 600px; 
+    max-width: 600px;
     background-color: var(--accent-color);
-    border-radius: 35px;
-    margin-left: 2vw;
-    box-shadow: 0 8px 20px rgba(0,0,0,0.6);
-    padding-bottom: 20px;
-    align-content: flex-start;
+    border-radius: var(--border-radius-lg);
+    box-shadow: var(--shadow);
     padding: 16px;
     box-sizing: border-box;
-    overflow-y: auto;
-
-    overflow-x: hidden;
+    align-items: flex-start;
+    align-content: flex-start;
 }
 
-/* ── Shared page title ── */
 .YBText {
     font-size: 24px;
     font-weight: 500;
@@ -63,17 +59,25 @@
     margin-bottom: 14px;
 }
 
-/* ── Responsive ── */
+
 @media (max-width: 1400px) {
-    .UpdatesWrapper,
-    .UpdatesContainer { display: none; }
+    .UpdatesContainer {
+        max-width: 440px;
+    }
 }
 
 @media (max-width: 1100px) {
-    .content { margin-left: 20px; padding-left: 10px; }
-    .PostsContainer { width: 460px; }
+    .content {
+        margin-left: 20px;
+        padding-left: 10px;
+    }
+
+    .PostsContainer {
+        width: 460px;
+    }
 }
 
+/* in future wiil be changed */
 @media (max-width: 900px) {
     .content {
         margin-left: 0;
@@ -84,7 +88,18 @@
         padding-bottom: 80px;
         align-items: center;
     }
-    .PostsContainer { width: 100%; }
-    .searchAndUpdates { width: 100%; height: auto; }
-    .YBText { font-size: 20px; margin-top: 20px; }
+
+    .PostsContainer {
+        width: 100%;
+    }
+
+    .searchAndUpdates {
+        width: 100%;
+        height: auto;
+    }
+
+    .YBText {
+        font-size: 20px;
+        margin-top: 20px;
+    }
 }

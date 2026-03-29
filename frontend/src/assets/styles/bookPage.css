@@ -3,6 +3,7 @@
     opacity: 0.7;
     padding-top: 2px;
 }
+
 .bookDetailsWrap {
     display: flex;
     flex-direction: row;
@@ -10,6 +11,7 @@
 
     color: #fff;
 }
+
 .bookInfoDecs {
     display: flex;
     flex-direction: column;
@@ -17,38 +19,44 @@
     margin-left: 5vw;
     width: 50vw;
 }
+
 .bookImageDesc {
-    position: sticky; 
+    position: sticky;
     top: 2%;
-    align-self: flex-start;    
+    align-self: flex-start;
     border-radius: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
 }
+
 .ImgBookDecs {
     border-radius: 20px;
     object-fit: cover;
     width: 400px;
     height: 550px;
 }
+
 .bookTitleDesc {
     font-size: 32px;
     margin-top: 20px;
     font-weight: 600;
 }
+
 .bookAuthorsDesc {
     margin-top: 14px;
     opacity: 0.8;
     text-decoration: underline;
     font-weight: 300;
 }
+
 .bookDescription {
     font-size: 22px;
     text-align: justify;
     line-height: 1.4;
     margin-bottom: 4vh;
 }
+
 .addToLibrary {
     display: flex;
     flex-direction: row;
@@ -65,6 +73,7 @@
     font-size: 26px;
     gap: 12px;
 }
+
 .updatesBlock {
     margin-top: 5vh;
     box-shadow: var(--shadow);
@@ -72,84 +81,203 @@
     padding: 40px;
     border-radius: 20px;
 }
+
 .userAndDate {
     display: flex;
     flex-direction: row;
     justify-content: space-between;
 }
+
 .date {
     padding-top: 6px;
     opacity: 0.7;
     font-weight: 300;
 }
+
 .updateWrap {
     margin-top: 30px;
-    text-overflow:ellipsis;
+    text-overflow: ellipsis;
     overflow: hidden;
     white-space: nowrap;
     line-clamp: 1;
 }
+
 .updateWrap:first-child {
     margin-top: 0;
 }
+
 .updateText {
     padding-left: 80px;
     margin-top: -12px;
     font-size: 18px;
     font-weight: 300;
 }
+
 .NicknameForDecs {
     font-size: 22px;
     display: flex;
     flex-direction: row;
     padding-bottom: 24px;
 }
+
 .splitLine {
     height: 4px;
     border-radius: 100px;
     background: var(--accent-color);
     margin-top: 50px;
 }
+
 .comments {
     margin-top: 20px;
     padding: 40px;
 }
+
+.commentCreation {
+    /* background: var(--surface-color); */
+    border-radius: var(--border-radius-md);
+    /* padding: 4px; */
+    margin-bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: -20px;
+}
+
+.commentCreationTop {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+}
+
+.commentCreationInput {
+    flex: 1;
+    background: var(--accent-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-primary);
+    font-size: 16px;
+    padding: 12px 16px;
+    outline: none;
+    resize: none;
+    min-height: 80px;
+    font-family: inherit;
+    line-height: 1.5;
+    transition: border-color 0.2s;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.commentCreationInput::placeholder {
+    color: var(--text-muted);
+}
+
+.commentCreationInput:focus {
+    border-color: var(--text-secondary);
+}
+
+.commentCreationActions {
+    display: flex;
+    justify-content: flex-end;
+}
+
+.commentSubmitBtn {
+    background: var(--accent-color);
+    border: 1px solid var(--border-color);
+    border-radius: var(--border-radius-sm);
+    color: var(--text-primary);
+    font-size: 15px;
+    font-weight: 500;
+    padding: 10px 24px;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    font-family: inherit;
+}
+
+.commentSubmitBtn:hover {
+    background: var(--surface-hover);
+    border-color: var(--text-secondary);
+}
+
+.commentSubmitBtn:active {
+    transform: scale(0.98);
+}
+
 .commentBlock {
     margin-top: 20px;
 }
+
 .commentBlock:first-child {
     margin-top: 0;
 }
+
 .likeAndForwards {
     display: flex;
     flex-direction: row;
     align-items: center;
     padding: 10px;
-
     gap: 6px;
     padding-left: 80px;
 }
+
 .likesComment {
     margin-top: 5px;
 }
+
 .forwardsComment {
     margin-top: 5px;
     margin-right: 4px;
     margin-left: 20px;
 }
 
+/* in future wiil be changed */
 @media (max-width: 1100px) {
-    .ImgBookDecs { width: 300px; height: auto; }
-    .bookInfoDecs { width: 55vw; }
+    .ImgBookDecs {
+        width: 300px;
+        height: auto;
+    }
+
+    .bookInfoDecs {
+        width: 55vw;
+    }
 }
 
 @media (max-width: 900px) {
-    .bookDetailsWrap { flex-direction: column; align-items: center; padding-bottom: 80px; }
-    .bookImageDesc { position: static; width: 100%; align-items: center; }
-    .ImgBookDecs { width: 70vw; height: auto; }
-    .bookInfoDecs { margin-left: 0; width: 90vw; margin-top: 20px; }
-    .bookDescription { font-size: 18px; }
-    .comments { padding: 20px; }
-    .updateText { padding-left: 20px; }
-    .likeAndForwards { padding-left: 20px; }
+    .bookDetailsWrap {
+        flex-direction: column;
+        align-items: center;
+        padding-bottom: 80px;
+    }
+
+    .bookImageDesc {
+        position: static;
+        width: 100%;
+        align-items: center;
+    }
+
+    .ImgBookDecs {
+        width: 70vw;
+        height: auto;
+    }
+
+    .bookInfoDecs {
+        margin-left: 0;
+        width: 90vw;
+        margin-top: 20px;
+    }
+
+    .bookDescription {
+        font-size: 18px;
+    }
+
+    .comments {
+        padding: 20px;
+    }
+
+    .updateText {
+        padding-left: 20px;
+    }
+
+    .likeAndForwards {
+        padding-left: 20px;
+    }
 }
