@@ -1,5 +1,5 @@
 spring.application.name=autobook
-spring.datasource.url=jdbc:mysql://localhost:3306/autobook
+spring.datasource.url=jdbc:mysql://localhost:3307/autobook
 spring.datasource.username=root
 spring.datasource.password=YOURPASSWORDHERE
 

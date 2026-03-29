@@ -1,4 +1,4 @@
--- MySQL dump 10.13  Distrib 9.4.0, for macos15 (arm64)
+-- MySQL dump 10.13  Distrib 9.6.0, for macos14.8 (x86_64)
 --
 -- Host: localhost    Database: autobook
 -- ------------------------------------------------------
@@ -24,30 +24,19 @@ DROP TABLE IF EXISTS `books`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `books` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint DEFAULT NULL,
+  `user_id` bigint NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text,
   `genre` varchar(50) DEFAULT NULL,
   `privacy` varchar(10) DEFAULT 'PRIVATE',
-  `is_featured` tinyint(1) DEFAULT '0',
   `cover_image` varchar(255) DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `books_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `books_chk_1` CHECK ((`privacy` in (_utf8mb4'PUBLIC',_utf8mb4'PRIVATE')))
+  KEY `fk_books_user` (`user_id`),
+  CONSTRAINT `fk_books_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `books`
---
-
-LOCK TABLES `books` WRITE;
-/*!40000 ALTER TABLE `books` DISABLE KEYS */;
-/*!40000 ALTER TABLE `books` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `chapters`
@@ -58,26 +47,16 @@ DROP TABLE IF EXISTS `chapters`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `chapters` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `book_id` bigint DEFAULT NULL,
-  `title` varchar(255) DEFAULT NULL,
+  `book_id` bigint NOT NULL,
+  `title` varchar(255) NOT NULL,
   `content` text,
-  `order_index` int DEFAULT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `book_id` (`book_id`),
-  CONSTRAINT `chapters_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE
+  KEY `fk_chapters_book` (`book_id`),
+  CONSTRAINT `fk_chapters_book` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `chapters`
---
-
-LOCK TABLES `chapters` WRITE;
-/*!40000 ALTER TABLE `chapters` DISABLE KEYS */;
-/*!40000 ALTER TABLE `chapters` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `comments`
@@ -88,26 +67,17 @@ DROP TABLE IF EXISTS `comments`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `comments` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `book_id` bigint DEFAULT NULL,
-  `user_id` bigint DEFAULT NULL,
   `content` text NOT NULL,
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `author_id` bigint NOT NULL,
+  `post_id` bigint NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `book_id` (`book_id`),
-  KEY `user_id` (`user_id`),
-  CONSTRAINT `comments_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `comments_ibfk_2` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+  KEY `fk_comments_author` (`author_id`),
+  KEY `fk_comments_post` (`post_id`),
+  CONSTRAINT `fk_comments_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_comments_post` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `comments`
---
-
-LOCK TABLES `comments` WRITE;
-/*!40000 ALTER TABLE `comments` DISABLE KEYS */;
-/*!40000 ALTER TABLE `comments` ENABLE KEYS */;
-UNLOCK TABLES;
 
 --
 -- Table structure for table `edit_requests`
@@ -118,59 +88,62 @@ DROP TABLE IF EXISTS `edit_requests`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `edit_requests` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `book_id` bigint DEFAULT NULL,
-  `from_user_id` bigint DEFAULT NULL,
+  `book_id` bigint NOT NULL,
+  `from_user_id` bigint NOT NULL,
   `message` text,
   `status` varchar(10) DEFAULT 'PENDING',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `book_id` (`book_id`),
-  KEY `from_user_id` (`from_user_id`),
-  CONSTRAINT `edit_requests_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `edit_requests_ibfk_2` FOREIGN KEY (`from_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `edit_requests_chk_1` CHECK ((`status` in (_utf8mb4'PENDING',_utf8mb4'ACCEPTED',_utf8mb4'REJECTED')))
+  KEY `fk_edit_requests_book` (`book_id`),
+  KEY `fk_edit_requests_user` (`from_user_id`),
+  CONSTRAINT `fk_edit_requests_book` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_edit_requests_user` FOREIGN KEY (`from_user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `edit_requests`
+-- Table structure for table `follows`
 --
 
-LOCK TABLES `edit_requests` WRITE;
-/*!40000 ALTER TABLE `edit_requests` DISABLE KEYS */;
-/*!40000 ALTER TABLE `edit_requests` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `friends`
---
-
-DROP TABLE IF EXISTS `friends`;
+DROP TABLE IF EXISTS `follows`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `friends` (
+CREATE TABLE `follows` (
   `id` bigint NOT NULL AUTO_INCREMENT,
-  `user_id` bigint DEFAULT NULL,
-  `friend_id` bigint DEFAULT NULL,
-  `status` varchar(10) DEFAULT 'PENDING',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `follower_id` bigint NOT NULL,
+  `following_id` bigint NOT NULL,
+  `status` varchar(20) NOT NULL DEFAULT 'PENDING',
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
-  KEY `user_id` (`user_id`),
-  KEY `friend_id` (`friend_id`),
-  CONSTRAINT `friends_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `friends_ibfk_2` FOREIGN KEY (`friend_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `friends_chk_1` CHECK ((`status` in (_utf8mb4'PENDING',_utf8mb4'ACCEPTED',_utf8mb4'BLOCKED')))
+  UNIQUE KEY `uq_follows_pair` (`follower_id`,`following_id`),
+  KEY `fk_follows_following` (`following_id`),
+  CONSTRAINT `fk_follows_follower` FOREIGN KEY (`follower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `fk_follows_following` FOREIGN KEY (`following_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
--- Dumping data for table `friends`
+-- Table structure for table `posts`
 --
 
-LOCK TABLES `friends` WRITE;
-/*!40000 ALTER TABLE `friends` DISABLE KEYS */;
-/*!40000 ALTER TABLE `friends` ENABLE KEYS */;
-UNLOCK TABLES;
+DROP TABLE IF EXISTS `posts`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `posts` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `content` text NOT NULL,
+  `author_id` bigint NOT NULL,
+  `post_type` varchar(20) NOT NULL,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `like_count` int NOT NULL DEFAULT '0',
+  `comment_count` int NOT NULL DEFAULT '0',
+  `repost_count` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `fk_posts_author` (`author_id`),
+  CONSTRAINT `fk_posts_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `users`
@@ -182,55 +155,19 @@ DROP TABLE IF EXISTS `users`;
 CREATE TABLE `users` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `username` varchar(50) NOT NULL,
-  `email` varchar(100) NOT NULL,
-  `password` varchar(255) NOT NULL,
+  `visible_name` varchar(30) NOT NULL,
+  `email` varchar(50) NOT NULL,
+  `password` varchar(75) NOT NULL,
   `bio` text,
   `profile_image` varchar(255) DEFAULT NULL,
+  `role` varchar(20) NOT NULL DEFAULT 'USER',
   `privacy` varchar(10) DEFAULT 'PUBLIC',
-  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
-  UNIQUE KEY `email` (`email`),
-  CONSTRAINT `users_chk_1` CHECK ((`privacy` in (_utf8mb4'PUBLIC',_utf8mb4'PRIVATE')))
+  UNIQUE KEY `email` (`email`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `users`
---
-
-LOCK TABLES `users` WRITE;
-/*!40000 ALTER TABLE `users` DISABLE KEYS */;
-/*!40000 ALTER TABLE `users` ENABLE KEYS */;
-UNLOCK TABLES;
-
---
--- Table structure for table `vocabulary`
---
-
-DROP TABLE IF EXISTS `vocabulary`;
-/*!40101 SET @saved_cs_client     = @@character_set_client */;
-/*!50503 SET character_set_client = utf8mb4 */;
-CREATE TABLE `vocabulary` (
-  `id` bigint NOT NULL AUTO_INCREMENT,
-  `book_id` bigint DEFAULT NULL,
-  `word` varchar(100) DEFAULT NULL,
-  `meaning` text,
-  `usage_example` text,
-  PRIMARY KEY (`id`),
-  KEY `book_id` (`book_id`),
-  CONSTRAINT `vocabulary_ibfk_1` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
-/*!40101 SET character_set_client = @saved_cs_client */;
-
---
--- Dumping data for table `vocabulary`
---
-
-LOCK TABLES `vocabulary` WRITE;
-/*!40000 ALTER TABLE `vocabulary` DISABLE KEYS */;
-/*!40000 ALTER TABLE `vocabulary` ENABLE KEYS */;
-UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
 /*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
@@ -241,4 +178,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-02-18 20:32:43
+-- Dump completed on 2026-03-28 22:27:09
