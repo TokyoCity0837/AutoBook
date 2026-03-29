@@ -2,7 +2,7 @@ import '../assets/styles/pages.css'
 import BookImage1 from '../assets/pictures/book1.jpg'
 import '../assets/styles/BookPage.css'
 import { IconFriends } from '../components/Icons'
-import { Like, Comment } from '../components/Posts'
+import { CommentItem, CreationCommentInline } from '../components/Posts'
 import React from 'react'
 
 function Plus() {
@@ -31,38 +31,6 @@ export function Update({ text = "Edit Comment Edit Comment Edit Comment Edit Com
     );
 }
 
-function CreationComment() {
-    return (
-        <div className="commentCreation">
-            <div className="commentCreationTop">
-                <div className='ProfileImage'></div>
-                <textarea
-                    className="commentCreationInput"
-                    placeholder="Leave a comment..."
-                    maxLength={500}
-                    onFocus={e => e.target.placeholder = ''}
-                    onBlur={e => e.target.placeholder = 'Leave a comment...'}
-                />
-            </div>
-            <div className="commentCreationActions">
-                <button className="commentSubmitBtn">Comment</button>
-            </div>
-        </div>
-    );
-}
-
-function CommentBook() {
-    return (
-        <div className="commentBlock">
-            <Update text="Super amazing book!" />
-            <div className="likeAndForwards">
-                <div className="likesComment"><Like size={24} /></div>2.4k
-                <div className="forwardsComment"><Comment size={20} /></div>512
-            </div>
-        </div>
-    );
-}
-
 export default function BookDetails() {
     return (
         <div className="bookDetailsWrap">
@@ -82,14 +50,33 @@ export default function BookDetails() {
                 </div>
                 <div className="splitLine"></div>
                 <div className="comments">
-                    <CreationComment />
-                    <CommentBook />
-                    <CommentBook />
-                    <CommentBook />
-                    <CommentBook />
-                    <CommentBook />
-                    <CommentBook />
-                    <CommentBook />
+
+                    <div style={{ marginBottom: '25px', borderBottom: '1px solid rgba(255,255,255,0.08)', paddingBottom: '30px' }}>
+                        <CreationCommentInline placeholder="Write a comment..." placeholderButton='Comment' />
+                    </div>
+
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '25px', paddingLeft: '20px' }}>
+                        <CommentItem
+                            author="User 1"
+                            date="2 days ago"
+                            text="I loved the detailed world-building here."
+                            likes={12}
+                            replies={
+                                <CommentItem
+                                    author="Andrii Dosyn"
+                                    date="1 day ago"
+                                    text="Thank you! I'm glad you noticed the world-building."
+                                    likes={4}
+                                />
+                            }
+                        />
+                        <CommentItem
+                            author="User 2"
+                            date="3 days ago"
+                            text="Super amazing book! I couldn't put it down."
+                            likes={18}
+                        />
+                    </div>
                 </div>
             </div>
         </div>

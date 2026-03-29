@@ -25,6 +25,7 @@
     height: 1%;
 
     position: sticky;
+    z-index: 9999;
     top: 2vh;
 }
 
@@ -76,6 +77,7 @@
     }
 }
 
+/* in future wiil be changed */
 @media (max-width: 900px) {
     .content {
         margin-left: 0;

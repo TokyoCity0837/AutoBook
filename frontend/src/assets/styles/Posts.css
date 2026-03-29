@@ -26,24 +26,29 @@
 }
 
 .addPostBar {
-    flex: 1;
-    height: 100px;
-    background-color: rgb(25, 25, 25);
+    width: 100%;
+    height: 55px;
+    background-color: rgba(255, 255, 255, 0.03);
     color: antiquewhite;
-    border: 0;
-    text-align: left;
-    font-size: x-large;
-    border-radius: 25px;
-    /* margin-left: 10px; */
-    width: 540px;
-    margin-top: 20px;
-    padding: 20px;
-    /* padding-left: 20px;
-    padding-top: 20px; */
-    display: flex;
-    align-self: center;
-    justify-self: center;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    font-size: 18px;
+    border-radius: 20px;
+    padding: 16px 20px;
     resize: none;
+    box-sizing: border-box;
+    transition: all 0.3s ease;
+    font-family: inherit;
+    margin-top: 10px;
+}
+
+.addPostBar:focus {
+    outline: none;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.NewPost.expanded .addPostBar {
+    height: 120px;
 }
 
 
@@ -69,17 +74,82 @@
 
 .NewPost {
     background-color: var(--accent-color);
-    height: 215px;
     width: 570px;
     margin-bottom: 50px;
     margin-top: 30px;
     border-radius: 50px;
-    /* border-style: dashed; */
     box-shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
     padding: 30px;
     color: antiquewhite;
     text-align: center;
     font-size: x-large;
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+.newPostActions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 15px;
+    animation: fadeIn 0.4s ease forwards;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-5px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.iconActionBtn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    transition: background 0.2s;
+}
+
+.iconActionBtn:hover {
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.publishBtn {
+    background: linear-gradient(183deg, rgba(23, 23, 23, 0.9) 0%, rgba(25, 29, 38, 1) 50%);
+    color: white;
+    border: none;
+    padding: 10px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 25px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+    box-shadow: var(--shadow);
+}
+
+.publishBtn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(23, 23, 23, 0.9);
+}
+
+.postContentWrap {
+    cursor: pointer;
+    transition: opacity 0.2s;
+}
+
+.postContentWrap:hover {
+    opacity: 0.9;
 }
 
 .user {
@@ -202,7 +272,7 @@
     background: rgba(255, 255, 255, 0.05);
 }
 
-
+/* in future wiil be changed */
 @media (max-width: 1100px) {
     .Post {
         width: 460px;

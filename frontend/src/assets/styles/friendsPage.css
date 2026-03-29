@@ -3,6 +3,7 @@
     flex-direction: column;
     width: 95%;
 }
+
 .friendsWrap {
     display: flex;
     flex-direction: row;
@@ -11,10 +12,12 @@
     gap: 40px;
     margin-bottom: 60px;
 }
+
 .acceptFriend {
     width: 24px;
     height: 24px;
 }
+
 .friendsActions {
     display: flex;
     justify-items: flex-end;
@@ -22,6 +25,7 @@
     margin-top: 8px;
     gap: 10px;
 }
+
 .addFriend {
     display: flex;
     align-items: center;
@@ -35,11 +39,22 @@
     border-radius: 10px;
     box-shadow: var(--shadow);
 }
-.linkToProfile{
+
+.linkToProfile {
     text-decoration: none;
 }
 
+/* in future wiil be changed */
 @media (max-width: 900px) {
-    .friendsPageWrap { width: 100%; padding: 0 10px; box-sizing: border-box; padding-bottom: 80px; }
-    .friendsWrap { gap: 20px; justify-content: center; }
+    .friendsPageWrap {
+        width: 100%;
+        padding: 0 10px;
+        box-sizing: border-box;
+        padding-bottom: 80px;
+    }
+
+    .friendsWrap {
+        gap: 20px;
+        justify-content: center;
+    }
 }

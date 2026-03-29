@@ -212,6 +212,7 @@
     opacity: 0.7;
 }
 
+/* in future wiil be changed */
 @media (max-width: 1400px) {
     .profileInformation {
         font-size: 26px;

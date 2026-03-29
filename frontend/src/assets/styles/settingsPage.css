@@ -441,6 +441,7 @@
     opacity: 1;
 }
 
+/* in future wiil be changed */
 @media (max-width: 768px) {
     .settingsWrap {
         width: 100%;

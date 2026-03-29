@@ -2,6 +2,7 @@
     width: 95%;
 
 }
+
 .booksWrap {
     margin-top: 30px;
     display: flex;
@@ -10,11 +11,13 @@
     gap: 40px;
     margin-bottom: 60px;
 }
+
 .YBText {
     font-size: 48px;
     color: #fff;
     font-weight: 600;
 }
+
 .bookCard {
     height: 420px;
     background: #12151C;
@@ -23,6 +26,7 @@
     width: 220px;
     text-decoration: none;
 }
+
 .bookImg .ImgBook {
     border-top-left-radius: 20px;
     border-top-right-radius: 20px;
@@ -106,9 +110,26 @@
 
 }
 
+/* in future wiil be changed */
 @media (max-width: 900px) {
-    .libraryWrap { width: 100%; padding: 0 10px; box-sizing: border-box; padding-bottom: 80px; }
-    .YBText { font-size: 32px; }
-    .booksWrap { gap: 20px; justify-content: center; }
-    .addWrap { gap: 20px; flex-wrap: wrap; }
+    .libraryWrap {
+        width: 100%;
+        padding: 0 10px;
+        box-sizing: border-box;
+        padding-bottom: 80px;
+    }
+
+    .YBText {
+        font-size: 32px;
+    }
+
+    .booksWrap {
+        gap: 20px;
+        justify-content: center;
+    }
+
+    .addWrap {
+        gap: 20px;
+        flex-wrap: wrap;
+    }
 }

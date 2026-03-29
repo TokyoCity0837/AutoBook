@@ -377,6 +377,7 @@
     color: #fff;
 }
 
+/* in future wiil be changed */
 @media (max-width: 480px) {
     .authCard {
         padding: 30px 24px 28px;

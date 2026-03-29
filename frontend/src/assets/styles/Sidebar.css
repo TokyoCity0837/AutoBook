@@ -36,6 +36,7 @@
     cursor: pointer;
     display: block;
 }
+
 .sidebarProfileActive {
     width: 46px;
     height: 46px;
@@ -47,12 +48,13 @@
     box-shadow: 0 0 0 2px rgba(40, 233, 40, 0.5);
     display: block;
 }
+
 .sidebarProfile:hover {
     transform: scale(1.06);
 }
 
 .sidebarLine {
-    background-color: rgba(255,255,255,0.15);
+    background-color: rgba(255, 255, 255, 0.15);
     width: 36px;
     height: 1.5px;
     margin: 14px auto;
@@ -72,22 +74,24 @@
     align-items: center;
     justify-content: center;
     border-radius: 14px;
-    
+
     cursor: pointer;
     transition: background 0.15s, transform 0.15s;
-    color: rgba(255,255,255,0.45);
+    color: rgba(255, 255, 255, 0.45);
 }
+
 .icon:hover {
-    background: rgba(255,255,255,0.07);
+    background: rgba(255, 255, 255, 0.07);
     color: #fff;
 }
-.icon svg { 
-    width: 32px; 
-    height: 32px; 
+
+.icon svg {
+    width: 32px;
+    height: 32px;
 }
 
 .icon .activeIcon {
-    background: rgba(255,255,255,0.12);
+    background: rgba(255, 255, 255, 0.12);
     border-radius: 12px;
     padding: 8px;
 }
@@ -103,13 +107,15 @@
     transition: opacity 0.15s;
     opacity: 0.45;
 }
-.settings:hover { 
-    opacity: 1; 
+
+.settings:hover {
+    opacity: 1;
 }
+
 .settings svg {
-     width: 32px; 
-     height: 32px; 
-     color: #fff; 
+    width: 32px;
+    height: 32px;
+    color: #fff;
 }
 
 .SettingsActive {
@@ -122,14 +128,20 @@
     opacity: 1;
     animation: spin 8s linear infinite;
 }
-.SettingsActive svg { 
-    width: 32px; 
-    height: 32px; 
+
+.SettingsActive svg {
+    width: 32px;
+    height: 32px;
 }
 
 @keyframes spin {
-    0%   { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .logout {
@@ -143,5 +155,12 @@
     border-radius: 12px;
     transition: background 0.15s;
 }
-.logout:hover { background: rgba(169,66,66,0.12); }
-.logout svg { width: 28px; height: 28px; }
+
+.logout:hover {
+    background: rgba(169, 66, 66, 0.12);
+}
+
+.logout svg {
+    width: 28px;
+    height: 28px;
+}

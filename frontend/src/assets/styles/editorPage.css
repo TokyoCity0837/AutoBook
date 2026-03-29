@@ -457,16 +457,16 @@
     background: rgba(255, 255, 255, 0.04);
 }
 
-── Center ── */ .editorCenter {
+.editorCenter {
     flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    overflow-y: auto;
-    overflow-x: hidden;
+    justify-content: flex-start;
+    overflow: auto;
     min-width: 0;
     background: #2a2e3a;
-    padding: 20px 20px 60px;
+    padding: 60px 40px 100px;
 }
 
 .focusMode .editorCenter {
@@ -475,15 +475,19 @@
 }
 
 .editorPaper {
-    width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+    /* width: 80%; */
+    /* justify-content: center; */
+    /* margin: auto; */
 }
 
 .tiptapEditor {
     width: 100%;
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 }
 
 .tiptapEditor .ProseMirror {
@@ -499,7 +503,9 @@
 }
 
 .tiptapEditor .page {
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3), 0 8px 24px rgba(0, 0, 0, 0.2) !important;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4), 0 8px 32px rgba(0, 0, 0, 0.2) !important;
+    border-radius: 4px !important;
+    /* Slight rounding for a sleek look */
 }
 
 .tiptapEditor .rm-pagination-gap {
@@ -650,6 +656,7 @@
     display: flex;
     flex-direction: column;
     gap: 12px;
+    color: #fff;
 }
 
 .editorStatusBar {
@@ -745,6 +752,8 @@
     text-align: center;
 }
 
+
+/* in future wiil be changed */
 @media print {
     .editorPageWrap {
         height: auto;

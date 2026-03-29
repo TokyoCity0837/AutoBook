@@ -1,8 +1,8 @@
 import '../assets/styles/Posts.css'
 import { IconFriends } from './Icons'
 import BookImage from '../assets/pictures/BookImage.jpeg'
-import React from 'react'
-import { Link } from 'react-router-dom'
+import React, { useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 
 export function UserInfoForPost() {
     return (
@@ -51,43 +51,161 @@ function IconMore({ size = 18 }) {
 export function Like({ size = 18 }) { return <IconHeart size={size} /> }
 export function Comment({ size = 17 }) { return <IconComment size={size} /> }
 
-export function CreationPost() {
+function IconAddPhoto({ size = 24 }) {
     return (
-        <div className="NewPost">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+            <path d="M7 6H17C18.1046 6 19 6.89543 19 8V16C19 17.1046 18.1046 18 17 18H7C5.89543 18 5 17.1046 5 16V8C5 6.89543 5.89543 6 7 6Z" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5 13L9 9L15 15L19 11" stroke="rgba(255,255,255,0.7)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+            <circle cx="9.5" cy="10.5" r="1.5" fill="rgba(255,255,255,0.7)" />
+        </svg>
+    )
+}
+
+export function CreationPost() {
+    const [isExpanded, setIsExpanded] = useState(false);
+    const [textValue, setTextValue] = useState('');
+
+    return (
+        <div
+            className={`NewPost ${isExpanded ? 'expanded' : ''}`}
+            tabIndex={-1}
+            onBlur={(e) => {
+                if (!e.currentTarget.contains(e.relatedTarget)) {
+                    if (textValue.trim() === '') {
+                        setIsExpanded(false);
+                    }
+                }
+            }}
+        >
             <div className="newPostTop">
                 <div className="ProfileImage" />
                 <div className="Nickname">Andrii Dosyn</div>
             </div>
             <textarea
+                value={textValue}
+                onChange={e => setTextValue(e.target.value)}
                 maxLength={500}
-                placeholder="Write a post"
+                placeholder="What's on your mind?"
                 className="addPostBar"
-                onFocus={e => e.target.placeholder = ''}
-                onBlur={e => e.target.placeholder = "What's on your mind?"}
+                onFocus={(e) => {
+                    e.target.placeholder = '';
+                    setIsExpanded(true);
+                }}
+                onBlur={(e) => {
+                    if (e.target.value === '') {
+                        e.target.placeholder = "What's on your mind?";
+                    }
+                }}
             />
+            {isExpanded && (
+                <div className="newPostActions">
+                    <button className="iconActionBtn">
+                        <IconAddPhoto />
+                    </button>
+                    <button className="publishBtn">Publish</button>
+                </div>
+            )}
         </div>
     )
 }
 
 export function Post() {
+    const navigate = useNavigate();
+
     return (
         <div className="Post">
             <UserInfoForPost />
-            <div className="PostText">
-                Konečne som dokončil prvú časť svojho románu. Dlho som hľadal
-                správny hlas pre túto príbeh — tmavý, melancholický, ale s nádejou na
-                konci. Dúfam, že vás prvá kapitola zaujme rovnako ako mňa pri písaní
-            </div>
-            <div className="postImage">
-                <img src={BookImage} alt="book" />
+            <div className="postContentWrap" onClick={() => navigate('/post/1')}>
+                <div className="PostText">
+                    Konečne som dokončil prvú časť svojho románu. Dlho som hľadal
+                    správny hlas pre túto príbeh — tmavý, melancholický, ale s nádejou na
+                    konci. Dúfam, že vás prvá kapitola zaujme rovnako ako mňa pri písaní
+                </div>
+                <div className="postImage">
+                    <img src={BookImage} alt="book" />
+                </div>
             </div>
             <div className="PostLine" />
             <div className="PostAcvtivity">
                 <div className="LikeActivity"><IconHeart size={22} /><span className="LikesAmount">2.4k</span></div>
-                <div className="CommentActivity"><IconComment size={22} /><span className="CommentsAmount">148</span></div>
+                <div className="CommentActivity" onClick={() => navigate('/post/1')}><IconComment size={22} /><span className="CommentsAmount">148</span></div>
                 <div className="ShareActivity"><IconShare size={22} /><span className="ShareAmount">32</span></div>
                 <div className="MoreActivity"><IconMore size={26} /></div>
             </div>
         </div>
     )
+}
+
+export interface CommentProps {
+    author: string;
+    text: string;
+    date: string;
+    likes: number;
+    replies?: React.ReactNode;
+}
+
+export function CommentItem({ author, text, date, likes, replies }: CommentProps) {
+    const [isReplying, setIsReplying] = useState(false);
+
+    return (
+        <div className="commentNode">
+            <div className="commentContent">
+                <div className="userAndDate">
+                    <div className="user">
+                        <div className="ProfileImage profileSmall"></div>
+                        <div className="userInfoSmall">
+                            <div className="NicknameForDecs">
+                                {author} <span className="statusWrap"><IconFriends size={14} /></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className="date">{date}</div>
+                </div>
+                <div className="commentText">{text}</div>
+
+                <div className="commentActions">
+                    <div className="actionBtn"><Like size={16} /> {likes}</div>
+                    <div className="actionBtn" onClick={() => setIsReplying(!isReplying)}>
+                        <Comment size={16} /> Reply
+                    </div>
+                </div>
+            </div>
+
+            {isReplying && (
+                <div className="replyInputWrap">
+                    <CreationCommentInline placeholder={`Replying to ${author}...`} />
+                </div>
+            )}
+
+            {replies && (
+                <div className="commentReplies">
+                    {replies}
+                </div>
+            )}
+        </div>
+    );
+}
+
+export function CreationCommentInline({ placeholder = "Leave a comment...", placeholderButton = "Reply" }) {
+    const [isFocused, setIsFocused] = useState(false);
+    return (
+        <div className={`commentCreationInline ${isFocused ? 'focused' : ''}`}>
+            <div className="ProfileImage profileSmall"></div>
+            <div className="inputArea">
+                <textarea
+                    className="commentCreationInputInline"
+                    placeholder={placeholder}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={(e) => {
+                        if (e.target.value === '') setIsFocused(false);
+                    }}
+                />
+                {isFocused && (
+                    <div className="commentSubmitRow">
+                        <button className="commentPostBtn">{placeholderButton}</button>
+                    </div>
+                )}
+            </div>
+        </div>
+    );
 }

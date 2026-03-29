@@ -1,0 +1,341 @@
+.postPageWrap {
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    padding-top: 40px;
+}
+
+.postPageLayout {
+    display: flex;
+    gap: 30px;
+    width: 100%;
+    max-width: 950px;
+    align-items: flex-start;
+}
+
+.postPageMain {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.postContainer {
+    width: 100%;
+    max-width: 630px;
+    display: flex;
+    justify-content: center;
+}
+
+.postPageSidebar {
+    width: 320px;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.authorWidget,
+.tagsWidget {
+    background-color: var(--accent-color);
+    border-radius: 30px;
+    padding: 24px;
+    box-shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
+    color: antiquewhite;
+}
+
+.authorWidgetTop {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.profileLarge {
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background-color: white;
+}
+
+.authorStats {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    margin-top: 5px;
+}
+
+.authorBio {
+    font-size: 15px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.75);
+    margin-bottom: 20px;
+}
+
+.followBtn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.08);
+    color: white;
+    font-weight: 600;
+    font-size: 16px;
+    border: none;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.followBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.widgetTitle {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    font-weight: 600;
+    color: #fff;
+}
+
+.tagsList {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.tagItem {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 6px 14px;
+    border-radius: 15px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.tagItem:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.commentsSection {
+    width: 570px;
+    background-color: var(--accent-color);
+    border-radius: 40px;
+    padding: 30px;
+    padding-bottom: 40px;
+    box-shadow: 0 8px 20px rgba(12, 12, 12, 0.4);
+    margin-bottom: 50px;
+    color: #fff;
+}
+
+.commentsHeader {
+    margin-top: 0;
+    margin-bottom: 25px;
+    font-size: 24px;
+    font-weight: 500;
+}
+
+.mainCommentInput {
+    margin-bottom: 30px;
+    padding-bottom: 30px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.commentCreationInline {
+    display: flex;
+    gap: 15px;
+    width: 100%;
+}
+
+.profileSmall {
+    width: 45px;
+    height: 45px;
+    min-width: 45px;
+}
+
+.inputArea {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.commentCreationInputInline {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.05);
+    border-radius: 20px;
+    padding: 12px 18px;
+    color: antiquewhite;
+    font-size: 16px;
+    resize: none;
+    height: 50px;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.commentCreationInputInline:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, 0.15);
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.commentCreationInline.focused .commentCreationInputInline {
+    height: 90px;
+}
+
+.commentSubmitRow {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+    animation: fadeIn 0.3s ease;
+}
+
+.commentPostBtn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+
+.commentPostBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Comment Tree Structure */
+.commentsTree {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.commentNode {
+    display: flex;
+    flex-direction: column;
+}
+
+.commentContent {
+    display: flex;
+    flex-direction: column;
+}
+
+.userInfoSmall {
+    display: flex;
+    flex-direction: column;
+}
+
+.NicknameForDecs {
+    font-size: 18px;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.statusWrap {
+    color: rgba(255, 255, 255, 0.4);
+    display: flex;
+    align-items: center;
+}
+
+.userAndDate {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: -5px;
+}
+
+.date {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+}
+
+.commentText {
+    font-size: 16px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.85);
+    margin-left: 60px;
+    /* Aligns with text after avatar */
+    margin-bottom: 12px;
+}
+
+.commentActions {
+    display: flex;
+    gap: 20px;
+    margin-left: 60px;
+}
+
+.actionBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.5);
+    cursor: pointer;
+    transition: color 0.2s;
+}
+
+.actionBtn:hover {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.replyInputWrap {
+    margin-left: 60px;
+    margin-top: 15px;
+    animation: fadeIn 0.3s ease;
+}
+
+.commentReplies {
+    margin-left: 22px;
+    padding-left: 37px;
+    border-left: 2px solid rgba(255, 255, 255, 0.08);
+    margin-top: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* in future wiil be changed */
+@media (max-width: 1000px) {
+    .postPageLayout {
+        flex-direction: column;
+        align-items: center;
+        padding: 0 20px;
+    }
+
+    .postPageSidebar {
+        width: 100%;
+        max-width: 570px;
+    }
+
+    .postPageMain {
+        width: 100%;
+    }
+
+    .postContainer {
+        width: 100%;
+    }
+
+    .commentsSection {
+        width: 100%;
+        max-width: 570px;
+        border-radius: 30px;
+        padding: 20px;
+        box-sizing: border-box;
+    }
+
+    .commentText,
+    .commentActions,
+    .replyInputWrap {
+        margin-left: 0;
+        margin-top: 10px;
+    }
+
+    .commentReplies {
+        margin-left: 10px;
+        padding-left: 15px;
+    }
+}
