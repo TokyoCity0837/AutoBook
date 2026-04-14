@@ -1,3 +1,4 @@
+
 .friendsPageWrap {
     display: flex;
     flex-direction: column;
@@ -11,6 +12,10 @@
     margin-top: 30px;
     gap: 40px;
     margin-bottom: 60px;
+}
+
+.friendsWrap--cards {
+    gap: 20px;
 }
 
 .acceptFriend {
@@ -44,7 +49,119 @@
     text-decoration: none;
 }
 
-/* in future wiil be changed */
+.friendCard {
+    position: relative;
+    width: 200px;
+    background: var(--accent-color);
+    border-radius: var(--border-radius-md);
+    box-shadow: var(--shadow);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid var(--border-color);
+    transition: transform 0.18s ease, box-shadow 0.18s ease;
+}
+
+.friendCard:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 14px 32px rgba(0, 0, 0, 0.55);
+}
+
+.friendCardBanner {
+    width: 100%;
+    height: 80px;
+    background: linear-gradient(135deg, #1e2433 0%, #2a3245 50%, #1a2030 100%);
+    flex-shrink: 0;
+}
+
+.friendCardAvatar {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 1);
+    border: 3px solid var(--accent-color);
+    margin-top: -32px;
+    flex-shrink: 0;
+    z-index: 1;
+}
+
+.friendCardBody {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px 14px 16px;
+    width: 100%;
+    box-sizing: border-box;
+    gap: 4px;
+}
+
+.friendCardName {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-primary);
+    text-align: center;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 150px;
+}
+
+.friendCardMeta {
+    font-size: 14px;
+    font-weight: 300;
+    color: var(--text-muted);
+    text-align: center;
+}
+
+.friendCardActions {
+    display: flex;
+    gap: 8px;
+    margin-top: 32px;
+    width: 100%;
+}
+
+.friendCardBtn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 8px 12px;
+    /* border-radius: var(--border-radius-sm); */
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: opacity 0.15s ease, transform 0.1s ease;
+    font-family: inherit;
+}
+
+.friendCardBtn:active {
+    transform: scale(0.96);
+}
+
+.friendCardBtn--accept {
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.friendCardBtn--accept:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+.friendCardBtn--reject {
+    background: rgba(255, 43, 43, 0.18);
+    color: #ff1515;
+    border: 1px solid rgba(220, 60, 60, 0.25);
+}
+
+.friendCardBtn--reject:hover {
+    background: rgba(220, 60, 60, 0.28);
+}
+
 @media (max-width: 900px) {
     .friendsPageWrap {
         width: 100%;
@@ -56,5 +173,9 @@
     .friendsWrap {
         gap: 20px;
         justify-content: center;
+    }
+
+    .friendCard {
+        width: 160px;
     }
 }
