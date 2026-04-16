@@ -52,6 +52,7 @@ function StrengthBar({ password }: { password: string }) {
 
 export default function RegisterPage() {
     const [username, setUsername] = useState('')
+    const [displayName, setDisplayName] = useState('')
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [confirm, setConfirm] = useState('')
@@ -93,6 +94,13 @@ export default function RegisterPage() {
                         <input className="authInput" type="text" placeholder="your_nickname"
                             value={username} onChange={e => setUsername(e.target.value)}
                             autoComplete="username" required />
+                    </div>
+
+                    <div className="authField">
+                        <label className="authLabel">Display name</label>
+                        <input className="authInput" type="text" placeholder="display name"
+                            value={displayName} onChange={e => setDisplayName(e.target.value)}
+                            autoComplete="displayName" required />
                     </div>
 
                     <div className="authField">
