@@ -5,6 +5,7 @@ import com.autobook.Exception.FollowAlreadyExistsException;
 import com.autobook.Exception.FollowNotFoundException;
 import com.autobook.Exception.InvalidFollowException;
 import com.autobook.Factory.FollowFactory;
+import com.autobook.Social.Follow.DTO.Response.FollowResponse;
 import com.autobook.Social.User.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,9 +20,10 @@ public class FollowService {
 
     private final FollowRepository followRepository;
     private final FollowFactory followFactory;
+    private final FollowMapper followMapper;
 
     @Transactional
-    public Follow sendFollowRequest(User follower, User following) {
+    public FollowResponse sendFollowRequest(User follower, User following) {
         validateFollowRequest(follower, following);
 
         if (followRepository.existsByFollowerAndFollowing(follower, following)) {
@@ -29,24 +31,34 @@ public class FollowService {
         }
 
         Follow followRequest = followFactory.create(follower, following, FollowStatus.PENDING);
-        return followRepository.save(followRequest);
+        Follow savedFollow = followRepository.save(followRequest);
+
+        return followMapper.toResponse(savedFollow);
     }
 
-    public Follow getFollowById(Long followId) {
-        return followRepository.findById(followId)
-                .orElseThrow(() -> new FollowNotFoundException(followId));
+    public FollowResponse getFollowById(Long followId) {
+        return followMapper.toResponse(getFollowEntityById(followId));
     }
 
-    public List<Follow> getPendingRequests(User user) {
-        return followRepository.findByFollowingAndStatus(user, FollowStatus.PENDING);
+    public List<FollowResponse> getPendingRequests(User user) {
+        return followRepository.findByFollowingAndStatus(user, FollowStatus.PENDING)
+                .stream()
+                .map(followMapper::toResponse)
+                .toList();
     }
 
-    public List<Follow> getFollowers(User user) {
-        return followRepository.findByFollowingAndStatus(user, FollowStatus.ACCEPTED);
+    public List<FollowResponse> getFollowers(User user) {
+        return followRepository.findByFollowingAndStatus(user, FollowStatus.ACCEPTED)
+                .stream()
+                .map(followMapper::toResponse)
+                .toList();
     }
 
-    public List<Follow> getFollowing(User user) {
-        return followRepository.findByFollowerAndStatus(user, FollowStatus.ACCEPTED);
+    public List<FollowResponse> getFollowing(User user) {
+        return followRepository.findByFollowerAndStatus(user, FollowStatus.ACCEPTED)
+                .stream()
+                .map(followMapper::toResponse)
+                .toList();
     }
 
     public long countFollowers(User user) {
@@ -66,15 +78,15 @@ public class FollowService {
     }
 
     @Transactional
-    public void acceptFollowRequest(Long followId) {
-        Follow request = getFollowById(followId);
+    public FollowResponse acceptFollowRequest(Long followId) {
+        Follow request = getFollowEntityById(followId);
 
         if (request.getStatus() != FollowStatus.PENDING) {
             throw new InvalidFollowException();
         }
 
         request.setStatus(FollowStatus.ACCEPTED);
-        followRepository.save(request);
+        Follow savedRequest = followRepository.save(request);
 
         boolean reverseExists = followRepository.existsByFollowerAndFollowing(
                 request.getFollowing(),
@@ -97,11 +109,13 @@ public class FollowService {
             reverseFollow.setStatus(FollowStatus.ACCEPTED);
             followRepository.save(reverseFollow);
         }
+
+        return followMapper.toResponse(savedRequest);
     }
 
     @Transactional
     public void rejectFollowRequest(Long followId) {
-        Follow request = getFollowById(followId);
+        Follow request = getFollowEntityById(followId);
 
         if (request.getStatus() != FollowStatus.PENDING) {
             throw new InvalidFollowException();
@@ -120,6 +134,11 @@ public class FollowService {
 
         followRepository.findByFollowerAndFollowing(secondUser, firstUser)
                 .ifPresent(followRepository::delete);
+    }
+
+    private Follow getFollowEntityById(Long followId) {
+        return followRepository.findById(followId)
+                .orElseThrow(() -> new FollowNotFoundException(followId));
     }
 
     private void validateFollowRequest(User follower, User following) {
