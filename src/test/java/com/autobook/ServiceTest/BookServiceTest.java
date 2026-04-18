@@ -4,8 +4,17 @@ import com.autobook.Enum.PrivacyType;
 import com.autobook.Exception.BookNotFoundException;
 import com.autobook.Exception.EmptyBookTitleException;
 import com.autobook.Factory.BookFactory;
+import com.autobook.Library.Book.Book;
+import com.autobook.Library.Book.BookMapper;
+import com.autobook.Library.Book.BookRepository;
+import com.autobook.Library.Book.BookService;
+import com.autobook.Library.Book.DTO.Request.CreateBookRequest;
+import com.autobook.Library.Book.DTO.Request.UpdateBookRequest;
+import com.autobook.Library.Book.DTO.Response.BookCardResponse;
+import com.autobook.Library.Book.DTO.Response.BookDetailsResponse;
+import com.autobook.Library.Edit.EditMapper;
+import com.autobook.Library.Edit.EditRepository;
 import com.autobook.Social.User.User;
-import com.autobook.Library.Book.*;
 import com.autobook.util.BookTestBuilder;
 import com.autobook.util.UserTestBuilder;
 import org.junit.jupiter.api.Test;
@@ -29,12 +38,29 @@ class BookServiceTest {
     @Mock
     private BookFactory bookFactory;
 
+    @Mock
+    private BookMapper bookMapper;
+
+    @Mock
+    private EditRepository editRepository;
+
+    @Mock
+    private EditMapper editMapper;
+
     @InjectMocks
     private BookService bookService;
 
     @Test
     void createBook_ok() {
         User author = new UserTestBuilder().build();
+
+        CreateBookRequest request = new CreateBookRequest(
+                "My Book",
+                "About book",
+                "Fantasy",
+                PrivacyType.PUBLIC,
+                "cover.png"
+        );
 
         Book createdBook = new BookTestBuilder()
                 .withAuthor(author)
@@ -45,43 +71,64 @@ class BookServiceTest {
                 .withCoverImage("cover.png")
                 .build();
 
+        Book savedBook = new BookTestBuilder()
+                .withId(1L)
+                .withAuthor(author)
+                .withTitle("My Book")
+                .withDescription("About book")
+                .withGenre("Fantasy")
+                .withPrivacy(PrivacyType.PUBLIC)
+                .withCoverImage("cover.png")
+                .build();
+
+        BookDetailsResponse expectedResponse = mock(BookDetailsResponse.class);
+
         when(bookFactory.create(
                 author,
-                "My Book",
-                "About book",
-                "Fantasy",
-                PrivacyType.PUBLIC,
-                "cover.png"
+                request.title(),
+                request.description(),
+                request.genre(),
+                request.privacy(),
+                request.coverImage()
         )).thenReturn(createdBook);
 
-        when(bookRepository.save(createdBook)).thenReturn(createdBook);
+        when(bookRepository.save(createdBook)).thenReturn(savedBook);
+        when(editRepository.findByBook(savedBook)).thenReturn(List.of());
+        when(bookMapper.toDetailsResponse(savedBook, List.of())).thenReturn(expectedResponse);
 
-        Book result = bookService.createBook(
-                author,
-                "My Book",
-                "About book",
-                "Fantasy",
-                PrivacyType.PUBLIC,
-                "cover.png"
-        );
+        BookDetailsResponse result = bookService.createBook(author, request);
 
         assertNotNull(result);
-        assertEquals("My Book", result.getTitle());
-        assertEquals("About book", result.getDescription());
-        assertEquals("Fantasy", result.getGenre());
-        assertEquals(PrivacyType.PUBLIC, result.getPrivacy());
-        assertEquals("cover.png", result.getCoverImage());
+        assertEquals(expectedResponse, result);
 
+        verify(bookFactory).create(
+                author,
+                request.title(),
+                request.description(),
+                request.genre(),
+                request.privacy(),
+                request.coverImage()
+        );
         verify(bookRepository).save(createdBook);
+        verify(editRepository).findByBook(savedBook);
+        verify(bookMapper).toDetailsResponse(savedBook, List.of());
     }
 
     @Test
     void createBook_emptyTitle() {
         User author = new UserTestBuilder().build();
 
+        CreateBookRequest request = new CreateBookRequest(
+                "   ",
+                "desc",
+                "Fantasy",
+                PrivacyType.PUBLIC,
+                "cover.png"
+        );
+
         assertThrows(
                 EmptyBookTitleException.class,
-                () -> bookService.createBook(author, "   ", "desc", "Fantasy", PrivacyType.PUBLIC, "cover.png")
+                () -> bookService.createBook(author, request)
         );
 
         verify(bookFactory, never()).create(any(), any(), any(), any(), any(), any());
@@ -95,12 +142,20 @@ class BookServiceTest {
                 .withTitle("Book 1")
                 .build();
 
+        BookDetailsResponse expectedResponse = mock(BookDetailsResponse.class);
+
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(editRepository.findByBook(book)).thenReturn(List.of());
+        when(bookMapper.toDetailsResponse(book, List.of())).thenReturn(expectedResponse);
 
-        Book result = bookService.getBookById(1L);
+        BookDetailsResponse result = bookService.getBookById(1L);
 
-        assertEquals(1L, result.getId());
-        assertEquals("Book 1", result.getTitle());
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+
+        verify(bookRepository).findById(1L);
+        verify(editRepository).findByBook(book);
+        verify(bookMapper).toDetailsResponse(book, List.of());
     }
 
     @Test
@@ -108,6 +163,10 @@ class BookServiceTest {
         when(bookRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(BookNotFoundException.class, () -> bookService.getBookById(1L));
+
+        verify(bookRepository).findById(1L);
+        verify(editRepository, never()).findByBook(any());
+        verify(bookMapper, never()).toDetailsResponse(any(), any());
     }
 
     @Test
@@ -115,13 +174,22 @@ class BookServiceTest {
         Book book1 = new BookTestBuilder().withId(1L).withTitle("Book 1").build();
         Book book2 = new BookTestBuilder().withId(2L).withTitle("Book 2").build();
 
-        when(bookRepository.findAll()).thenReturn(List.of(book1, book2));
+        BookCardResponse response1 = mock(BookCardResponse.class);
+        BookCardResponse response2 = mock(BookCardResponse.class);
 
-        List<Book> result = bookService.getAllBooks();
+        when(bookRepository.findAll()).thenReturn(List.of(book1, book2));
+        when(bookMapper.toCardResponse(book1)).thenReturn(response1);
+        when(bookMapper.toCardResponse(book2)).thenReturn(response2);
+
+        List<BookCardResponse> result = bookService.getAllBooks();
 
         assertEquals(2, result.size());
-        assertEquals("Book 1", result.get(0).getTitle());
-        assertEquals("Book 2", result.get(1).getTitle());
+        assertEquals(response1, result.get(0));
+        assertEquals(response2, result.get(1));
+
+        verify(bookRepository).findAll();
+        verify(bookMapper).toCardResponse(book1);
+        verify(bookMapper).toCardResponse(book2);
     }
 
     @Test
@@ -131,11 +199,18 @@ class BookServiceTest {
         Book book1 = new BookTestBuilder().withAuthor(author).withTitle("Book 1").build();
         Book book2 = new BookTestBuilder().withAuthor(author).withTitle("Book 2").build();
 
-        when(bookRepository.findByAuthor(author)).thenReturn(List.of(book1, book2));
+        BookCardResponse response1 = mock(BookCardResponse.class);
+        BookCardResponse response2 = mock(BookCardResponse.class);
 
-        List<Book> result = bookService.getBooksByAuthor(author);
+        when(bookRepository.findByAuthor(author)).thenReturn(List.of(book1, book2));
+        when(bookMapper.toCardResponse(book1)).thenReturn(response1);
+        when(bookMapper.toCardResponse(book2)).thenReturn(response2);
+
+        List<BookCardResponse> result = bookService.getBooksByAuthor(author);
 
         assertEquals(2, result.size());
+        assertEquals(response1, result.get(0));
+        assertEquals(response2, result.get(1));
     }
 
     @Test
@@ -144,12 +219,15 @@ class BookServiceTest {
                 .withPrivacy(PrivacyType.PUBLIC)
                 .build();
 
-        when(bookRepository.findByPrivacy(PrivacyType.PUBLIC)).thenReturn(List.of(book));
+        BookCardResponse response = mock(BookCardResponse.class);
 
-        List<Book> result = bookService.getBooksByPrivacy(PrivacyType.PUBLIC);
+        when(bookRepository.findByPrivacy(PrivacyType.PUBLIC)).thenReturn(List.of(book));
+        when(bookMapper.toCardResponse(book)).thenReturn(response);
+
+        List<BookCardResponse> result = bookService.getBooksByPrivacy(PrivacyType.PUBLIC);
 
         assertEquals(1, result.size());
-        assertEquals(PrivacyType.PUBLIC, result.get(0).getPrivacy());
+        assertEquals(response, result.get(0));
     }
 
     @Test
@@ -163,11 +241,7 @@ class BookServiceTest {
                 .withCoverImage("old.png")
                 .build();
 
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
-        when(bookRepository.save(book)).thenReturn(book);
-
-        Book result = bookService.updateBook(
-                1L,
+        UpdateBookRequest request = new UpdateBookRequest(
                 "New Title",
                 "New Description",
                 "Fantasy",
@@ -175,13 +249,27 @@ class BookServiceTest {
                 "new.png"
         );
 
-        assertEquals("New Title", result.getTitle());
-        assertEquals("New Description", result.getDescription());
-        assertEquals("Fantasy", result.getGenre());
-        assertEquals(PrivacyType.PUBLIC, result.getPrivacy());
-        assertEquals("new.png", result.getCoverImage());
+        BookDetailsResponse expectedResponse = mock(BookDetailsResponse.class);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(editRepository.findByBook(book)).thenReturn(List.of());
+        when(bookMapper.toDetailsResponse(book, List.of())).thenReturn(expectedResponse);
+
+        BookDetailsResponse result = bookService.updateBook(1L, request);
+
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+
+        assertEquals("New Title", book.getTitle());
+        assertEquals("New Description", book.getDescription());
+        assertEquals("Fantasy", book.getGenre());
+        assertEquals(PrivacyType.PUBLIC, book.getPrivacy());
+        assertEquals("new.png", book.getCoverImage());
 
         verify(bookRepository).save(book);
+        verify(editRepository).findByBook(book);
+        verify(bookMapper).toDetailsResponse(book, List.of());
     }
 
     @Test
@@ -192,11 +280,7 @@ class BookServiceTest {
                 .withDescription("Old Description")
                 .build();
 
-        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
-        when(bookRepository.save(book)).thenReturn(book);
-
-        Book result = bookService.updateBook(
-                1L,
+        UpdateBookRequest request = new UpdateBookRequest(
                 "New Title",
                 null,
                 null,
@@ -204,10 +288,24 @@ class BookServiceTest {
                 null
         );
 
-        assertEquals("New Title", result.getTitle());
-        assertEquals("Old Description", result.getDescription());
+        BookDetailsResponse expectedResponse = mock(BookDetailsResponse.class);
+
+        when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
+        when(bookRepository.save(book)).thenReturn(book);
+        when(editRepository.findByBook(book)).thenReturn(List.of());
+        when(bookMapper.toDetailsResponse(book, List.of())).thenReturn(expectedResponse);
+
+        BookDetailsResponse result = bookService.updateBook(1L, request);
+
+        assertNotNull(result);
+        assertEquals(expectedResponse, result);
+
+        assertEquals("New Title", book.getTitle());
+        assertEquals("Old Description", book.getDescription());
 
         verify(bookRepository).save(book);
+        verify(editRepository).findByBook(book);
+        verify(bookMapper).toDetailsResponse(book, List.of());
     }
 
     @Test
@@ -217,11 +315,19 @@ class BookServiceTest {
                 .withTitle("Old Title")
                 .build();
 
+        UpdateBookRequest request = new UpdateBookRequest(
+                "   ",
+                null,
+                null,
+                null,
+                null
+        );
+
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));
 
         assertThrows(
                 EmptyBookTitleException.class,
-                () -> bookService.updateBook(1L, "   ", null, null, null, null)
+                () -> bookService.updateBook(1L, request)
         );
 
         verify(bookRepository, never()).save(any(Book.class));
@@ -245,11 +351,15 @@ class BookServiceTest {
         User author = new UserTestBuilder().build();
         Book book = new BookTestBuilder().withAuthor(author).build();
 
-        when(bookRepository.findByAuthorOrderByCreatedAtDesc(author)).thenReturn(List.of(book));
+        BookCardResponse response = mock(BookCardResponse.class);
 
-        List<Book> result = bookService.getBooksByAuthorOrdered(author);
+        when(bookRepository.findByAuthorOrderByCreatedAtDesc(author)).thenReturn(List.of(book));
+        when(bookMapper.toCardResponse(book)).thenReturn(response);
+
+        List<BookCardResponse> result = bookService.getBooksByAuthorOrdered(author);
 
         assertEquals(1, result.size());
+        assertEquals(response, result.get(0));
     }
 
     @Test
@@ -260,13 +370,16 @@ class BookServiceTest {
                 .withPrivacy(PrivacyType.PUBLIC)
                 .build();
 
+        BookCardResponse response = mock(BookCardResponse.class);
+
         when(bookRepository.findByAuthorAndPrivacyOrderByCreatedAtDesc(author, PrivacyType.PUBLIC))
                 .thenReturn(List.of(book));
+        when(bookMapper.toCardResponse(book)).thenReturn(response);
 
-        List<Book> result = bookService.getBooksByAuthorAndPrivacy(author, PrivacyType.PUBLIC);
+        List<BookCardResponse> result = bookService.getBooksByAuthorAndPrivacy(author, PrivacyType.PUBLIC);
 
         assertEquals(1, result.size());
-        assertEquals(PrivacyType.PUBLIC, result.get(0).getPrivacy());
+        assertEquals(response, result.get(0));
     }
 
     @Test
@@ -275,13 +388,16 @@ class BookServiceTest {
                 .withTitle("Harry Potter")
                 .build();
 
+        BookCardResponse response = mock(BookCardResponse.class);
+
         when(bookRepository.findByTitleContainingIgnoreCase("harry"))
                 .thenReturn(List.of(book));
+        when(bookMapper.toCardResponse(book)).thenReturn(response);
 
-        List<Book> result = bookService.searchBooksByTitle("harry");
+        List<BookCardResponse> result = bookService.searchBooksByTitle("harry");
 
         assertEquals(1, result.size());
-        assertEquals("Harry Potter", result.get(0).getTitle());
+        assertEquals(response, result.get(0));
     }
 
     @Test
@@ -290,12 +406,15 @@ class BookServiceTest {
                 .withGenre("Fantasy")
                 .build();
 
+        BookCardResponse response = mock(BookCardResponse.class);
+
         when(bookRepository.findByGenreOrderByCreatedAtDesc("Fantasy"))
                 .thenReturn(List.of(book));
+        when(bookMapper.toCardResponse(book)).thenReturn(response);
 
-        List<Book> result = bookService.getBooksByGenre("Fantasy");
+        List<BookCardResponse> result = bookService.getBooksByGenre("Fantasy");
 
         assertEquals(1, result.size());
-        assertEquals("Fantasy", result.get(0).getGenre());
+        assertEquals(response, result.get(0));
     }
 }

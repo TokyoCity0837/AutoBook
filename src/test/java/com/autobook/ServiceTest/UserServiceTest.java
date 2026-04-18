@@ -1,10 +1,26 @@
 package com.autobook.ServiceTest;
 
+import com.autobook.Enum.PostType;
 import com.autobook.Enum.PrivacyType;
+import com.autobook.Enum.UserRole;
 import com.autobook.Exception.EmailAlreadyInUseException;
 import com.autobook.Exception.UserNotFoundException;
 import com.autobook.Exception.UsernameAlreadyExistsException;
 import com.autobook.Factory.UserFactory;
+import com.autobook.Library.Book.BookMapper;
+import com.autobook.Library.Book.BookRepository;
+import com.autobook.Library.Book.DTO.Response.BookCardResponse;
+import com.autobook.Social.Post.PostMapper;
+import com.autobook.Social.Post.PostRepository;
+import com.autobook.Social.Post.DTO.Response.PostResponse;
+import com.autobook.Social.User.DTO.Request.UserRegisterRequest;
+import com.autobook.Social.User.DTO.Request.UserUpdateRequest;
+import com.autobook.Social.User.DTO.Response.UserCardResponse;
+import com.autobook.Social.User.DTO.Response.UserProfileResponse;
+import com.autobook.Social.User.User;
+import com.autobook.Social.User.UserMapper;
+import com.autobook.Social.User.UserRepository;
+import com.autobook.Social.User.UserService;
 import com.autobook.util.UserTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,11 +28,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import com.autobook.Social.User.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,24 +50,56 @@ class UserServiceTest {
     @Mock
     private UserFactory userFactory;
 
+    @Mock
+    private UserMapper userMapper;
+
+    @Mock
+    private BookRepository bookRepository;
+
+    @Mock
+    private BookMapper bookMapper;
+
+    @Mock
+    private PostRepository postRepository;
+
+    @Mock
+    private PostMapper postMapper;
+
     @InjectMocks
     private UserService userService;
 
     @Test
     void createUser_ok() {
-        User requestUser = new UserTestBuilder()
-                .withUsername("anton")
-                .withVisibleName("Anton")
-                .withEmail("anton@gmail.com")
-                .withPassword("rawPassword")
-                .build();
+        UserRegisterRequest request = new UserRegisterRequest(
+                "anton",
+                "Anton",
+                "anton@gmail.com",
+                "rawPassword"
+        );
 
         User createdUser = new UserTestBuilder()
+                .withId(1L)
                 .withUsername("anton")
                 .withVisibleName("Anton")
                 .withEmail("anton@gmail.com")
                 .withPassword("encodedPassword")
                 .build();
+
+        List<BookCardResponse> books = List.of();
+        List<PostResponse> posts = List.of();
+
+        UserProfileResponse response = new UserProfileResponse(
+                1L,
+                "anton",
+                "Anton",
+                createdUser.getBio(),
+                createdUser.getProfileImage(),
+                createdUser.getPrivacy(),
+                createdUser.getCreatedAt(),
+                createdUser.getRole(),
+                books,
+                posts
+        );
 
         when(userRepository.existsByEmail("anton@gmail.com")).thenReturn(false);
         when(userRepository.existsByUsername("anton")).thenReturn(false);
@@ -57,130 +108,377 @@ class UserServiceTest {
                 .thenReturn(createdUser);
         when(userRepository.save(createdUser)).thenReturn(createdUser);
 
-        User result = userService.createUser(requestUser);
+        when(bookRepository.findByAuthor(createdUser)).thenReturn(List.of());
+        when(postRepository.findByAuthorOrderByCreatedAtDesc(createdUser)).thenReturn(List.of());
+
+        when(userMapper.toProfileResponse(createdUser, books, posts)).thenReturn(response);
+
+        UserProfileResponse result = userService.createUser(request);
 
         assertNotNull(result);
-        assertEquals("anton", result.getUsername());
-        assertEquals("Anton", result.getVisibleName());
-        assertEquals("anton@gmail.com", result.getEmail());
+        assertEquals("anton", result.username());
+        assertEquals("Anton", result.visibleName());
+        assertTrue(result.books().isEmpty());
+        assertTrue(result.posts().isEmpty());
 
         verify(userRepository).save(createdUser);
+        verify(bookRepository).findByAuthor(createdUser);
+        verify(postRepository).findByAuthorOrderByCreatedAtDesc(createdUser);
+        verify(userMapper).toProfileResponse(createdUser, books, posts);
     }
 
     @Test
     void createUser_emailExists() {
-        User requestUser = new UserTestBuilder()
-                .withEmail("anton@gmail.com")
-                .withUsername("anton")
-                .build();
+        UserRegisterRequest request = new UserRegisterRequest(
+                "anton",
+                "Anton",
+                "anton@gmail.com",
+                "rawPassword"
+        );
 
         when(userRepository.existsByEmail("anton@gmail.com")).thenReturn(true);
 
-        assertThrows(EmailAlreadyInUseException.class, () -> userService.createUser(requestUser));
+        assertThrows(EmailAlreadyInUseException.class, () -> userService.createUser(request));
 
         verify(userRepository, never()).existsByUsername(anyString());
         verify(userRepository, never()).save(any(User.class));
+        verify(userMapper, never()).toProfileResponse(any(), any(), any());
     }
 
     @Test
     void createUser_usernameExists() {
-        User requestUser = new UserTestBuilder()
-                .withEmail("anton@gmail.com")
-                .withUsername("anton")
-                .build();
+        UserRegisterRequest request = new UserRegisterRequest(
+                "anton",
+                "Anton",
+                "anton@gmail.com",
+                "rawPassword"
+        );
 
         when(userRepository.existsByEmail("anton@gmail.com")).thenReturn(false);
         when(userRepository.existsByUsername("anton")).thenReturn(true);
 
-        assertThrows(UsernameAlreadyExistsException.class, () -> userService.createUser(requestUser));
+        assertThrows(UsernameAlreadyExistsException.class, () -> userService.createUser(request));
 
         verify(userRepository, never()).save(any(User.class));
+        verify(userMapper, never()).toProfileResponse(any(), any(), any());
     }
 
     @Test
-    void getUserById_ok() {
+    void getUserProfileById_ok() {
         User user = new UserTestBuilder()
                 .withId(1L)
                 .withUsername("anton")
+                .withVisibleName("Anton")
                 .build();
+
+                BookCardResponse bookResponse = new BookCardResponse(
+                10L,
+                "My Book",
+                "cover.png",
+                new UserCardResponse(1L, "Anton", "user.png", UserRole.USER)
+        );
+
+        PostResponse postResponse = new PostResponse(
+                20L,
+                "Hello world",
+                new UserCardResponse(1L, "Anton", "user.png", UserRole.USER),
+                PostType.FEED,
+                LocalDateTime.now(),
+                LocalDateTime.now(),
+                0,
+                0,
+                0
+        );
+
+        List<BookCardResponse> books = List.of(bookResponse);
+        List<PostResponse> posts = List.of(postResponse);
+
+        UserProfileResponse response = new UserProfileResponse(
+                1L,
+                "anton",
+                "Anton",
+                user.getBio(),
+                user.getProfileImage(),
+                user.getPrivacy(),
+                user.getCreatedAt(),
+                user.getRole(),
+                books,
+                posts
+        );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
+        when(bookRepository.findByAuthor(user)).thenReturn(List.of());
+        when(postRepository.findByAuthorOrderByCreatedAtDesc(user)).thenReturn(List.of());
+        when(userMapper.toProfileResponse(user, books, posts)).thenReturn(response);
 
-        User result = userService.getUserById(1L);
+        when(bookRepository.findByAuthor(user)).thenReturn(List.of(mock(com.autobook.Library.Book.Book.class)));
+        when(postRepository.findByAuthorOrderByCreatedAtDesc(user)).thenReturn(List.of(mock(com.autobook.Social.Post.Post.class)));
 
-        assertEquals(1L, result.getId());
-        assertEquals("anton", result.getUsername());
+        when(bookMapper.toCardResponse(any())).thenReturn(bookResponse);
+        when(postMapper.toResponse(any())).thenReturn(postResponse);
+
+        UserProfileResponse result = userService.getUserProfileById(1L);
+
+        assertEquals(1L, result.id());
+        assertEquals("anton", result.username());
+        assertEquals("Anton", result.visibleName());
+        assertEquals(1, result.books().size());
+        assertEquals(1, result.posts().size());
     }
 
     @Test
-    void getUserById_notFound() {
+    void getUserProfileById_notFound() {
         when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(UserNotFoundException.class, () -> userService.getUserById(1L));
+        assertThrows(UserNotFoundException.class, () -> userService.getUserProfileById(1L));
     }
 
     @Test
-    void updateBio_ok() {
+    void getUserProfileByUsername_ok() {
         User user = new UserTestBuilder()
                 .withId(1L)
-                .withBio("old bio")
+                .withUsername("anton")
+                .withVisibleName("Anton")
                 .build();
+
+        List<BookCardResponse> books = List.of();
+        List<PostResponse> posts = List.of();
+
+        UserProfileResponse response = new UserProfileResponse(
+                1L,
+                "anton",
+                "Anton",
+                user.getBio(),
+                user.getProfileImage(),
+                user.getPrivacy(),
+                user.getCreatedAt(),
+                user.getRole(),
+                books,
+                posts
+        );
+
+        when(userRepository.findByUsername("anton")).thenReturn(Optional.of(user));
+        when(bookRepository.findByAuthor(user)).thenReturn(List.of());
+        when(postRepository.findByAuthorOrderByCreatedAtDesc(user)).thenReturn(List.of());
+        when(userMapper.toProfileResponse(user, books, posts)).thenReturn(response);
+
+        UserProfileResponse result = userService.getUserProfileByUsername("anton");
+
+        assertEquals("anton", result.username());
+        assertEquals("Anton", result.visibleName());
+    }
+
+    @Test
+    void getUserProfileByUsername_notFound() {
+        when(userRepository.findByUsername("anton")).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.getUserProfileByUsername("anton"));
+    }
+
+    @Test
+    void getAllUsers_ok() {
+        User user1 = new UserTestBuilder()
+                .withId(2L)
+                .withVisibleName("Anton")
+                .withProfileImage("anton.png")
+                .withRole(UserRole.USER)
+                .build();
+
+        User user2 = new UserTestBuilder()
+                .withId(3L)
+                .withVisibleName("Admin")
+                .withProfileImage("admin.png")
+                .withRole(UserRole.ADMIN)
+                .build();
+
+        UserCardResponse response1 = new UserCardResponse(2L, "Anton", "anton.png", UserRole.USER);
+        UserCardResponse response2 = new UserCardResponse(3L, "Admin", "admin.png", UserRole.ADMIN);
+
+        when(userRepository.findAll()).thenReturn(List.of(user1, user2));
+        when(userMapper.toCardResponse(user1)).thenReturn(response1);
+        when(userMapper.toCardResponse(user2)).thenReturn(response2);
+
+        List<UserCardResponse> result = userService.getAllUsers();
+
+        assertEquals(2, result.size());
+        assertEquals("Anton", result.get(0).visibleName());
+        assertEquals("Admin", result.get(1).visibleName());
+    }
+
+    @Test
+    void getUsersByRole_ok() {
+        User user = new UserTestBuilder()
+                .withId(1L)
+                .withRole(UserRole.ADMIN)
+                .withVisibleName("Admin")
+                .withProfileImage("admin.png")
+                .build();
+
+        UserCardResponse response = new UserCardResponse(1L, "Admin", "admin.png", UserRole.ADMIN);
+
+        when(userRepository.findByRole(UserRole.ADMIN)).thenReturn(List.of(user));
+        when(userMapper.toCardResponse(user)).thenReturn(response);
+
+        List<UserCardResponse> result = userService.getUsersByRole(UserRole.ADMIN);
+
+        assertEquals(1, result.size());
+        assertEquals(UserRole.ADMIN, result.get(0).userRole());
+    }
+
+    @Test
+    void searchUsersByUsername_ok() {
+        User user = new UserTestBuilder()
+                .withId(1L)
+                .withUsername("anton")
+                .withVisibleName("Anton")
+                .withProfileImage("anton.png")
+                .build();
+
+        UserCardResponse response = new UserCardResponse(1L, "Anton", "anton.png", UserRole.USER);
+
+        when(userRepository.findByUsernameContainingIgnoreCase("ant")).thenReturn(List.of(user));
+        when(userMapper.toCardResponse(user)).thenReturn(response);
+
+        List<UserCardResponse> result = userService.searchUsersByUsername("ant");
+
+        assertEquals(1, result.size());
+        assertEquals("Anton", result.get(0).visibleName());
+    }
+
+    @Test
+    void getUsersByPrivacy_ok() {
+        User user = new UserTestBuilder()
+                .withId(1L)
+                .withPrivacy(PrivacyType.PUBLIC)
+                .withVisibleName("Anton")
+                .withProfileImage("anton.png")
+                .build();
+
+        UserCardResponse response = new UserCardResponse(1L, "Anton", "anton.png", UserRole.USER);
+
+        when(userRepository.findByPrivacy(PrivacyType.PUBLIC)).thenReturn(List.of(user));
+        when(userMapper.toCardResponse(user)).thenReturn(response);
+
+        List<UserCardResponse> result = userService.getUsersByPrivacy(PrivacyType.PUBLIC);
+
+        assertEquals(1, result.size());
+        assertEquals("Anton", result.get(0).visibleName());
+    }
+
+    @Test
+    void countUsersByPrivacy_ok() {
+        when(userRepository.countByPrivacy(PrivacyType.PUBLIC)).thenReturn(5L);
+
+        Long result = userService.countUsersByPrivacy(PrivacyType.PUBLIC);
+
+        assertEquals(5L, result);
+    }
+
+    @Test
+    void existsByUsername_ok() {
+        when(userRepository.existsByUsername("anton")).thenReturn(true);
+
+        boolean result = userService.existsByUsername("anton");
+
+        assertTrue(result);
+    }
+
+    @Test
+    void existsByEmail_ok() {
+        when(userRepository.existsByEmail("anton@gmail.com")).thenReturn(true);
+
+        boolean result = userService.existsByEmail("anton@gmail.com");
+
+        assertTrue(result);
+    }
+
+    @Test
+    void updateProfile_ok() {
+        User user = new UserTestBuilder()
+                .withId(1L)
+                .withUsername("anton")
+                .withVisibleName("Old Name")
+                .withBio("old bio")
+                .withProfileImage("old.png")
+                .withPrivacy(PrivacyType.PRIVATE)
+                .build();
+
+        UserUpdateRequest request = new UserUpdateRequest(
+                "New Name",
+                "new bio",
+                "new.png",
+                PrivacyType.PUBLIC
+        );
+
+        List<BookCardResponse> books = List.of();
+        List<PostResponse> posts = List.of();
+
+        UserProfileResponse response = new UserProfileResponse(
+                1L,
+                "anton",
+                "New Name",
+                "new bio",
+                "new.png",
+                PrivacyType.PUBLIC,
+                user.getCreatedAt(),
+                user.getRole(),
+                books,
+                posts
+        );
 
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(userRepository.save(user)).thenReturn(user);
+        when(bookRepository.findByAuthor(user)).thenReturn(List.of());
+        when(postRepository.findByAuthorOrderByCreatedAtDesc(user)).thenReturn(List.of());
+        when(userMapper.toProfileResponse(user, books, posts)).thenReturn(response);
 
-        User result = userService.updateBio(1L, "new bio");
+        UserProfileResponse result = userService.updateProfile(1L, request);
 
-        assertEquals("new bio", result.getBio());
+        assertEquals("New Name", result.visibleName());
+        assertEquals("new bio", result.bio());
+        assertEquals("new.png", result.profileImage());
+        assertEquals(PrivacyType.PUBLIC, result.privacy());
+
         verify(userRepository).save(user);
+        verify(userMapper).toProfileResponse(user, books, posts);
     }
 
     @Test
-    void updateVisibleName_ok() {
+    void updateProfile_visibleNameBlank() {
         User user = new UserTestBuilder()
                 .withId(1L)
                 .withVisibleName("Old Name")
                 .build();
 
+        UserUpdateRequest request = new UserUpdateRequest(
+                "   ",
+                null,
+                null,
+                null
+        );
+
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
 
-        User result = userService.updateVisibleName(1L, "New Name");
+        assertThrows(IllegalArgumentException.class, () -> userService.updateProfile(1L, request));
 
-        assertEquals("New Name", result.getVisibleName());
-        verify(userRepository).save(user);
+        verify(userRepository, never()).save(any(User.class));
+        verify(userMapper, never()).toProfileResponse(any(), any(), any());
     }
 
     @Test
-    void updatePrivacy_ok() {
-        User user = new UserTestBuilder()
-                .withId(1L)
-                .withPrivacy(PrivacyType.PRIVATE)
-                .build();
+    void updateProfile_userNotFound() {
+        UserUpdateRequest request = new UserUpdateRequest(
+                "New Name",
+                "new bio",
+                "new.png",
+                PrivacyType.PUBLIC
+        );
 
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
 
-        User result = userService.updatePrivacy(1L, PrivacyType.PUBLIC);
+        assertThrows(UserNotFoundException.class, () -> userService.updateProfile(1L, request));
 
-        assertEquals(PrivacyType.PUBLIC, result.getPrivacy());
-        verify(userRepository).save(user);
-    }
-
-    @Test
-    void updateProfileImage_ok() {
-        User user = new UserTestBuilder()
-                .withId(1L)
-                .withProfileImage("old.png")
-                .build();
-
-        when(userRepository.findById(1L)).thenReturn(Optional.of(user));
-        when(userRepository.save(user)).thenReturn(user);
-
-        User result = userService.updateProfileImage(1L, "new.png");
-
-        assertEquals("new.png", result.getProfileImage());
-        verify(userRepository).save(user);
+        verify(userRepository, never()).save(any(User.class));
     }
 
     @Test
@@ -194,5 +492,14 @@ class UserServiceTest {
         userService.deleteUserById(1L);
 
         verify(userRepository).delete(user);
+    }
+
+    @Test
+    void deleteUser_notFound() {
+        when(userRepository.findById(1L)).thenReturn(Optional.empty());
+
+        assertThrows(UserNotFoundException.class, () -> userService.deleteUserById(1L));
+
+        verify(userRepository, never()).delete(any(User.class));
     }
 }

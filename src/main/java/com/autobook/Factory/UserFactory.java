@@ -1,7 +1,5 @@
 package com.autobook.Factory;
 
-import com.autobook.Enum.PrivacyType;
-import com.autobook.Enum.UserRole;
 import org.springframework.stereotype.Component;
 import com.autobook.Social.User.User;
 
@@ -20,8 +18,6 @@ public class UserFactory {
         user.setVisibleName(visibleName);
         user.setEmail(email);
         user.setPassword(encodedPassword);
-        user.setRole(UserRole.USER);
-        user.setPrivacy(PrivacyType.PUBLIC);
         user.setBio("");
         user.setProfileImage(null);
         return user;

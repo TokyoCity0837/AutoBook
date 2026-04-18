@@ -4,6 +4,10 @@ import com.autobook.Exception.ChapterNotFoundException;
 import com.autobook.Exception.EmptyChapterTitleException;
 import com.autobook.Factory.ChapterFactory;
 import com.autobook.Library.Book.Book;
+import com.autobook.Library.Chapter.DTO.Request.ChapterCreateRequest;
+import com.autobook.Library.Chapter.DTO.Request.ChapterUpdateRequest;
+import com.autobook.Library.Chapter.DTO.Response.ChapterCardResponse;
+import com.autobook.Library.Chapter.DTO.Response.ChapterResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,56 +21,73 @@ public class ChapterService {
 
     private final ChapterRepository chapterRepository;
     private final ChapterFactory chapterFactory;
+    private final ChapterMapper chapterMapper;
 
     @Transactional
-    public Chapter createChapter(Book book, String title, String content) {
-        validateTitle(title);
+    public ChapterResponse createChapter(Book book, ChapterCreateRequest request) {
+        validateTitle(request.title());
 
-        Chapter chapter = chapterFactory.create(book, title, content);
-        return chapterRepository.save(chapter);
+        Chapter chapter = chapterFactory.create(book, request.title(), request.content());
+        Chapter savedChapter = chapterRepository.save(chapter);
+
+        return chapterMapper.toResponse(savedChapter);
     }
 
-    public Chapter getChapterById(Long chapterId) {
-        return chapterRepository.findById(chapterId)
-                .orElseThrow(() -> new ChapterNotFoundException(chapterId));
+    public ChapterResponse getChapterById(Long chapterId) {
+        return chapterMapper.toResponse(getChapterEntityById(chapterId));
     }
 
-    public List<Chapter> getChaptersByBook(Book book) {
-        return chapterRepository.findByBook(book);
+    public List<ChapterCardResponse> getChaptersByBook(Book book) {
+        return chapterRepository.findByBook(book)
+                .stream()
+                .map(chapterMapper::toCardResponse)
+                .toList();
     }
 
-    public List<Chapter> getChaptersByBookOrdered(Book book) {
-        return chapterRepository.findByBookOrderByCreatedAtAsc(book);
+    public List<ChapterCardResponse> getChaptersByBookOrdered(Book book) {
+        return chapterRepository.findByBookOrderByCreatedAtAsc(book)
+                .stream()
+                .map(chapterMapper::toCardResponse)
+                .toList();
     }
 
     public Long countChaptersByBook(Book book) {
         return chapterRepository.countByBook(book);
     }
 
-    public List<Chapter> searchChaptersByContent(String text) {
-        return chapterRepository.findByContentContainingIgnoreCase(text);
+    public List<ChapterResponse> searchChaptersByContent(String text) {
+        return chapterRepository.findByContentContainingIgnoreCase(text)
+                .stream()
+                .map(chapterMapper::toResponse)
+                .toList();
     }
 
     @Transactional
-    public Chapter updateChapter(Long chapterId, String title, String content) {
-        Chapter chapter = getChapterById(chapterId);
+    public ChapterResponse updateChapter(Long chapterId, ChapterUpdateRequest request) {
+        Chapter chapter = getChapterEntityById(chapterId);
 
-        if (title != null) {
-            validateTitle(title);
-            chapter.setTitle(title);
+        if (request.title() != null) {
+            validateTitle(request.title());
+            chapter.setTitle(request.title());
         }
 
-        if (content != null) {
-            chapter.setContent(content);
+        if (request.content() != null) {
+            chapter.setContent(request.content());
         }
 
-        return chapterRepository.save(chapter);
+        Chapter updatedChapter = chapterRepository.save(chapter);
+        return chapterMapper.toResponse(updatedChapter);
     }
 
     @Transactional
     public void deleteChapter(Long chapterId) {
-        Chapter chapter = getChapterById(chapterId);
+        Chapter chapter = getChapterEntityById(chapterId);
         chapterRepository.delete(chapter);
+    }
+
+    private Chapter getChapterEntityById(Long chapterId) {
+        return chapterRepository.findById(chapterId)
+                .orElseThrow(() -> new ChapterNotFoundException(chapterId));
     }
 
     private void validateTitle(String title) {

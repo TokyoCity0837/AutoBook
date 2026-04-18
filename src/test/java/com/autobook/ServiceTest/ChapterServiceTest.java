@@ -4,9 +4,11 @@ import com.autobook.Exception.ChapterNotFoundException;
 import com.autobook.Exception.EmptyChapterTitleException;
 import com.autobook.Factory.ChapterFactory;
 import com.autobook.Library.Book.Book;
-import com.autobook.Library.Chapter.Chapter;
-import com.autobook.Library.Chapter.ChapterRepository;
-import com.autobook.Library.Chapter.ChapterService;
+import com.autobook.Library.Chapter.*;
+import com.autobook.Library.Chapter.DTO.Request.ChapterCreateRequest;
+import com.autobook.Library.Chapter.DTO.Request.ChapterUpdateRequest;
+import com.autobook.Library.Chapter.DTO.Response.ChapterCardResponse;
+import com.autobook.Library.Chapter.DTO.Response.ChapterResponse;
 import com.autobook.util.BookTestBuilder;
 import com.autobook.util.ChapterTestBuilder;
 import org.junit.jupiter.api.Test;
@@ -15,6 +17,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -31,6 +34,9 @@ public class ChapterServiceTest {
     @Mock
     private ChapterFactory chapterFactory;
 
+    @Mock
+    private ChapterMapper chapterMapper;
+
     @InjectMocks
     private ChapterService chapterService;
 
@@ -38,33 +44,45 @@ public class ChapterServiceTest {
     void createChapter_ok() {
         Book book = new BookTestBuilder().build();
 
+        ChapterCreateRequest request = new ChapterCreateRequest("Intro", "Hello world");
+
         Chapter chapter = new ChapterTestBuilder()
                 .withBook(book)
                 .withTitle("Intro")
                 .withContent("Hello world")
                 .build();
 
+        ChapterResponse response = new ChapterResponse(
+                1L,
+                "Intro",
+                "Hello world",
+                LocalDateTime.now(),
+                LocalDateTime.now()
+        );
+
         when(chapterFactory.create(book, "Intro", "Hello world")).thenReturn(chapter);
         when(chapterRepository.save(chapter)).thenReturn(chapter);
+        when(chapterMapper.toResponse(chapter)).thenReturn(response);
 
-        Chapter result = chapterService.createChapter(book, "Intro", "Hello world");
+        ChapterResponse result = chapterService.createChapter(book, request);
 
         assertNotNull(result);
-        assertEquals(book, result.getBook());
-        assertEquals("Intro", result.getTitle());
-        assertEquals("Hello world", result.getContent());
+        assertEquals("Intro", result.title());
+        assertEquals("Hello world", result.content());
 
         verify(chapterFactory).create(book, "Intro", "Hello world");
         verify(chapterRepository).save(chapter);
+        verify(chapterMapper).toResponse(chapter);
     }
 
     @Test
     void createChapter_emptyTitle() {
         Book book = new BookTestBuilder().build();
+        ChapterCreateRequest request = new ChapterCreateRequest(" ", "Hello world");
 
         assertThrows(
                 EmptyChapterTitleException.class,
-                () -> chapterService.createChapter(book, " ", "Hello world")
+                () -> chapterService.createChapter(book, request)
         );
 
         verify(chapterFactory, never()).create(any(), any(), any());
@@ -74,10 +92,11 @@ public class ChapterServiceTest {
     @Test
     void createChapter_nullTitle() {
         Book book = new BookTestBuilder().build();
+        ChapterCreateRequest request = new ChapterCreateRequest(null, "Hello world");
 
         assertThrows(
                 EmptyChapterTitleException.class,
-                () -> chapterService.createChapter(book, null, "Hello world")
+                () -> chapterService.createChapter(book, request)
         );
 
         verify(chapterFactory, never()).create(any(), any(), any());
@@ -91,14 +110,24 @@ public class ChapterServiceTest {
                 .withTitle("Intro")
                 .build();
 
+        ChapterResponse response = new ChapterResponse(
+                1L,
+                "Intro",
+                chapter.getContent(),
+                chapter.getCreatedAt(),
+                chapter.getUpdatedAt()
+        );
+
         when(chapterRepository.findById(1L)).thenReturn(Optional.of(chapter));
+        when(chapterMapper.toResponse(chapter)).thenReturn(response);
 
-        Chapter result = chapterService.getChapterById(1L);
+        ChapterResponse result = chapterService.getChapterById(1L);
 
-        assertEquals(1L, result.getId());
-        assertEquals("Intro", result.getTitle());
+        assertEquals(1L, result.id());
+        assertEquals("Intro", result.title());
 
         verify(chapterRepository).findById(1L);
+        verify(chapterMapper).toResponse(chapter);
     }
 
     @Test
@@ -129,16 +158,22 @@ public class ChapterServiceTest {
                 .withTitle("Ending")
                 .build();
 
-        when(chapterRepository.findByBook(book)).thenReturn(List.of(chapter1, chapter2));
+        ChapterCardResponse response1 = new ChapterCardResponse(1L, "Intro");
+        ChapterCardResponse response2 = new ChapterCardResponse(2L, "Ending");
 
-        List<Chapter> result = chapterService.getChaptersByBook(book);
+        when(chapterRepository.findByBook(book)).thenReturn(List.of(chapter1, chapter2));
+        when(chapterMapper.toCardResponse(chapter1)).thenReturn(response1);
+        when(chapterMapper.toCardResponse(chapter2)).thenReturn(response2);
+
+        List<ChapterCardResponse> result = chapterService.getChaptersByBook(book);
 
         assertEquals(2, result.size());
-        assertEquals("Intro", result.get(0).getTitle());
-        assertEquals("Ending", result.get(1).getTitle());
-        assertEquals(book, result.get(1).getBook());
+        assertEquals("Intro", result.get(0).title());
+        assertEquals("Ending", result.get(1).title());
 
         verify(chapterRepository).findByBook(book);
+        verify(chapterMapper).toCardResponse(chapter1);
+        verify(chapterMapper).toCardResponse(chapter2);
     }
 
     @Test
@@ -157,16 +192,23 @@ public class ChapterServiceTest {
                 .withTitle("Chapter 2")
                 .build();
 
+        ChapterCardResponse response1 = new ChapterCardResponse(1L, "Chapter 1");
+        ChapterCardResponse response2 = new ChapterCardResponse(2L, "Chapter 2");
+
         when(chapterRepository.findByBookOrderByCreatedAtAsc(book))
                 .thenReturn(List.of(chapter1, chapter2));
+        when(chapterMapper.toCardResponse(chapter1)).thenReturn(response1);
+        when(chapterMapper.toCardResponse(chapter2)).thenReturn(response2);
 
-        List<Chapter> result = chapterService.getChaptersByBookOrdered(book);
+        List<ChapterCardResponse> result = chapterService.getChaptersByBookOrdered(book);
 
         assertEquals(2, result.size());
-        assertEquals("Chapter 1", result.get(0).getTitle());
-        assertEquals("Chapter 2", result.get(1).getTitle());
+        assertEquals("Chapter 1", result.get(0).title());
+        assertEquals("Chapter 2", result.get(1).title());
 
         verify(chapterRepository).findByBookOrderByCreatedAtAsc(book);
+        verify(chapterMapper).toCardResponse(chapter1);
+        verify(chapterMapper).toCardResponse(chapter2);
     }
 
     @Test
@@ -195,16 +237,30 @@ public class ChapterServiceTest {
                 .withContent("More Java")
                 .build();
 
+        ChapterResponse response1 = new ChapterResponse(
+                1L, "Intro", "Java basics",
+                chapter1.getCreatedAt(), chapter1.getUpdatedAt()
+        );
+
+        ChapterResponse response2 = new ChapterResponse(
+                2L, "Advanced", "More Java",
+                chapter2.getCreatedAt(), chapter2.getUpdatedAt()
+        );
+
         when(chapterRepository.findByContentContainingIgnoreCase("java"))
                 .thenReturn(List.of(chapter1, chapter2));
+        when(chapterMapper.toResponse(chapter1)).thenReturn(response1);
+        when(chapterMapper.toResponse(chapter2)).thenReturn(response2);
 
-        List<Chapter> result = chapterService.searchChaptersByContent("java");
+        List<ChapterResponse> result = chapterService.searchChaptersByContent("java");
 
         assertEquals(2, result.size());
-        assertEquals("Java basics", result.get(0).getContent());
-        assertEquals("More Java", result.get(1).getContent());
+        assertEquals("Java basics", result.get(0).content());
+        assertEquals("More Java", result.get(1).content());
 
         verify(chapterRepository).findByContentContainingIgnoreCase("java");
+        verify(chapterMapper).toResponse(chapter1);
+        verify(chapterMapper).toResponse(chapter2);
     }
 
     @Test
@@ -215,16 +271,28 @@ public class ChapterServiceTest {
                 .withContent("Old content")
                 .build();
 
+        ChapterUpdateRequest request = new ChapterUpdateRequest("New title", "New content");
+
+        ChapterResponse response = new ChapterResponse(
+                1L,
+                "New title",
+                "New content",
+                chapter.getCreatedAt(),
+                chapter.getUpdatedAt()
+        );
+
         when(chapterRepository.findById(1L)).thenReturn(Optional.of(chapter));
         when(chapterRepository.save(chapter)).thenReturn(chapter);
+        when(chapterMapper.toResponse(chapter)).thenReturn(response);
 
-        Chapter result = chapterService.updateChapter(1L, "New title", "New content");
+        ChapterResponse result = chapterService.updateChapter(1L, request);
 
-        assertEquals("New title", result.getTitle());
-        assertEquals("New content", result.getContent());
+        assertEquals("New title", result.title());
+        assertEquals("New content", result.content());
 
         verify(chapterRepository).findById(1L);
         verify(chapterRepository).save(chapter);
+        verify(chapterMapper).toResponse(chapter);
     }
 
     @Test
@@ -235,16 +303,28 @@ public class ChapterServiceTest {
                 .withContent("Old content")
                 .build();
 
+        ChapterUpdateRequest request = new ChapterUpdateRequest("New title", null);
+
+        ChapterResponse response = new ChapterResponse(
+                1L,
+                "New title",
+                "Old content",
+                chapter.getCreatedAt(),
+                chapter.getUpdatedAt()
+        );
+
         when(chapterRepository.findById(1L)).thenReturn(Optional.of(chapter));
         when(chapterRepository.save(chapter)).thenReturn(chapter);
+        when(chapterMapper.toResponse(chapter)).thenReturn(response);
 
-        Chapter result = chapterService.updateChapter(1L, "New title", null);
+        ChapterResponse result = chapterService.updateChapter(1L, request);
 
-        assertEquals("New title", result.getTitle());
-        assertEquals("Old content", result.getContent());
+        assertEquals("New title", result.title());
+        assertEquals("Old content", result.content());
 
         verify(chapterRepository).findById(1L);
         verify(chapterRepository).save(chapter);
+        verify(chapterMapper).toResponse(chapter);
     }
 
     @Test
@@ -255,25 +335,39 @@ public class ChapterServiceTest {
                 .withContent("Old content")
                 .build();
 
+        ChapterUpdateRequest request = new ChapterUpdateRequest(null, "New content");
+
+        ChapterResponse response = new ChapterResponse(
+                1L,
+                "Old title",
+                "New content",
+                chapter.getCreatedAt(),
+                chapter.getUpdatedAt()
+        );
+
         when(chapterRepository.findById(1L)).thenReturn(Optional.of(chapter));
         when(chapterRepository.save(chapter)).thenReturn(chapter);
+        when(chapterMapper.toResponse(chapter)).thenReturn(response);
 
-        Chapter result = chapterService.updateChapter(1L, null, "New content");
+        ChapterResponse result = chapterService.updateChapter(1L, request);
 
-        assertEquals("Old title", result.getTitle());
-        assertEquals("New content", result.getContent());
+        assertEquals("Old title", result.title());
+        assertEquals("New content", result.content());
 
         verify(chapterRepository).findById(1L);
         verify(chapterRepository).save(chapter);
+        verify(chapterMapper).toResponse(chapter);
     }
 
     @Test
     void updateChapter_notFound() {
+        ChapterUpdateRequest request = new ChapterUpdateRequest("New title", "New content");
+
         when(chapterRepository.findById(1L)).thenReturn(Optional.empty());
 
         assertThrows(
                 ChapterNotFoundException.class,
-                () -> chapterService.updateChapter(1L, "New title", "New content")
+                () -> chapterService.updateChapter(1L, request)
         );
 
         verify(chapterRepository).findById(1L);

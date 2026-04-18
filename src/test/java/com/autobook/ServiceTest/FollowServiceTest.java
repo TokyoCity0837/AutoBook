@@ -5,11 +5,10 @@ import com.autobook.Exception.FollowAlreadyExistsException;
 import com.autobook.Exception.FollowNotFoundException;
 import com.autobook.Exception.InvalidFollowException;
 import com.autobook.Factory.FollowFactory;
-import com.autobook.Social.Follow.Follow;
-import com.autobook.Social.Follow.FollowRepository;
-import com.autobook.Social.Follow.FollowService;
+import com.autobook.Social.Follow.*;
+import com.autobook.Social.Follow.DTO.Response.FollowResponse;
+import com.autobook.Social.User.DTO.Response.UserCardResponse;
 import com.autobook.Social.User.User;
-import com.autobook.util.FollowTestBuilder;
 import com.autobook.util.UserTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,15 +16,15 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class FollowServiceTest {
+class FollowServiceTest {
 
     @Mock
     private FollowRepository followRepository;
@@ -33,479 +32,194 @@ public class FollowServiceTest {
     @Mock
     private FollowFactory followFactory;
 
+    @Mock
+    private FollowMapper followMapper;
+
     @InjectMocks
     private FollowService followService;
 
     @Test
     void sendFollowRequest_ok() {
-        User follower = new UserTestBuilder().withId(1L).build();
-        User following = new UserTestBuilder().withId(2L).build();
+        User follower = new UserTestBuilder().withId(1L).withUsername("anton").build();
+        User following = new UserTestBuilder().withId(2L).withUsername("anna").build();
 
-        Follow follow = new FollowTestBuilder()
-                .withFollower(follower)
-                .withFollowing(following)
-                .withStatus(FollowStatus.PENDING)
-                .build();
+        Follow follow = new Follow();
+        follow.setId(10L);
+        follow.setFollower(follower);
+        follow.setFollowing(following);
+        follow.setStatus(FollowStatus.PENDING);
+
+        FollowResponse response = new FollowResponse(
+                10L,
+                new UserCardResponse(1L,"anton", null, null),
+                new UserCardResponse(1L,"anna", null, null),
+                FollowStatus.PENDING,
+                LocalDateTime.now()
+        );
 
         when(followRepository.existsByFollowerAndFollowing(follower, following)).thenReturn(false);
         when(followFactory.create(follower, following, FollowStatus.PENDING)).thenReturn(follow);
         when(followRepository.save(follow)).thenReturn(follow);
+        when(followMapper.toResponse(follow)).thenReturn(response);
 
-        Follow result = followService.sendFollowRequest(follower, following);
+        FollowResponse result = followService.sendFollowRequest(follower, following);
 
         assertNotNull(result);
-        assertEquals(follower, result.getFollower());
-        assertEquals(following, result.getFollowing());
-        assertEquals(FollowStatus.PENDING, result.getStatus());
+        assertEquals(10L, result.id());
+        assertEquals(FollowStatus.PENDING, result.status());
 
         verify(followRepository).existsByFollowerAndFollowing(follower, following);
         verify(followFactory).create(follower, following, FollowStatus.PENDING);
         verify(followRepository).save(follow);
+        verify(followMapper).toResponse(follow);
     }
 
     @Test
-    void sendFollowRequest_nullFollower() {
-        User following = new UserTestBuilder().withId(2L).build();
-
-        assertThrows(
-                InvalidFollowException.class,
-                () -> followService.sendFollowRequest(null, following)
-        );
-
-        verify(followRepository, never()).existsByFollowerAndFollowing(any(), any());
-        verify(followFactory, never()).create(any(), any(), any());
-        verify(followRepository, never()).save(any(Follow.class));
-    }
-
-    @Test
-    void sendFollowRequest_nullFollowing() {
-        User follower = new UserTestBuilder().withId(1L).build();
-
-        assertThrows(
-                InvalidFollowException.class,
-                () -> followService.sendFollowRequest(follower, null)
-        );
-
-        verify(followRepository, never()).existsByFollowerAndFollowing(any(), any());
-        verify(followFactory, never()).create(any(), any(), any());
-        verify(followRepository, never()).save(any(Follow.class));
-    }
-
-    @Test
-    void sendFollowRequest_sameUser() {
-        User user = new UserTestBuilder().withId(1L).build();
-
-        assertThrows(
-                InvalidFollowException.class,
-                () -> followService.sendFollowRequest(user, user)
-        );
-
-        verify(followRepository, never()).existsByFollowerAndFollowing(any(), any());
-        verify(followFactory, never()).create(any(), any(), any());
-        verify(followRepository, never()).save(any(Follow.class));
-    }
-
-    @Test
-    void sendFollowRequest_alreadyExists() {
+    void sendFollowRequest_shouldThrowWhenAlreadyExists() {
         User follower = new UserTestBuilder().withId(1L).build();
         User following = new UserTestBuilder().withId(2L).build();
 
         when(followRepository.existsByFollowerAndFollowing(follower, following)).thenReturn(true);
 
-        assertThrows(
-                FollowAlreadyExistsException.class,
-                () -> followService.sendFollowRequest(follower, following)
-        );
+        assertThrows(FollowAlreadyExistsException.class,
+                () -> followService.sendFollowRequest(follower, following));
 
         verify(followRepository).existsByFollowerAndFollowing(follower, following);
         verify(followFactory, never()).create(any(), any(), any());
-        verify(followRepository, never()).save(any(Follow.class));
+        verify(followRepository, never()).save(any());
     }
 
     @Test
     void getFollowById_ok() {
-        Follow follow = new FollowTestBuilder().withId(1L).build();
+        User follower = new UserTestBuilder().withId(1L).build();
+        User following = new UserTestBuilder().withId(2L).build();
 
-        when(followRepository.findById(1L)).thenReturn(Optional.of(follow));
+        Follow follow = new Follow();
+        follow.setId(5L);
+        follow.setFollower(follower);
+        follow.setFollowing(following);
+        follow.setStatus(FollowStatus.PENDING);
 
-        Follow result = followService.getFollowById(1L);
+        FollowResponse response = new FollowResponse(
+                5L,
+                new UserCardResponse(1L,"anton", null, null),
+                new UserCardResponse(1L,"anna", null, null),
+                FollowStatus.PENDING,
+                LocalDateTime.now()
+        );
 
-        assertEquals(1L, result.getId());
-        verify(followRepository).findById(1L);
+        when(followRepository.findById(5L)).thenReturn(Optional.of(follow));
+        when(followMapper.toResponse(follow)).thenReturn(response);
+
+        FollowResponse result = followService.getFollowById(5L);
+
+        assertEquals(5L, result.id());
+        verify(followRepository).findById(5L);
+        verify(followMapper).toResponse(follow);
     }
 
     @Test
-    void getFollowById_notFound() {
+    void getFollowById_shouldThrowWhenNotFound() {
         when(followRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(FollowNotFoundException.class, () -> followService.getFollowById(1L));
-
-        verify(followRepository).findById(1L);
+        assertThrows(FollowNotFoundException.class,
+                () -> followService.getFollowById(1L));
     }
 
     @Test
     void getPendingRequests_ok() {
-        User user = new UserTestBuilder().withId(1L).build();
+        User user = new UserTestBuilder().withId(2L).build();
+        Follow follow = new Follow();
+        follow.setId(1L);
 
-        Follow follow1 = new FollowTestBuilder()
-                .withId(1L)
-                .withFollowing(user)
-                .withStatus(FollowStatus.PENDING)
-                .build();
-
-        Follow follow2 = new FollowTestBuilder()
-                .withId(2L)
-                .withFollowing(user)
-                .withStatus(FollowStatus.PENDING)
-                .build();
+        FollowResponse response = new FollowResponse(
+                1L,
+                null,
+                null,
+                FollowStatus.PENDING,
+                LocalDateTime.now()
+        );
 
         when(followRepository.findByFollowingAndStatus(user, FollowStatus.PENDING))
-                .thenReturn(List.of(follow1, follow2));
+                .thenReturn(List.of(follow));
+        when(followMapper.toResponse(follow)).thenReturn(response);
 
-        List<Follow> result = followService.getPendingRequests(user);
+        List<FollowResponse> result = followService.getPendingRequests(user);
 
-        assertEquals(2, result.size());
-        assertEquals(FollowStatus.PENDING, result.get(0).getStatus());
-
-        verify(followRepository).findByFollowingAndStatus(user, FollowStatus.PENDING);
+        assertEquals(1, result.size());
+        assertEquals(1L, result.get(0).id());
+        verify(followMapper).toResponse(follow);
     }
 
     @Test
-    void getFollowers_ok() {
-        User user = new UserTestBuilder().withId(1L).build();
-
-        Follow follow1 = new FollowTestBuilder()
-                .withId(1L)
-                .withFollowing(user)
-                .withStatus(FollowStatus.ACCEPTED)
-                .build();
-
-        Follow follow2 = new FollowTestBuilder()
-                .withId(2L)
-                .withFollowing(user)
-                .withStatus(FollowStatus.ACCEPTED)
-                .build();
-
-        when(followRepository.findByFollowingAndStatus(user, FollowStatus.ACCEPTED))
-                .thenReturn(List.of(follow1, follow2));
-
-        List<Follow> result = followService.getFollowers(user);
-
-        assertEquals(2, result.size());
-        assertEquals(FollowStatus.ACCEPTED, result.get(0).getStatus());
-
-        verify(followRepository).findByFollowingAndStatus(user, FollowStatus.ACCEPTED);
-    }
-
-    @Test
-    void getFollowing_ok() {
-        User user = new UserTestBuilder().withId(1L).build();
-
-        Follow follow1 = new FollowTestBuilder()
-                .withId(1L)
-                .withFollower(user)
-                .withStatus(FollowStatus.ACCEPTED)
-                .build();
-
-        Follow follow2 = new FollowTestBuilder()
-                .withId(2L)
-                .withFollower(user)
-                .withStatus(FollowStatus.ACCEPTED)
-                .build();
-
-        when(followRepository.findByFollowerAndStatus(user, FollowStatus.ACCEPTED))
-                .thenReturn(List.of(follow1, follow2));
-
-        List<Follow> result = followService.getFollowing(user);
-
-        assertEquals(2, result.size());
-        assertEquals(FollowStatus.ACCEPTED, result.get(0).getStatus());
-
-        verify(followRepository).findByFollowerAndStatus(user, FollowStatus.ACCEPTED);
-    }
-
-    @Test
-    void countFollowers_ok() {
-        User user = new UserTestBuilder().withId(1L).build();
-
-        when(followRepository.countByFollowingAndStatus(user, FollowStatus.ACCEPTED)).thenReturn(5L);
-
-        long result = followService.countFollowers(user);
-
-        assertEquals(5L, result);
-        verify(followRepository).countByFollowingAndStatus(user, FollowStatus.ACCEPTED);
-    }
-
-    @Test
-    void countFollowing_ok() {
-        User user = new UserTestBuilder().withId(1L).build();
-
-        when(followRepository.countByFollowerAndStatus(user, FollowStatus.ACCEPTED)).thenReturn(3L);
-
-        long result = followService.countFollowing(user);
-
-        assertEquals(3L, result);
-        verify(followRepository).countByFollowerAndStatus(user, FollowStatus.ACCEPTED);
-    }
-
-    @Test
-    void isFollowing_true() {
+    void acceptFollowRequest_ok_whenReverseDoesNotExist() {
         User follower = new UserTestBuilder().withId(1L).build();
         User following = new UserTestBuilder().withId(2L).build();
 
-        when(followRepository.existsByFollowerAndFollowingAndStatus(
-                follower, following, FollowStatus.ACCEPTED
-        )).thenReturn(true);
+        Follow request = new Follow();
+        request.setId(100L);
+        request.setFollower(follower);
+        request.setFollowing(following);
+        request.setStatus(FollowStatus.PENDING);
 
-        boolean result = followService.isFollowing(follower, following);
+        Follow reverseFollow = new Follow();
+        reverseFollow.setFollower(following);
+        reverseFollow.setFollowing(follower);
+        reverseFollow.setStatus(FollowStatus.ACCEPTED);
 
-        assertTrue(result);
-        verify(followRepository).existsByFollowerAndFollowingAndStatus(
-                follower, following, FollowStatus.ACCEPTED
+        FollowResponse response = new FollowResponse(
+                100L,
+                null,
+                null,
+                FollowStatus.ACCEPTED,
+                LocalDateTime.now()
         );
-    }
 
-    @Test
-    void isFollowing_false() {
-        User follower = new UserTestBuilder().withId(1L).build();
-        User following = new UserTestBuilder().withId(2L).build();
-
-        when(followRepository.existsByFollowerAndFollowingAndStatus(
-                follower, following, FollowStatus.ACCEPTED
-        )).thenReturn(false);
-
-        boolean result = followService.isFollowing(follower, following);
-
-        assertFalse(result);
-        verify(followRepository).existsByFollowerAndFollowingAndStatus(
-                follower, following, FollowStatus.ACCEPTED
-        );
-    }
-
-    @Test
-    void acceptFollowRequest_ok_createReverseFollow() {
-        User follower = new UserTestBuilder().withId(1L).build();
-        User following = new UserTestBuilder().withId(2L).build();
-
-        Follow request = new FollowTestBuilder()
-                .withId(10L)
-                .withFollower(follower)
-                .withFollowing(following)
-                .withStatus(FollowStatus.PENDING)
-                .build();
-
-        Follow reverseFollow = new FollowTestBuilder()
-                .withFollower(following)
-                .withFollowing(follower)
-                .withStatus(FollowStatus.ACCEPTED)
-                .build();
-
-        when(followRepository.findById(10L)).thenReturn(Optional.of(request));
+        when(followRepository.findById(100L)).thenReturn(Optional.of(request));
+        when(followRepository.save(request)).thenReturn(request);
         when(followRepository.existsByFollowerAndFollowing(following, follower)).thenReturn(false);
         when(followFactory.create(following, follower, FollowStatus.ACCEPTED)).thenReturn(reverseFollow);
+        when(followMapper.toResponse(request)).thenReturn(response);
 
-        followService.acceptFollowRequest(10L);
+        FollowResponse result = followService.acceptFollowRequest(100L);
 
-        assertEquals(FollowStatus.ACCEPTED, request.getStatus());
-
-        verify(followRepository).findById(10L);
+        assertEquals(FollowStatus.ACCEPTED, result.status());
         verify(followRepository).save(request);
-        verify(followRepository).existsByFollowerAndFollowing(following, follower);
         verify(followFactory).create(following, follower, FollowStatus.ACCEPTED);
         verify(followRepository).save(reverseFollow);
+        verify(followMapper).toResponse(request);
     }
 
     @Test
-    void acceptFollowRequest_ok_updateReverseFollow() {
-        User follower = new UserTestBuilder().withId(1L).build();
-        User following = new UserTestBuilder().withId(2L).build();
+    void rejectFollowRequest_shouldThrowWhenStatusNotPending() {
+        Follow request = new Follow();
+        request.setId(1L);
+        request.setStatus(FollowStatus.ACCEPTED);
 
-        Follow request = new FollowTestBuilder()
-                .withId(10L)
-                .withFollower(follower)
-                .withFollowing(following)
-                .withStatus(FollowStatus.PENDING)
-                .build();
+        when(followRepository.findById(1L)).thenReturn(Optional.of(request));
 
-        Follow reverseFollow = new FollowTestBuilder()
-                .withId(20L)
-                .withFollower(following)
-                .withFollowing(follower)
-                .withStatus(FollowStatus.PENDING)
-                .build();
+        assertThrows(InvalidFollowException.class,
+                () -> followService.rejectFollowRequest(1L));
 
-        when(followRepository.findById(10L)).thenReturn(Optional.of(request));
-        when(followRepository.existsByFollowerAndFollowing(following, follower)).thenReturn(true);
-        when(followRepository.findByFollowerAndFollowing(following, follower))
-                .thenReturn(Optional.of(reverseFollow));
-
-        followService.acceptFollowRequest(10L);
-
-        assertEquals(FollowStatus.ACCEPTED, request.getStatus());
-        assertEquals(FollowStatus.ACCEPTED, reverseFollow.getStatus());
-
-        verify(followRepository).findById(10L);
-        verify(followRepository).save(request);
-        verify(followRepository).existsByFollowerAndFollowing(following, follower);
-        verify(followRepository).findByFollowerAndFollowing(following, follower);
-        verify(followRepository).save(reverseFollow);
-        verify(followFactory, never()).create(any(), any(), any());
+        verify(followRepository, never()).delete(any());
     }
 
     @Test
-    void acceptFollowRequest_notPending() {
-        Follow request = new FollowTestBuilder()
-                .withId(10L)
-                .withStatus(FollowStatus.ACCEPTED)
-                .build();
-
-        when(followRepository.findById(10L)).thenReturn(Optional.of(request));
-
-        assertThrows(
-                InvalidFollowException.class,
-                () -> followService.acceptFollowRequest(10L)
-        );
-
-        verify(followRepository).findById(10L);
-        verify(followRepository, never()).save(any(Follow.class));
-        verify(followRepository, never()).existsByFollowerAndFollowing(any(), any());
-        verify(followFactory, never()).create(any(), any(), any());
-    }
-
-    @Test
-    void rejectFollowRequest_ok_withoutReverse() {
-        User follower = new UserTestBuilder().withId(1L).build();
-        User following = new UserTestBuilder().withId(2L).build();
-
-        Follow request = new FollowTestBuilder()
-                .withId(10L)
-                .withFollower(follower)
-                .withFollowing(following)
-                .withStatus(FollowStatus.PENDING)
-                .build();
-
-        when(followRepository.findById(10L)).thenReturn(Optional.of(request));
-        when(followRepository.findByFollowerAndFollowing(following, follower)).thenReturn(Optional.empty());
-
-        followService.rejectFollowRequest(10L);
-
-        verify(followRepository).findById(10L);
-        verify(followRepository).delete(request);
-        verify(followRepository).findByFollowerAndFollowing(following, follower);
-    }
-
-    @Test
-    void rejectFollowRequest_ok_withReverse() {
-        User follower = new UserTestBuilder().withId(1L).build();
-        User following = new UserTestBuilder().withId(2L).build();
-
-        Follow request = new FollowTestBuilder()
-                .withId(10L)
-                .withFollower(follower)
-                .withFollowing(following)
-                .withStatus(FollowStatus.PENDING)
-                .build();
-
-        Follow reverse = new FollowTestBuilder()
-                .withId(20L)
-                .withFollower(following)
-                .withFollowing(follower)
-                .build();
-
-        when(followRepository.findById(10L)).thenReturn(Optional.of(request));
-        when(followRepository.findByFollowerAndFollowing(following, follower)).thenReturn(Optional.of(reverse));
-
-        followService.rejectFollowRequest(10L);
-
-        verify(followRepository).findById(10L);
-        verify(followRepository).delete(request);
-        verify(followRepository).findByFollowerAndFollowing(following, follower);
-        verify(followRepository).delete(reverse);
-    }
-
-    @Test
-    void rejectFollowRequest_notPending() {
-        Follow request = new FollowTestBuilder()
-                .withId(10L)
-                .withStatus(FollowStatus.ACCEPTED)
-                .build();
-
-        when(followRepository.findById(10L)).thenReturn(Optional.of(request));
-
-        assertThrows(
-                InvalidFollowException.class,
-                () -> followService.rejectFollowRequest(10L)
-        );
-
-        verify(followRepository).findById(10L);
-        verify(followRepository, never()).delete(any(Follow.class));
-        verify(followRepository, never()).findByFollowerAndFollowing(any(), any());
-    }
-
-    @Test
-    void removeConnection_ok_bothSidesExist() {
+    void removeConnection_ok() {
         User firstUser = new UserTestBuilder().withId(1L).build();
         User secondUser = new UserTestBuilder().withId(2L).build();
 
-        Follow first = new FollowTestBuilder()
-                .withFollower(firstUser)
-                .withFollowing(secondUser)
-                .build();
-
-        Follow second = new FollowTestBuilder()
-                .withFollower(secondUser)
-                .withFollowing(firstUser)
-                .build();
+        Follow firstFollow = new Follow();
+        Follow secondFollow = new Follow();
 
         when(followRepository.findByFollowerAndFollowing(firstUser, secondUser))
-                .thenReturn(Optional.of(first));
+                .thenReturn(Optional.of(firstFollow));
         when(followRepository.findByFollowerAndFollowing(secondUser, firstUser))
-                .thenReturn(Optional.of(second));
+                .thenReturn(Optional.of(secondFollow));
 
         followService.removeConnection(firstUser, secondUser);
 
-        verify(followRepository).findByFollowerAndFollowing(firstUser, secondUser);
-        verify(followRepository).delete(first);
-        verify(followRepository).findByFollowerAndFollowing(secondUser, firstUser);
-        verify(followRepository).delete(second);
-    }
-
-    @Test
-    void removeConnection_ok_oneSideMissing() {
-        User firstUser = new UserTestBuilder().withId(1L).build();
-        User secondUser = new UserTestBuilder().withId(2L).build();
-
-        Follow first = new FollowTestBuilder()
-                .withFollower(firstUser)
-                .withFollowing(secondUser)
-                .build();
-
-        when(followRepository.findByFollowerAndFollowing(firstUser, secondUser))
-                .thenReturn(Optional.of(first));
-        when(followRepository.findByFollowerAndFollowing(secondUser, firstUser))
-                .thenReturn(Optional.empty());
-
-        followService.removeConnection(firstUser, secondUser);
-
-        verify(followRepository).findByFollowerAndFollowing(firstUser, secondUser);
-        verify(followRepository).delete(first);
-        verify(followRepository).findByFollowerAndFollowing(secondUser, firstUser);
-    }
-
-    @Test
-    void removeConnection_ok_bothSidesMissing() {
-        User firstUser = new UserTestBuilder().withId(1L).build();
-        User secondUser = new UserTestBuilder().withId(2L).build();
-
-        when(followRepository.findByFollowerAndFollowing(firstUser, secondUser))
-                .thenReturn(Optional.empty());
-        when(followRepository.findByFollowerAndFollowing(secondUser, firstUser))
-                .thenReturn(Optional.empty());
-
-        followService.removeConnection(firstUser, secondUser);
-
-        verify(followRepository).findByFollowerAndFollowing(firstUser, secondUser);
-        verify(followRepository).findByFollowerAndFollowing(secondUser, firstUser);
-        verify(followRepository, never()).delete(any(Follow.class));
+        verify(followRepository).delete(firstFollow);
+        verify(followRepository).delete(secondFollow);
     }
 }

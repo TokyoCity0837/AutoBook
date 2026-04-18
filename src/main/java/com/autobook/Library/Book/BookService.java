@@ -4,6 +4,13 @@ import com.autobook.Enum.PrivacyType;
 import com.autobook.Exception.BookNotFoundException;
 import com.autobook.Exception.EmptyBookTitleException;
 import com.autobook.Factory.BookFactory;
+import com.autobook.Library.Book.DTO.Request.CreateBookRequest;
+import com.autobook.Library.Book.DTO.Request.UpdateBookRequest;
+import com.autobook.Library.Book.DTO.Response.BookCardResponse;
+import com.autobook.Library.Book.DTO.Response.BookDetailsResponse;
+import com.autobook.Library.Edit.EditRepository;
+import com.autobook.Library.Edit.EditMapper;
+import com.autobook.Library.Edit.DTO.Response.EditResponse;
 import com.autobook.Social.User.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,95 +25,134 @@ public class BookService {
 
     private final BookRepository bookRepository;
     private final BookFactory bookFactory;
+    private final BookMapper bookMapper;
+
+    private final EditRepository editRepository;
+    private final EditMapper editMapper;
 
     @Transactional
-    public Book createBook(User author,
-                           String title,
-                           String description,
-                           String genre,
-                           PrivacyType privacy,
-                           String coverImage) {
-        validateTitle(title);
+    public BookDetailsResponse createBook(User author, CreateBookRequest request) {
+        validateTitle(request.title());
 
-        Book book = bookFactory.create(author, title, description, genre, privacy, coverImage);
-        return bookRepository.save(book);
+        Book book = bookFactory.create(
+                author,
+                request.title(),
+                request.description(),
+                request.genre(),
+                request.privacy(),
+                request.coverImage()
+        );
+
+        Book savedBook = bookRepository.save(book);
+        return buildBookDetailsResponse(savedBook);
     }
 
-    public Book getBookById(Long bookId) {
-        return bookRepository.findById(bookId)
-                .orElseThrow(() -> new BookNotFoundException(bookId));
+    public BookDetailsResponse getBookById(Long bookId) {
+        Book book = findBookById(bookId);
+        return buildBookDetailsResponse(book);
     }
 
-    public List<Book> getAllBooks() {
-        return bookRepository.findAll();
+    public List<BookCardResponse> getAllBooks() {
+        return bookRepository.findAll()
+                .stream()
+                .map(bookMapper::toCardResponse)
+                .toList();
     }
 
-    public List<Book> getBooksByAuthor(User author) {
-        return bookRepository.findByAuthor(author);
+    public List<BookCardResponse> getBooksByAuthor(User author) {
+        return bookRepository.findByAuthor(author)
+                .stream()
+                .map(bookMapper::toCardResponse)
+                .toList();
     }
 
-    public List<Book> getBooksByPrivacy(PrivacyType privacy) {
-        return bookRepository.findByPrivacy(privacy);
+    public List<BookCardResponse> getBooksByPrivacy(PrivacyType privacy) {
+        return bookRepository.findByPrivacy(privacy)
+                .stream()
+                .map(bookMapper::toCardResponse)
+                .toList();
     }
 
     @Transactional
-    public Book updateBook(Long bookId,
-                           String title,
-                           String description,
-                           String genre,
-                           PrivacyType privacy,
-                           String coverImage) {
-        Book book = getBookById(bookId);
+    public BookDetailsResponse updateBook(Long bookId, UpdateBookRequest request) {
+        Book book = findBookById(bookId);
 
-        if (title != null) {
-            validateTitle(title);
-            book.setTitle(title);
+        if (request.title() != null) {
+            validateTitle(request.title());
+            book.setTitle(request.title());
         }
 
-        if (description != null) {
-            book.setDescription(description);
+        if (request.description() != null) {
+            book.setDescription(request.description());
         }
 
-        if (genre != null) {
-            book.setGenre(genre);
+        if (request.genre() != null) {
+            book.setGenre(request.genre());
         }
 
-        if (privacy != null) {
-            book.setPrivacy(privacy);
+        if (request.privacy() != null) {
+            book.setPrivacy(request.privacy());
         }
 
-        if (coverImage != null) {
-            book.setCoverImage(coverImage);
+        if (request.coverImage() != null) {
+            book.setCoverImage(request.coverImage());
         }
 
-        return bookRepository.save(book);
+        Book savedBook = bookRepository.save(book);
+        return buildBookDetailsResponse(savedBook);
     }
 
     @Transactional
     public void deleteBook(Long bookId) {
-        Book book = getBookById(bookId);
+        Book book = findBookById(bookId);
         bookRepository.delete(book);
+    }
+
+    public List<BookCardResponse> getBooksByAuthorOrdered(User author) {
+        return bookRepository.findByAuthorOrderByCreatedAtDesc(author)
+                .stream()
+                .map(bookMapper::toCardResponse)
+                .toList();
+    }
+
+    public List<BookCardResponse> getBooksByAuthorAndPrivacy(User author, PrivacyType privacy) {
+        return bookRepository.findByAuthorAndPrivacyOrderByCreatedAtDesc(author, privacy)
+                .stream()
+                .map(bookMapper::toCardResponse)
+                .toList();
+    }
+
+    public List<BookCardResponse> searchBooksByTitle(String title) {
+        return bookRepository.findByTitleContainingIgnoreCase(title)
+                .stream()
+                .map(bookMapper::toCardResponse)
+                .toList();
+    }
+
+    public List<BookCardResponse> getBooksByGenre(String genre) {
+        return bookRepository.findByGenreOrderByCreatedAtDesc(genre)
+                .stream()
+                .map(bookMapper::toCardResponse)
+                .toList();
+    }
+
+    private BookDetailsResponse buildBookDetailsResponse(Book book) {
+        List<EditResponse> editRequests = editRepository.findByBook(book)
+                .stream()
+                .map(editMapper::toResponse)
+                .toList();
+
+        return bookMapper.toDetailsResponse(book, editRequests);
+    }
+
+    private Book findBookById(Long bookId) {
+        return bookRepository.findById(bookId)
+                .orElseThrow(() -> new BookNotFoundException(bookId));
     }
 
     private void validateTitle(String title) {
         if (title == null || title.isBlank()) {
             throw new EmptyBookTitleException();
         }
-    }
-
-    public List<Book> getBooksByAuthorOrdered(User author) {
-        return bookRepository.findByAuthorOrderByCreatedAtDesc(author);
-    }
-
-    public List<Book> getBooksByAuthorAndPrivacy(User author, PrivacyType privacy) {
-        return bookRepository.findByAuthorAndPrivacyOrderByCreatedAtDesc(author, privacy);
-    }
-
-    public List<Book> searchBooksByTitle(String title) {
-        return bookRepository.findByTitleContainingIgnoreCase(title);
-    }
-
-    public List<Book> getBooksByGenre(String genre) {
-        return bookRepository.findByGenreOrderByCreatedAtDesc(genre);
     }
 }

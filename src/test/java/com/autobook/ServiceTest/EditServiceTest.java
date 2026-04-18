@@ -6,7 +6,10 @@ import com.autobook.Exception.EditRequestNotFoundException;
 import com.autobook.Exception.InvalidEditRequestException;
 import com.autobook.Factory.EditFactory;
 import com.autobook.Library.Book.Book;
+import com.autobook.Library.Edit.DTO.Request.CreateEditRequest;
+import com.autobook.Library.Edit.DTO.Response.EditResponse;
 import com.autobook.Library.Edit.Edit;
+import com.autobook.Library.Edit.EditMapper;
 import com.autobook.Library.Edit.EditRepository;
 import com.autobook.Library.Edit.EditService;
 import com.autobook.Social.User.User;
@@ -34,6 +37,9 @@ public class EditServiceTest {
     @Mock
     private EditFactory editFactory;
 
+    @Mock
+    private EditMapper editMapper;
+
     @InjectMocks
     private EditService editService;
 
@@ -43,6 +49,8 @@ public class EditServiceTest {
         User fromUser = new UserTestBuilder().withId(2L).withUsername("editor").build();
         Book book = new BookTestBuilder().withAuthor(author).build();
 
+        CreateEditRequest request = new CreateEditRequest("I want to help edit this book");
+
         Edit edit = new EditTestBuilder()
                 .withBook(book)
                 .withFromUser(fromUser)
@@ -50,45 +58,50 @@ public class EditServiceTest {
                 .withStatus(EditStatus.PENDING)
                 .build();
 
-        when(editRepository.findByBookAndStatus(book, EditStatus.PENDING)).thenReturn(List.of());
-        when(editFactory.create(book, fromUser, "I want to help edit this book", EditStatus.PENDING)).thenReturn(edit);
-        when(editRepository.save(edit)).thenReturn(edit);
+        EditResponse response = mock(EditResponse.class);
 
-        Edit result = editService.createEditRequest(book, fromUser, "I want to help edit this book");
+        when(editRepository.findByBookAndStatus(book, EditStatus.PENDING)).thenReturn(List.of());
+        when(editFactory.create(book, fromUser, request.message(), EditStatus.PENDING)).thenReturn(edit);
+        when(editRepository.save(edit)).thenReturn(edit);
+        when(editMapper.toResponse(edit)).thenReturn(response);
+
+        EditResponse result = editService.createEditRequest(book, fromUser, request);
 
         assertNotNull(result);
-        assertEquals(book, result.getBook());
-        assertEquals(fromUser, result.getFromUser());
-        assertEquals("I want to help edit this book", result.getMessage());
-        assertEquals(EditStatus.PENDING, result.getStatus());
+        assertEquals(response, result);
 
         verify(editRepository).findByBookAndStatus(book, EditStatus.PENDING);
-        verify(editFactory).create(book, fromUser, "I want to help edit this book", EditStatus.PENDING);
+        verify(editFactory).create(book, fromUser, request.message(), EditStatus.PENDING);
         verify(editRepository).save(edit);
+        verify(editMapper).toResponse(edit);
     }
 
     @Test
     void createEditRequest_bookIsNull() {
         User fromUser = new UserTestBuilder().withId(2L).build();
+        CreateEditRequest request = new CreateEditRequest("message");
 
         assertThrows(InvalidEditRequestException.class,
-                () -> editService.createEditRequest(null, fromUser, "message"));
+                () -> editService.createEditRequest(null, fromUser, request));
 
         verify(editRepository, never()).findByBookAndStatus(any(), any());
         verify(editFactory, never()).create(any(), any(), any(), any());
         verify(editRepository, never()).save(any());
+        verify(editMapper, never()).toResponse(any());
     }
 
     @Test
     void createEditRequest_userIsNull() {
         Book book = new BookTestBuilder().build();
+        CreateEditRequest request = new CreateEditRequest("message");
 
         assertThrows(InvalidEditRequestException.class,
-                () -> editService.createEditRequest(book, null, "message"));
+                () -> editService.createEditRequest(book, null, request));
 
         verify(editRepository, never()).findByBookAndStatus(any(), any());
         verify(editFactory, never()).create(any(), any(), any(), any());
         verify(editRepository, never()).save(any());
+        verify(editMapper, never()).toResponse(any());
     }
 
     @Test
@@ -96,13 +109,15 @@ public class EditServiceTest {
         User author = new UserTestBuilder().withId(1L).build();
         Book book = new BookTestBuilder().withAuthor(author).build();
         User sameUser = new UserTestBuilder().withId(1L).build();
+        CreateEditRequest request = new CreateEditRequest("message");
 
         assertThrows(InvalidEditRequestException.class,
-                () -> editService.createEditRequest(book, sameUser, "message"));
+                () -> editService.createEditRequest(book, sameUser, request));
 
         verify(editRepository, never()).findByBookAndStatus(any(), any());
         verify(editFactory, never()).create(any(), any(), any(), any());
         verify(editRepository, never()).save(any());
+        verify(editMapper, never()).toResponse(any());
     }
 
     @Test
@@ -110,6 +125,7 @@ public class EditServiceTest {
         User author = new UserTestBuilder().withId(1L).build();
         User fromUser = new UserTestBuilder().withId(2L).build();
         Book book = new BookTestBuilder().withAuthor(author).build();
+        CreateEditRequest request = new CreateEditRequest("message");
 
         Edit existingEdit = new EditTestBuilder()
                 .withBook(book)
@@ -120,25 +136,29 @@ public class EditServiceTest {
         when(editRepository.findByBookAndStatus(book, EditStatus.PENDING)).thenReturn(List.of(existingEdit));
 
         assertThrows(EditRequestAlreadyExistsException.class,
-                () -> editService.createEditRequest(book, fromUser, "message"));
+                () -> editService.createEditRequest(book, fromUser, request));
 
         verify(editRepository).findByBookAndStatus(book, EditStatus.PENDING);
         verify(editFactory, never()).create(any(), any(), any(), any());
         verify(editRepository, never()).save(any());
+        verify(editMapper, never()).toResponse(any());
     }
 
     @Test
     void getEditRequestById_ok() {
         Edit edit = new EditTestBuilder().withId(10L).build();
+        EditResponse response = mock(EditResponse.class);
 
         when(editRepository.findById(10L)).thenReturn(Optional.of(edit));
+        when(editMapper.toResponse(edit)).thenReturn(response);
 
-        Edit result = editService.getEditRequestById(10L);
+        EditResponse result = editService.getEditRequestById(10L);
 
         assertNotNull(result);
-        assertEquals(10L, result.getId());
+        assertEquals(response, result);
 
         verify(editRepository).findById(10L);
+        verify(editMapper).toResponse(edit);
     }
 
     @Test
@@ -149,98 +169,140 @@ public class EditServiceTest {
                 () -> editService.getEditRequestById(10L));
 
         verify(editRepository).findById(10L);
+        verify(editMapper, never()).toResponse(any());
     }
 
     @Test
     void getEditRequestsByBook_ok() {
         Book book = new BookTestBuilder().build();
-        List<Edit> edits = List.of(
-                new EditTestBuilder().withBook(book).build(),
-                new EditTestBuilder().withId(2L).withBook(book).build()
-        );
 
-        when(editRepository.findByBook(book)).thenReturn(edits);
+        Edit edit1 = new EditTestBuilder().withBook(book).build();
+        Edit edit2 = new EditTestBuilder().withId(2L).withBook(book).build();
 
-        List<Edit> result = editService.getEditRequestsByBook(book);
+        EditResponse response1 = mock(EditResponse.class);
+        EditResponse response2 = mock(EditResponse.class);
+
+        when(editRepository.findByBook(book)).thenReturn(List.of(edit1, edit2));
+        when(editMapper.toResponse(edit1)).thenReturn(response1);
+        when(editMapper.toResponse(edit2)).thenReturn(response2);
+
+        List<EditResponse> result = editService.getEditRequestsByBook(book);
 
         assertEquals(2, result.size());
+        assertEquals(response1, result.get(0));
+        assertEquals(response2, result.get(1));
+
         verify(editRepository).findByBook(book);
+        verify(editMapper).toResponse(edit1);
+        verify(editMapper).toResponse(edit2);
     }
 
     @Test
     void getPendingEditRequestsByBook_ok() {
         Book book = new BookTestBuilder().build();
-        List<Edit> edits = List.of(
-                new EditTestBuilder().withBook(book).withStatus(EditStatus.PENDING).build()
-        );
+        Edit edit = new EditTestBuilder()
+                .withBook(book)
+                .withStatus(EditStatus.PENDING)
+                .build();
 
-        when(editRepository.findByBookAndStatus(book, EditStatus.PENDING)).thenReturn(edits);
+        EditResponse response = mock(EditResponse.class);
 
-        List<Edit> result = editService.getPendingEditRequestsByBook(book);
+        when(editRepository.findByBookAndStatus(book, EditStatus.PENDING)).thenReturn(List.of(edit));
+        when(editMapper.toResponse(edit)).thenReturn(response);
+
+        List<EditResponse> result = editService.getPendingEditRequestsByBook(book);
 
         assertEquals(1, result.size());
+        assertEquals(response, result.get(0));
+
         verify(editRepository).findByBookAndStatus(book, EditStatus.PENDING);
+        verify(editMapper).toResponse(edit);
     }
 
     @Test
     void getEditRequestsByUser_ok() {
         User user = new UserTestBuilder().build();
-        List<Edit> edits = List.of(
-                new EditTestBuilder().withFromUser(user).build()
-        );
+        Edit edit = new EditTestBuilder().withFromUser(user).build();
+        EditResponse response = mock(EditResponse.class);
 
-        when(editRepository.findByFromUser(user)).thenReturn(edits);
+        when(editRepository.findByFromUser(user)).thenReturn(List.of(edit));
+        when(editMapper.toResponse(edit)).thenReturn(response);
 
-        List<Edit> result = editService.getEditRequestsByUser(user);
+        List<EditResponse> result = editService.getEditRequestsByUser(user);
 
         assertEquals(1, result.size());
+        assertEquals(response, result.get(0));
+
         verify(editRepository).findByFromUser(user);
+        verify(editMapper).toResponse(edit);
     }
 
     @Test
     void getPendingEditRequestsByUser_ok() {
         User user = new UserTestBuilder().build();
-        List<Edit> edits = List.of(
-                new EditTestBuilder().withFromUser(user).withStatus(EditStatus.PENDING).build()
-        );
+        Edit edit = new EditTestBuilder()
+                .withFromUser(user)
+                .withStatus(EditStatus.PENDING)
+                .build();
 
-        when(editRepository.findByFromUserAndStatus(user, EditStatus.PENDING)).thenReturn(edits);
+        EditResponse response = mock(EditResponse.class);
 
-        List<Edit> result = editService.getPendingEditRequestsByUser(user);
+        when(editRepository.findByFromUserAndStatus(user, EditStatus.PENDING)).thenReturn(List.of(edit));
+        when(editMapper.toResponse(edit)).thenReturn(response);
+
+        List<EditResponse> result = editService.getPendingEditRequestsByUser(user);
 
         assertEquals(1, result.size());
+        assertEquals(response, result.get(0));
+
         verify(editRepository).findByFromUserAndStatus(user, EditStatus.PENDING);
+        verify(editMapper).toResponse(edit);
     }
 
     @Test
     void getReceivedEditRequests_ok() {
         User author = new UserTestBuilder().build();
-        List<Edit> edits = List.of(
-                new EditTestBuilder().build(),
-                new EditTestBuilder().withId(2L).build()
-        );
 
-        when(editRepository.findByBook_Author(author)).thenReturn(edits);
+        Edit edit1 = new EditTestBuilder().build();
+        Edit edit2 = new EditTestBuilder().withId(2L).build();
 
-        List<Edit> result = editService.getReceivedEditRequests(author);
+        EditResponse response1 = mock(EditResponse.class);
+        EditResponse response2 = mock(EditResponse.class);
+
+        when(editRepository.findByBook_Author(author)).thenReturn(List.of(edit1, edit2));
+        when(editMapper.toResponse(edit1)).thenReturn(response1);
+        when(editMapper.toResponse(edit2)).thenReturn(response2);
+
+        List<EditResponse> result = editService.getReceivedEditRequests(author);
 
         assertEquals(2, result.size());
+        assertEquals(response1, result.get(0));
+        assertEquals(response2, result.get(1));
+
         verify(editRepository).findByBook_Author(author);
+        verify(editMapper).toResponse(edit1);
+        verify(editMapper).toResponse(edit2);
     }
 
     @Test
     void getReceivedPendingEditRequests_ok() {
         User author = new UserTestBuilder().build();
-        List<Edit> edits = List.of(
-                new EditTestBuilder().withStatus(EditStatus.PENDING).build()
-        );
+        Edit edit = new EditTestBuilder()
+                .withStatus(EditStatus.PENDING)
+                .build();
 
-        when(editRepository.findByBook_AuthorAndStatus(author, EditStatus.PENDING)).thenReturn(edits);
+        EditResponse response = mock(EditResponse.class);
 
-        List<Edit> result = editService.getReceivedPendingEditRequests(author);
+        when(editRepository.findByBook_AuthorAndStatus(author, EditStatus.PENDING)).thenReturn(List.of(edit));
+        when(editMapper.toResponse(edit)).thenReturn(response);
+
+        List<EditResponse> result = editService.getReceivedPendingEditRequests(author);
 
         assertEquals(1, result.size());
+        assertEquals(response, result.get(0));
+
         verify(editRepository).findByBook_AuthorAndStatus(author, EditStatus.PENDING);
+        verify(editMapper).toResponse(edit);
     }
 
     @Test
@@ -272,16 +334,21 @@ public class EditServiceTest {
                 .withStatus(EditStatus.PENDING)
                 .build();
 
+        EditResponse response = mock(EditResponse.class);
+
         when(editRepository.findById(1L)).thenReturn(Optional.of(edit));
         when(editRepository.save(edit)).thenReturn(edit);
+        when(editMapper.toResponse(edit)).thenReturn(response);
 
-        Edit result = editService.acceptEditRequest(1L);
+        EditResponse result = editService.acceptEditRequest(1L);
 
         assertNotNull(result);
-        assertEquals(EditStatus.ACCEPTED, result.getStatus());
+        assertEquals(response, result);
+        assertEquals(EditStatus.ACCEPTED, edit.getStatus());
 
         verify(editRepository).findById(1L);
         verify(editRepository).save(edit);
+        verify(editMapper).toResponse(edit);
     }
 
     @Test
@@ -298,6 +365,7 @@ public class EditServiceTest {
 
         verify(editRepository).findById(1L);
         verify(editRepository, never()).save(any());
+        verify(editMapper, never()).toResponse(any());
     }
 
     @Test
@@ -307,16 +375,21 @@ public class EditServiceTest {
                 .withStatus(EditStatus.PENDING)
                 .build();
 
+        EditResponse response = mock(EditResponse.class);
+
         when(editRepository.findById(1L)).thenReturn(Optional.of(edit));
         when(editRepository.save(edit)).thenReturn(edit);
+        when(editMapper.toResponse(edit)).thenReturn(response);
 
-        Edit result = editService.rejectEditRequest(1L);
+        EditResponse result = editService.rejectEditRequest(1L);
 
         assertNotNull(result);
-        assertEquals(EditStatus.REJECTED, result.getStatus());
+        assertEquals(response, result);
+        assertEquals(EditStatus.REJECTED, edit.getStatus());
 
         verify(editRepository).findById(1L);
         verify(editRepository).save(edit);
+        verify(editMapper).toResponse(edit);
     }
 
     @Test
@@ -333,6 +406,7 @@ public class EditServiceTest {
 
         verify(editRepository).findById(1L);
         verify(editRepository, never()).save(any());
+        verify(editMapper, never()).toResponse(any());
     }
 
     @Test
