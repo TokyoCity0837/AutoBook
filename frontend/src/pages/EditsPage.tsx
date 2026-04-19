@@ -1,34 +1,40 @@
 import { IconFriends } from '../components/Icons'
 import '../assets/styles/EditsPage.css'
+import React, { useState, useEffect } from 'react'
+import api from '../api'
 
 type Status = 'Approved' | 'Rejected' | 'Processing';
 
 interface EditRequestProps {
-  status: Status;
+  request?: any;
 }
 
-function EditRequest({ status }: EditRequestProps) {
+function EditRequest({ request }: EditRequestProps) {
+  const data = request || {
+    status: 'Processing',
+    user: { visibleName: "Andrii Dosyn" },
+    book: { title: "The Night We Met" }
+  };
 
-  const statusJSX = {
+  const statusJSX: Record<Status, React.ReactElement> = {
     Approved: <Accept />,
     Rejected: <Reject />,
     Processing: <Processing />,
   };
-
 
   return (
     <div className='editRequest'>
       <div className='user'>
         <div className='ProfileImage'></div>
         <div className='userInfo'>
-          <div className='Nickname'>Andrii Dosyn
+          <div className='Nickname'>{data.user.visibleName}
             <div className='friendship'><IconFriends /></div>
           </div>
-          <div className='requestingBook'>The Night We Met</div>
+          <div className='requestingBook'>{data.book.title}</div>
         </div>
       </div>
       <div className='requestStatus'>
-        {statusJSX[status]}
+        {statusJSX[data.status as Status]}
       </div>
     </div>
   );
@@ -76,7 +82,7 @@ export function Reject({ className = "status-icon" }) {
   );
 }
 
-function Processing() {
+export function Processing() {
   return (
     <svg
       className="status-icon"
@@ -93,34 +99,56 @@ function Processing() {
 }
 
 export default function Edits() {
+  const [editsData, setEditsData] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    api.get('/edits')
+      .then(response => {
+        setEditsData(response.data);
+        setIsLoading(false);
+      })
+      .catch(error => {
+        console.error("Using mock test data", error);
+        
+        // MOCK DATA
+        setEditsData({
+            sentRequests: [
+                { id: 1, status: 'Approved', user: { visibleName: "Andrii Dosyn" }, book: { title: "The Night We Met" } },
+                { id: 2, status: 'Rejected', user: { visibleName: "John Doe" }, book: { title: "Dune" } },
+                { id: 3, status: 'Processing', user: { visibleName: "Alice" }, book: { title: "1984" } }
+            ],
+            incomingRequests: [
+                { id: 4, status: 'Approved', user: { visibleName: "Bob Smith" }, book: { title: "My First Novel" } },
+                { id: 5, status: 'Processing', user: { visibleName: "Anton Hrimov" }, book: { title: "Wind in the willows" } },
+                { id: 6, status: 'Rejected', user: { visibleName: "Random User" }, book: { title: "Second Book" } }
+            ]
+        });
+        setIsLoading(false);
+      });
+  }, []);
+
+  if (isLoading || !editsData) {
+      return <div>Loading Edits...</div>;
+  }
+
   return (
     <div>
       <div className='editsWrapper'>
         <div className='sentEditsWrapper'>
           <div className="sentText">Sent requests</div>
           <div className='requestsBody'>
-            <EditRequest status='Approved' />
-            <EditRequest status='Rejected' />
-            <EditRequest status='Processing' />
+            {editsData.sentRequests.map((req: any) => (
+                <EditRequest key={req.id} request={req} />
+            ))}
           </div>
         </div>
         <div className='incomingEditsWrapper'>
           <div className="incomingText">Incoming requests</div>
           <div className='requestsBody'>
-            <EditRequest status='Approved' />
-            <EditRequest status='Rejected' />
-            <EditRequest status='Processing' />
-            <EditRequest status='Processing' />
-            <EditRequest status='Rejected' />
-            <EditRequest status='Rejected' />
-            <EditRequest status='Approved' />
-            <EditRequest status='Approved' />
-            <EditRequest status='Rejected' />
-            <EditRequest status='Processing' />
-            <EditRequest status='Processing' />
-            <EditRequest status='Rejected' />
-            <EditRequest status='Rejected' />
-            <EditRequest status='Approved' />
+            {editsData.incomingRequests.map((req: any) => (
+                <EditRequest key={req.id} request={req} />
+            ))}
           </div>
         </div>
       </div>

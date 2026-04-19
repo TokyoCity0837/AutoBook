@@ -1,24 +1,31 @@
 import '../assets/styles/Sidebar.css'
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useParams } from 'react-router-dom'
 
 import { IconFeed, IconLibrary, IconFriends, IconRequests, IconSettings, IconLogout } from './Icons'
-
-function ProfileActive() { return <div className="sidebarProfileActive" /> }
-function ProfileDisabled() { return <div className="sidebarProfile" /> }
+import { useUser } from '../UserContext';
 
 function SettingsActive() {
     return <div className="SettingsActive"><IconSettings /></div>
 }
 
+
 export default function Sidebar() {
+    const { profile } = useUser();
+  
+    const avatarUrl = profile?.profileImage ? `http://localhost:8080${profile.profileImage}` : null;
+  
     return (
         <div className="sidebar">
             <div className="sidebarTop">
                 <NavLink to="/profile" className="sidebarProfile">
-                    {({ isActive }) => (isActive ? <ProfileActive /> : <ProfileDisabled />)}
+                    {({ isActive }) => (
+                    <div
+                        className={isActive ? 'sidebarProfileActive' : 'sidebarProfile'}
+                        style={avatarUrl ? { backgroundImage: `url(${avatarUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+                    />
+                    )}
                 </NavLink>
-                <div className="sidebarLine" />
-            </div>
+            <div className="sidebarLine" /></div>
             <div className="sidebarBottom">
                 <NavLink to="/" className="icon">
                     {({ isActive }) => <span style={{ color: isActive ? '#fff' : undefined }}><IconFeed /></span>}

@@ -10,8 +10,10 @@ import { useState, useRef, useEffect } from 'react'
 import { Document, Paragraph, TextRun, HeadingLevel, Packer, AlignmentType } from 'docx'
 import { saveAs } from 'file-saver'
 import { pdf, Document as PdfDocument, Page, Text, StyleSheet } from '@react-pdf/renderer'
+import { useParams } from 'react-router-dom'
 import '../assets/styles/editorPage.css'
 import { Update } from './BookPage'
+import api from '../api'
 
 
 //  Types 
@@ -532,15 +534,16 @@ function RightPanel({ wordCount, charCount }: { wordCount: number; charCount: nu
 }
 
 //  Main 
-const INITIAL_CHAPTERS: Chapter[] = [
-    { id: 1, title: 'Chapter 1', sub: [{ id: 11, title: 'Chapter 1.1' }, { id: 12, title: 'Chapter 1.2' }], content: '' },
-    { id: 2, title: 'Chapter 2', sub: [{ id: 21, title: 'Chapter 2.1' }], content: '' },
-]
-
 export default function EditorPage() {
-    const [chapters, setChapters] = useState<Chapter[]>(INITIAL_CHAPTERS)
-    const [activeId, setActiveId] = useState(INITIAL_CHAPTERS[0].id)
-    const [bookTitle, setBookTitle] = useState('Fourth wing')
+    const { id } = useParams();
+    const [chapters, setChapters] = useState<Chapter[]>([])
+    const [activeId, setActiveId] = useState(0)
+    const activeIdRef = useRef(0)
+    useEffect(() => {
+        activeIdRef.current = activeId;
+    }, [activeId]);
+    const [bookData, setBookData] = useState<any>(null);
+    const [bookTitle, setBookTitle] = useState('Loading...')
     const [font, setFont] = useState('Georgia, serif')
     const [fontSize, setFontSize] = useState(15)
     const [lineHeight, setLineHeight] = useState('1.8')
@@ -553,7 +556,7 @@ export default function EditorPage() {
     const contentRef = useRef<Record<number, string>>({})
 
     const activeChapter = chapters.find(c => c.id === activeId)
-    const ps = PARA_STYLES[paraStyle]
+    const ps = PARA_STYLES[paraStyle] || PARA_STYLES[0]
 
     const editor = useEditor({
         extensions: [
@@ -567,7 +570,7 @@ export default function EditorPage() {
         ],
         content: '',
         onUpdate: ({ editor }) => {
-            contentRef.current[activeId] = editor.getHTML()
+            contentRef.current[activeIdRef.current] = editor.getHTML()
             setSaved(false)
         },
     })
@@ -585,6 +588,50 @@ export default function EditorPage() {
         window.addEventListener('resize', recalc)
         return () => window.removeEventListener('resize', recalc)
     }, [showChapters, showRight])
+
+    useEffect(() => {
+        if (!id) return;
+        let cancelled = false;
+        api.get(`/books/${id}`).then(res => {
+            if (cancelled) return;
+            const b = res.data;
+            setBookData(b);
+            setBookTitle(b.title);
+            if (b.font) setFont(b.font);
+            if (b.fontSize) setFontSize(b.fontSize);
+            if (b.lineHeight) setLineHeight(b.lineHeight);
+            if (b.paraStyle !== undefined && b.paraStyle !== null) setParaStyle(b.paraStyle);
+        }).catch(console.error);
+        
+        api.get(`/chapters/book/${id}`).then(async res => {
+            if (cancelled) return;
+            if (res.data && res.data.length > 0) {
+                const mapped = res.data.map((c: any) => ({
+                    id: c.id,
+                    title: c.title,
+                    content: c.content || '',
+                    sub: []
+                }));
+                mapped.forEach((c: any) => { contentRef.current[c.id] = c.content });
+                setChapters(mapped);
+                setActiveId(mapped[0].id);
+            } else {
+                // Only auto-create Chapter 1 if no chapters exist
+                try {
+                    const newCh = await api.post(`/chapters/book/${id}`, { title: 'Chapter 1', content: '' });
+                    if (cancelled) return;
+                    const ch = { id: newCh.data.id, title: newCh.data.title, content: '', sub: [] };
+                    contentRef.current[ch.id] = '';
+                    setChapters([ch]);
+                    setActiveId(ch.id);
+                } catch (e) {
+                    console.error('Failed to auto-create chapter', e);
+                    if (!cancelled) setChapters([]);
+                }
+            }
+        });
+        return () => { cancelled = true; };
+    }, [id]);
 
     useEffect(() => {
         if (!editor) return
@@ -616,9 +663,42 @@ export default function EditorPage() {
         return () => center?.removeEventListener('wheel', handleWheel)
     }, [])
 
-    const handleSave = () => {
-        console.log('Save:', chapters.map(ch => ({ ...ch, content: contentRef.current[ch.id] ?? '' })))
-        setSaved(true)
+    const handleSave = async () => {
+        if (!id) return;
+        setSaved(true);
+        // Save book metadata along with styling
+        if (bookData) {
+            api.put(`/books/${id}`, { 
+                title: bookTitle,
+                description: bookData.description,
+                genre: bookData.genre,
+                privacy: bookData.privacy,
+                coverImage: bookData.coverImage,
+                font,
+                fontSize,
+                lineHeight,
+                paraStyle
+            }).catch(console.error);
+        }
+        
+        // Save chapters
+        for (const ch of chapters) {
+            const html = contentRef.current[ch.id] || '';
+            const isTemp = ch.id > 1000000; 
+            if (isTemp) {
+                try {
+                    const res = await api.post(`/chapters/book/${id}`, { title: ch.title, content: html });
+                    // Swap temporary ID with DB ID
+                    setChapters(prev => prev.map(p => p.id === ch.id ? { ...p, id: res.data.id } : p));
+                    setActiveId(curr => curr === ch.id ? res.data.id : curr);
+                    contentRef.current[res.data.id] = html;
+                } catch (e) {
+                    console.error("Created chapter fail", e);
+                }
+            } else {
+                api.put(`/chapters/${ch.id}`, { title: ch.title, content: html }).catch(console.error);
+            }
+        }
     }
 
     const wordCount = editor?.storage.characterCount?.words() ?? 0

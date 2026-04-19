@@ -1,111 +1,109 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
+import api from '../api';
 import '../assets/styles/pages.css';
 import '../assets/styles/PostPage.css';
-import { Post, CommentItem, CreationCommentInline } from '../components/Posts';
+import { useParams } from 'react-router-dom';
+import { Post, CommentItem, CreationCommentInline, NestedCommentList } from '../components/Posts';
 
-function AuthorWidget() {
+function AuthorWidget({ author }: { author?: any }) {
+    if (!author) return null;
     return (
         <div className="authorWidget">
             <div className="authorWidgetTop">
                 <div className="ProfileImage profileLarge"></div>
                 <div className="authorWidgetInfo">
-                    <div className="Nickname">Andrii Dosyn</div>
-                    <div className="authorStats">24K Followers</div>
+                    <div className="Nickname">{author.visibleName}</div>
+                    <div className="authorStats">{author.followersCount || "24K"} Followers</div>
                 </div>
             </div>
             <div className="authorBio">
-                Fantasy writer. Coffee enthusiast. Creating worlds one line of code and one paragraph at a time. Author of "Wind in the willows".
+                {author.bio || "Fantasy writer. Coffee enthusiast. Creating worlds..."}
             </div>
             <button className="followBtn">Follow</button>
         </div>
     );
 }
 
-function TrendingTagsWidget() {
+function TrendingTagsWidget({ tags }: { tags?: string[] }) {
+    const list = tags || ["#Fantasy", "#WritingUpdate"];
     return (
         <div className="tagsWidget">
             <h4 className="widgetTitle">Trending Tags</h4>
             <div className="tagsList">
-                <span className="tagItem">#Fantasy</span>
-                <span className="tagItem">#WritingUpdate</span>
-                <span className="tagItem">#ChapterOne</span>
-                <span className="tagItem">#WorldBuilding</span>
-                <span className="tagItem">#MagicSystem</span>
+                {list.map((tag, i) => (
+                    <span key={i} className="tagItem">{tag}</span>
+                ))}
             </div>
         </div>
     );
 }
 
 export default function PostPage() {
+    const { id } = useParams<{ id: string }>();
+    const [pageData, setPageData] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    const loadData = () => {
+        if (!id) return;
+        Promise.all([
+            api.get(`/posts/${id}`),
+            api.get(`/comments/post/${id}`)
+        ]).then(([postRes, comRes]) => {
+            const post = postRes.data;
+            setPageData({
+                postDetails: post,
+                author: post.author,
+                tags: [],
+                comments: comRes.data || []
+            });
+            setIsLoading(false);
+        }).catch(error => {
+            console.error("Error loading post", error);
+            setIsLoading(false);
+        });
+    };
+
+    useEffect(() => {
+        loadData();
+    }, [id]);
+
+    const handleCommentSubmit = async (parentId: number | null, content: string) => {
+        await api.post(`/comments/post/${id}`, { content, parentId });
+        loadData(); // Re-fetch tree
+    };
+
+    if (isLoading || !pageData) {
+        return <div className="postPageWrap">Loading...</div>;
+    }
+
     return (
         <div className="postPageWrap">
             <div className="postPageLayout">
                 <div className="postPageMain">
                     <div className="postContainer">
-                        <Post />
+                        <Post post={pageData.postDetails} />
                     </div>
 
                     <div className="commentsSection">
-                        <h3 className="commentsHeader">Comments (24)</h3>
+                        <h3 className="commentsHeader">Comments ({pageData.comments.length})</h3>
 
                         <div className="mainCommentInput">
-                            <CreationCommentInline placeholder="Write a comment..." placeholderButton="Comment" />
+                            <CreationCommentInline 
+                                placeholder="Write a comment..." 
+                                placeholderButton="Comment" 
+                                onSubmit={async (text) => await handleCommentSubmit(null, text)}
+                            />
                         </div>
 
-                        <div className="commentsTree">
-                            <CommentItem
-                                author="User 1"
-                                date="2 hours ago"
-                                text="This is exactly what I was feeling when reading that chapter! The atmosphere you described is spot on."
-                                likes={12}
-                                replies={
-                                    <CommentItem
-                                        author="Andrii Dosyn"
-                                        date="1 hour ago"
-                                        text="Thank you! I really tried to capture that melancholic vibe."
-                                        likes={4}
-                                    />
-                                }
-                            />
-
-                            <CommentItem
-                                author="User 2"
-                                date="5 hours ago"
-                                text="Can't wait for the next part. Do you have a release date in mind?"
-                                likes={8}
-                                replies={
-                                    <>
-                                        <CommentItem
-                                            author="Andrii Dosyn"
-                                            date="4 hours ago"
-                                            text="Hopefully by next month. Just finishing up the editing."
-                                            likes={5}
-                                            replies={
-                                                <CommentItem
-                                                    author="User 2"
-                                                    date="3 hours ago"
-                                                    text="Awesome, take your time!"
-                                                    likes={2}
-                                                />
-                                            }
-                                        />
-                                    </>
-                                }
-                            />
-
-                            <CommentItem
-                                author="User 3"
-                                date="1 day ago"
-                                text="I loved the detailed world-building here."
-                                likes={15}
-                            />
+                        <div className="commentsTree" style={{ marginTop: '30px' }}>
+                            <NestedCommentList comments={pageData.comments} onReplySubmit={handleCommentSubmit} />
                         </div>
                     </div>
                 </div>
 
                 <div className="postPageSidebar">
-                    <AuthorWidget />
-                    <TrendingTagsWidget />
+                    <AuthorWidget author={pageData.author} />
+                    <TrendingTagsWidget tags={pageData.tags} />
                 </div>
             </div>
         </div>

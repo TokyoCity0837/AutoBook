@@ -1,19 +1,30 @@
 import '../assets/styles/Posts.css'
-import { IconFriends } from './Icons'
+import { IconFriends, IconUser } from './Icons'
 import BookImage from '../assets/pictures/BookImage.jpeg'
-import React, { useState } from 'react'
+import React, { useState, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import api from '../api'
 
-export function UserInfoForPost() {
+export function UserInfoForPost({ author }: { author?: any }) {
+    const name = author?.visibleName || "Unknown Author";
     return (
         <div className="user">
-            <div className="ProfileImage" />
+            <div 
+                className="profileImage"    
+                style={author?.profileImage ? {
+                    backgroundImage: `url(http://localhost:8080${author.profileImage})`,
+                    backgroundSize: 'cover',
+                    backgroundPosition: 'center'
+                } : {}}
+            />
             <div className="userInfo">
-                <Link to="/profile" className="Nickname">Andrii Dosyn</Link>
+                <Link to={author?.id ? `/profile/${author.id}` : "#"} className="Nickname">
+                    {name}
+                </Link>
                 <div className="Status"><IconFriends size={14} />Friend</div>
             </div>
         </div>
-    )
+    );
 }
 
 function IconHeart({ size = 18 }) {
@@ -61,9 +72,62 @@ function IconAddPhoto({ size = 24 }) {
     )
 }
 
-export function CreationPost() {
+export function CreationPost({ onPostCreated }: { onPostCreated?: () => void }) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [textValue, setTextValue] = useState('');
+    const [loading, setLoading] = useState(false);
+    const [authorName, setAuthorName] = useState('Loading...');
+    const [uploadedImageUrl, setUploadedImageUrl] = useState<string | null>(null);
+    const [uploadingImage, setUploadingImage] = useState(false);
+    const fileInputRef = useRef<HTMLInputElement>(null);
+
+    React.useEffect(() => {
+        api.get('/users/profile/me')
+           .then(res => setAuthorName(res.data.visibleName))
+           .catch(() => setAuthorName('Unknown'));
+    }, []);
+
+    const handlePublish = async () => {
+        if (!textValue.trim() && !uploadedImageUrl) return;
+        setLoading(true);
+        try {
+            await api.post('/posts', { 
+                content: textValue || ' ', // API might require content
+                postType: 'FEED',
+                imageUrl: uploadedImageUrl 
+            });
+            
+            setTextValue(''); 
+            setUploadedImageUrl(null);
+            setIsExpanded(false);
+            if (onPostCreated) onPostCreated();
+        } catch (err) {
+            console.error("Error creating post", err);
+            alert("Failed to publish post.");
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setUploadingImage(true);
+            setIsExpanded(true);
+            try {
+                const formData = new FormData();
+                formData.append('file', e.target.files[0]);
+                const uploadRes = await api.post('/upload', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                });
+                setUploadedImageUrl(uploadRes.data);
+            } catch (err) {
+                console.error("Image upload failed", err);
+                alert("Failed to upload image. Make sure server is running.");
+            } finally {
+                setUploadingImage(false);
+            }
+        }
+    };
 
     return (
         <div
@@ -79,7 +143,7 @@ export function CreationPost() {
         >
             <div className="newPostTop">
                 <div className="ProfileImage" />
-                <div className="Nickname">Andrii Dosyn</div>
+                <div className="Nickname">{authorName}</div>
             </div>
             <textarea
                 value={textValue}
@@ -97,39 +161,114 @@ export function CreationPost() {
                     }
                 }}
             />
-            {isExpanded && (
-                <div className="newPostActions">
-                    <button className="iconActionBtn">
-                        <IconAddPhoto />
-                    </button>
-                    <button className="publishBtn">Publish</button>
+            {(isExpanded || uploadedImageUrl || uploadingImage) && (
+                <div style={{ display: 'flex', flexDirection: 'column', width: '100%', gap: '10px' }}>
+                    {uploadingImage && <div style={{ color: '#ff7700', fontSize: '13px', padding: '10px' }}>Uploading Image...</div>}
+                    {uploadedImageUrl && (
+                        <div style={{ position: 'relative', width: '120px', borderRadius: '8px', overflow: 'hidden' }}>
+                            <img src={`http://localhost:8080${uploadedImageUrl}`} alt="preview" style={{ width: '100%', display: 'block' }} />
+                            <button 
+                                onClick={() => setUploadedImageUrl(null)} 
+                                style={{ position: 'absolute', top: 5, right: 5, background: 'rgba(0,0,0,0.5)', color: 'white', border: 'none', borderRadius: '50%', cursor: 'pointer', width: '24px', height: '24px' }}>
+                                ×
+                            </button>
+                        </div>
+                    )}
+                    <div className="newPostActions" style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                            <button className="iconActionBtn" onClick={() => fileInputRef.current?.click()} disabled={uploadingImage}>
+                                <IconAddPhoto />
+                            </button>
+                            <input 
+                                type="file" 
+                                accept="image/*" 
+                                style={{ display: 'none' }} 
+                                ref={fileInputRef}
+                                onChange={handleFileChange}
+                            />
+                        </div>
+                        <button 
+                            className="publishBtn" 
+                            onClick={handlePublish}
+                            disabled={loading || uploadingImage}
+                        >
+                            {loading ? 'Publishing...' : 'Publish'}
+                        </button>
+                    </div>
                 </div>
             )}
         </div>
     )
 }
 
-export function Post() {
+export function Post({ post }: { post?: any }) {
     const navigate = useNavigate();
+
+    const data = post || {
+        id: 1,
+        content: "Konečne som dokončil prvú časť svojho románu...",
+        author: null,
+        likeCount: 2400,
+        commentCount: 148,
+        repostCount: 32,
+        hasImage: true
+    };
+
+    const [likes, setLikes] = useState(data.likeCount);
+    const [isLiked, setIsLiked] = useState(false);
+    const [reposts, setReposts] = useState(data.repostCount || 0);
+
+    const handleLike = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        if (isLiked) {
+            // Unlike
+            api.delete(`/posts/${data.id}/like`)
+                .then(() => { setLikes((l: number) => Math.max(0, l - 1)); setIsLiked(false); })
+                .catch(console.error);
+        } else {
+            // Like
+            api.put(`/posts/${data.id}/like`)
+                .then(() => { setLikes((l: number) => l + 1); setIsLiked(true); })
+                .catch(console.error);
+        }
+    };
+
+    const handleRepost = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        api.put(`/posts/${data.id}/repost`)
+           .then(() => setReposts(reposts + 1))
+           .catch(console.error);
+    };
+
+    const HeartIcon = ({ filled, size = 22 }: { filled: boolean, size?: number }) => (
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? '#ff4757' : 'none'}>
+            <path d="M12 21C12 21 3 15.5 3 9.5C3 7.015 4.985 5 7.5 5C8.986 5 10.306 5.71 11.155 6.808C11.568 7.344 11.775 7.612 12 7.612C12.225 7.612 12.432 7.344 12.845 6.808C13.694 5.71 15.014 5 16.5 5C19.015 5 21 7.015 21 9.5C21 15.5 12 21 12 21Z" stroke={filled ? '#ff4757' : 'rgba(255,255,255,0.45)'} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
+    );
 
     return (
         <div className="Post">
-            <UserInfoForPost />
-            <div className="postContentWrap" onClick={() => navigate('/post/1')}>
+            <UserInfoForPost author={data.author} />
+            <div className="postContentWrap" onClick={() => navigate(`/post/${data.id}`)}>
                 <div className="PostText">
-                    Konečne som dokončil prvú časť svojho románu. Dlho som hľadal
-                    správny hlas pre túto príbeh — tmavý, melancholický, ale s nádejou na
-                    konci. Dúfam, že vás prvá kapitola zaujme rovnako ako mňa pri písaní
+                    {data.content}
                 </div>
-                <div className="postImage">
-                    <img src={BookImage} alt="book" />
-                </div>
+                {data.hasImage && data.imageUrl && (
+                    <div className="postImage">
+                        <img src={`http://localhost:8080${data.imageUrl}`} alt="post content" />
+                    </div>
+                )}
+                {data.hasImage && !data.imageUrl && (
+                    <div className="postImage">
+                        <img src={BookImage} alt="book" />
+                    </div>
+                )}
             </div>
             <div className="PostLine" />
             <div className="PostAcvtivity">
-                <div className="LikeActivity"><IconHeart size={22} /><span className="LikesAmount">2.4k</span></div>
-                <div className="CommentActivity" onClick={() => navigate('/post/1')}><IconComment size={22} /><span className="CommentsAmount">148</span></div>
-                <div className="ShareActivity"><IconShare size={22} /><span className="ShareAmount">32</span></div>
+                <div className="LikeActivity" onClick={handleLike} style={{ cursor: 'pointer', transition: 'color 0.2s', color: isLiked ? '#ff4757' : 'inherit' }}><HeartIcon filled={isLiked} /><span className="LikesAmount">{likes}</span></div>
+                <div className="CommentActivity" onClick={() => navigate(`/post/${data.id}`)} style={{ cursor: 'pointer' }}><IconComment size={22} /><span className="CommentsAmount">{data.commentCount || 0}</span></div>
+                <div className="ShareActivity" onClick={handleRepost} style={{ cursor: 'pointer' }}><IconShare size={22} /><span className="ShareAmount">{reposts}</span></div>
                 <div className="MoreActivity"><IconMore size={26} /></div>
             </div>
         </div>
@@ -142,10 +281,24 @@ export interface CommentProps {
     date: string;
     likes: number;
     replies?: React.ReactNode;
+    onReplySubmit?: (text: string) => Promise<void>;
+    commentType?: 'book' | 'post';
+    id?: number;
 }
 
-export function CommentItem({ author, text, date, likes, replies }: CommentProps) {
+export function CommentItem({ id, commentType = 'post', author, text, date, likes, replies, onReplySubmit }: CommentProps) {
     const [isReplying, setIsReplying] = useState(false);
+    const [localLikes, setLocalLikes] = useState(likes);
+    const [isLiked, setIsLiked] = useState(false);
+
+    const handleLike = () => {
+        if (isLiked || !id) return;
+        const endpoint = commentType === 'book' ? `/book-comments/${id}/like` : `/comments/${id}/like`;
+        api.put(endpoint).then(() => {
+            setLocalLikes(localLikes + 1);
+            setIsLiked(true);
+        }).catch(console.error);
+    };
 
     return (
         <div className="commentNode">
@@ -164,7 +317,7 @@ export function CommentItem({ author, text, date, likes, replies }: CommentProps
                 <div className="commentText">{text}</div>
 
                 <div className="commentActions">
-                    <div className="actionBtn"><Like size={16} /> {likes}</div>
+                    <div className="actionBtn" onClick={handleLike} style={{ cursor: 'pointer', color: isLiked ? '#4caf50' : 'inherit' }}><Like size={16} /> {localLikes}</div>
                     <div className="actionBtn" onClick={() => setIsReplying(!isReplying)}>
                         <Comment size={16} /> Reply
                     </div>
@@ -173,7 +326,15 @@ export function CommentItem({ author, text, date, likes, replies }: CommentProps
 
             {isReplying && (
                 <div className="replyInputWrap">
-                    <CreationCommentInline placeholder={`Replying to ${author}...`} />
+                    <CreationCommentInline 
+                        placeholder={`Replying to ${author}...`} 
+                        onSubmit={async (text) => {
+                            if (onReplySubmit) {
+                                await onReplySubmit(text);
+                                setIsReplying(false);
+                            }
+                        }}
+                    />
                 </div>
             )}
 
@@ -186,8 +347,43 @@ export function CommentItem({ author, text, date, likes, replies }: CommentProps
     );
 }
 
-export function CreationCommentInline({ placeholder = "Leave a comment...", placeholderButton = "Reply" }) {
+export function NestedCommentList({ comments, onReplySubmit, commentType = 'post' }: { comments: any[], onReplySubmit: (parentId: number | null, text: string) => Promise<void>, commentType?: 'book' | 'post' }) {
+    if (!comments || comments.length === 0) return null;
+    return (
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {comments.map((c: any) => (
+                <CommentItem 
+                    key={c.id} 
+                    id={c.id}
+                    commentType={commentType}
+                    author={c.author?.visibleName || 'Unknown'} 
+                    text={c.content} 
+                    date={new Date(c.createdAt).toLocaleDateString()} 
+                    likes={c.likes || 0}
+                    onReplySubmit={async (text) => await onReplySubmit(c.id, text)}
+                    replies={<NestedCommentList comments={c.replies || []} onReplySubmit={onReplySubmit} commentType={commentType} />}
+                />
+            ))}
+        </div>
+    );
+}
+
+export function CreationCommentInline({ placeholder = "Leave a comment...", placeholderButton = "Reply", onSubmit }: { placeholder?: string, placeholderButton?: string, onSubmit?: (text: string) => Promise<void> }) {
     const [isFocused, setIsFocused] = useState(false);
+    const [textValue, setTextValue] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const handleSubmit = async () => {
+        if (!textValue.trim()) return;
+        setLoading(true);
+        if (onSubmit) {
+            await onSubmit(textValue).catch(console.error);
+        }
+        setTextValue('');
+        setIsFocused(false);
+        setLoading(false);
+    };
+
     return (
         <div className={`commentCreationInline ${isFocused ? 'focused' : ''}`}>
             <div className="ProfileImage profileSmall"></div>
@@ -195,6 +391,8 @@ export function CreationCommentInline({ placeholder = "Leave a comment...", plac
                 <textarea
                     className="commentCreationInputInline"
                     placeholder={placeholder}
+                    value={textValue}
+                    onChange={e => setTextValue(e.target.value)}
                     onFocus={() => setIsFocused(true)}
                     onBlur={(e) => {
                         if (e.target.value === '') setIsFocused(false);
@@ -202,7 +400,13 @@ export function CreationCommentInline({ placeholder = "Leave a comment...", plac
                 />
                 {isFocused && (
                     <div className="commentSubmitRow">
-                        <button className="commentPostBtn">{placeholderButton}</button>
+                        <button 
+                            className="commentPostBtn" 
+                            onClick={handleSubmit}
+                            disabled={loading}
+                        >
+                            {loading ? '...' : placeholderButton}
+                        </button>
                     </div>
                 )}
             </div>

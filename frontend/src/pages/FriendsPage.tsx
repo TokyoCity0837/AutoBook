@@ -1,59 +1,24 @@
-import '../assets/styles/pages.css'
-import '../index.css'
-import '../assets/styles/friendsPage.css'
-import { Accept, Reject } from './EditsPage'
+import '../assets/styles/pages.css';
+import '../index.css';
+import '../assets/styles/friendsPage.css';
 import { Link } from 'react-router-dom';
-import React from 'react';
-import { IconFriends } from '../components/Icons'
+import { useState, useEffect } from 'react';
+import api from '../api';
+import { IconFriends } from '../components/Icons';
 
-function FriendForPage({ friend = true }) {
-    return (
-        // <div className='user'>
-        //     <div className='ProfileImage'></div>
-        //     <div className='userInfo'>
-        //         <Link to="/profile" className='linkToProfile'>
-        //             <div className='Nickname'>Andrii Dosyn</div>
-        //         </Link>
-        //         {friend && (
-        //             <div className='Status'>
-        //                 <IconFriends />
-        //                 Friend
-        //             </div>
-        //         )}
-        //     </div>
-        // </div>
-        <div className='friendCard'>
-        <div className='friendCardBanner'></div>
-        <div className='friendCardAvatar'></div>
-        <div className='friendCardBody'>
-            <Link to="/profile" className='linkToProfile'>
-                <div className='friendCardName'>Andrii Dosyn</div>
-            </Link>
-            <div className='friendCardMeta'>@d.osid.osid.osid.osi</div>
-            <div className='friendCardActions'>
-            </div>
-        </div>
-    </div>
-    );
-}
-
-function IncomingFriendCard() {
+export function FriendForPage({ user, friend = true }: { user?: any, friend?: boolean }) {
+    if (!user) return null;
     return (
         <div className='friendCard'>
             <div className='friendCardBanner'></div>
             <div className='friendCardAvatar'></div>
             <div className='friendCardBody'>
-                <Link to="/profile" className='linkToProfile'>
-                    <div className='friendCardName'>Andrii Dosyn</div>
+                <Link to={`/profile/${user.id}`} className='linkToProfile'>
+                    <div className='friendCardName'>{user.visibleName}</div>
                 </Link>
-                <div className='friendCardMeta'>@d.osid.osid.osid.osi</div>
+                <div className='friendCardMeta'>@{user.username}</div>
                 <div className='friendCardActions'>
-                    <button className='friendCardBtn friendCardBtn--accept'>
-                        Add
-                    </button>
-                    <button className='friendCardBtn friendCardBtn--reject'>
-                        Reject
-                    </button>
+                    {friend && <span style={{fontSize: '13px', color: '#888'}}><IconFriends size={14}/> Friend</span>}
                 </div>
             </div>
         </div>
@@ -61,31 +26,53 @@ function IncomingFriendCard() {
 }
 
 export default function Friends() {
+    const [friendsData, setFriendsData] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        Promise.all([
+            api.get('/follows/friends/me'),
+            api.get('/follows/following')
+        ]).then(([friendsRes, followingRes]) => {
+            // getFriends returns FollowResponse[] where the friend is in .follower
+            // (because the endpoint returns followers filtered by mutual)
+            const friendUsers = friendsRes.data.map((f: any) => f.follower);
+            const friendIds = new Set(friendUsers.map((u: any) => u.id));
+            
+            // Following list: the user I follow is in .following
+            const followingUsers = followingRes.data.map((f: any) => f.following);
+            const pureFollowing = followingUsers.filter((u: any) => !friendIds.has(u.id));
+
+            setFriendsData({
+                friends: friendUsers,
+                following: pureFollowing
+            });
+            setIsLoading(false);
+        }).catch(err => {
+            console.error("Failed to load friends", err);
+            setFriendsData({ friends: [], following: [] });
+            setIsLoading(false);
+        });
+    }, []);
+
+    if (isLoading || !friendsData) {
+        return <div className='friendsPageWrap'>Loading Social Space...</div>;
+    }
+
     return (
         <div className='friendsPageWrap'>
-            <div className="YBText">Incoming requests</div>
-            <div className="friendsWrap friendsWrap--cards">
-                <IncomingFriendCard />
-                <IncomingFriendCard />
-                <IncomingFriendCard />
-                <IncomingFriendCard />
-                <IncomingFriendCard />
-                <IncomingFriendCard />
-            </div>
-            <div className="YBText">Your friends</div>
+            <div className="YBText">Your friends ({friendsData.friends.length})</div>
             <div className="friendsWrap">
-                <FriendForPage />
-                <FriendForPage />
-                <FriendForPage />
-                <FriendForPage />
-                <FriendForPage />
+                {friendsData.friends.map((user: any) => (
+                    <FriendForPage key={user.id} user={user} friend={true} />
+                ))}
             </div>
+            
             <div className="YBText">Following</div>
             <div className="friendsWrap">
-                <FriendForPage friend={false} />
-                <FriendForPage friend={false} />
-                <FriendForPage friend={false} />
-                <FriendForPage friend={false} />
+                {friendsData.following.map((user: any) => (
+                    <FriendForPage key={user.id} user={user} friend={false} />
+                ))}
             </div>
         </div>
     );

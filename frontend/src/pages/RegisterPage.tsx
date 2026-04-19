@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import '../assets/styles/authPage.css'
 import React from 'react'
+import api from '../api'
 
 function GoogleIcon() {
     return (
@@ -51,6 +52,7 @@ function StrengthBar({ password }: { password: string }) {
 }
 
 export default function RegisterPage() {
+    const navigate = useNavigate()
     const [username, setUsername] = useState('')
     const [displayName, setDisplayName] = useState('')
     const [email, setEmail] = useState('')
@@ -66,8 +68,20 @@ export default function RegisterPage() {
         e.preventDefault()
         if (!passwordMatch || !agree) return
         setLoading(true)
-        // POST /api/register  { username, email, password }
-        setTimeout(() => setLoading(false), 1200)
+        
+        api.post('/auth/register', { 
+            username, 
+            visibleName: displayName, 
+            email, 
+            password 
+        })
+        .then(() => { 
+            navigate('/login') 
+        })
+        .catch(err => { 
+            alert('Registration failed: ' + (err.response?.data?.message || err.message))
+            setLoading(false)
+        })
     }
 
     const EyeBtn = ({ show, toggle }: { show: boolean; toggle: () => void }) => (

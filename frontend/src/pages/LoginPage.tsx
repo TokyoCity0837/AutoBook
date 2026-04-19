@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import '../assets/styles/authPage.css'
 import React from 'react'
+import api from '../api'
 
 function GoogleIcon() {
     return (
@@ -23,6 +24,7 @@ function FacebookIcon() {
 }
 
 export default function LoginPage() {
+    const navigate = useNavigate()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPass, setShowPass] = useState(false)
@@ -31,7 +33,14 @@ export default function LoginPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
         setLoading(true)
-        setTimeout(() => setLoading(false), 1200)
+        api.post('/auth/login', { email, password })
+            .then(() => {
+                navigate('/')
+            })
+            .catch(err => {
+                alert('Login failed: ' + (err.response?.data?.message || err.message))
+                setLoading(false)
+            })
     }
 
     return (

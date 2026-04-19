@@ -1,0 +1,60 @@
+@startuml
+skinparam handwritten false
+skinparam classAttributeIconSize 0
+skinparam packageStyle rectangle
+
+package "API Routers (Endpoints)" {
+  class AnalyzeRouter <<Router>> {
+    + analyze_chapters(book_id, text)
+  }
+  
+  class VocabularyRouter <<Router>> {
+    + build_vocabulary(book_id, text)
+  }
+}
+
+package "Services Core (Encapsulation)" {
+  class StyleConsistencyAnalyzer {
+    - _analyzer: StyleAnalyzer
+    + process_consistency(profile, chapters)
+    - _calculate_lexical_similarity(vocab, tokens)
+    - _phrase_coverage(...)
+  }
+
+  class StyleAnalyzer {
+    - nlp_engine: spacy.Language
+    + analyze_text(text: str)
+    - _extract_phrases(text: str)
+  }
+  
+  class VocabularyBuilder {
+    + extract_candidates(text: str)
+    + approve_words(book_id, words)
+  }
+}
+
+package "Storage Layer (Polymorphism)" {
+  abstract class BaseStorage {
+    + {abstract} save(book_id: str, data: dict)
+    + {abstract} get(book_id: str)
+  }
+  class MongoStorage {
+    + save(book_id, data)
+    + get(book_id)
+  }
+  class FileStorage {
+    + save(book_id, data)
+    + get(book_id)
+  }
+}
+
+AnalyzeRouter --> StyleConsistencyAnalyzer : routes to
+VocabularyRouter --> VocabularyBuilder : routes to
+
+StyleConsistencyAnalyzer o--> StyleAnalyzer : uses engine
+StyleConsistencyAnalyzer --> BaseStorage : fetch profile
+VocabularyBuilder --> BaseStorage : store data
+
+BaseStorage <|-- MongoStorage
+BaseStorage <|-- FileStorage
+@enduml

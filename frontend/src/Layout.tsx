@@ -1,17 +1,13 @@
-import type { ReactNode } from 'react';
 import Sidebar from './components/Sidebar';
 import './index.css';
+import { Outlet } from 'react-router-dom';
 
-type LayoutProps = {
-  children: ReactNode;
-};
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout() {
   return (
     <div className="layout">
-        <Sidebar />
+      <Sidebar />
       <div className="content">
-        {children}
+        <Outlet />
       </div>
     </div>
   );
