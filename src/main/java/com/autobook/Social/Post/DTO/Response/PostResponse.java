@@ -11,6 +11,8 @@ public record PostResponse(
         String content,
         UserCardResponse author,
         PostType postType,
+        String imageUrl,
+        boolean hasImage,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         int likeCount,

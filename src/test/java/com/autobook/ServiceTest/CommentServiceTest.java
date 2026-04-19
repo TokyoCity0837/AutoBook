@@ -68,7 +68,7 @@ class CommentServiceTest {
                 .withAuthor(postAuthor)
                 .build();
 
-        CreateCommentRequest request = new CreateCommentRequest("Good Book!");
+        CreateCommentRequest request = new CreateCommentRequest("Good Book!", null);
 
         Comment comment = new CommentTestBuilder()
                 .withId(1L)
@@ -100,7 +100,7 @@ class CommentServiceTest {
     void createComment_emptyContent() {
         User author = new UserTestBuilder().build();
         Post post = new PostTestBuilder().withAuthor(author).build();
-        CreateCommentRequest request = new CreateCommentRequest(" ");
+        CreateCommentRequest request = new CreateCommentRequest(" ", null);
 
         assertThrows(
                 EmptyCommentContentException.class,
@@ -117,7 +117,7 @@ class CommentServiceTest {
     void createComment_nullContent() {
         User author = new UserTestBuilder().build();
         Post post = new PostTestBuilder().withAuthor(author).build();
-        CreateCommentRequest request = new CreateCommentRequest(null);
+        CreateCommentRequest request = new CreateCommentRequest(null, null);
 
         assertThrows(
                 EmptyCommentContentException.class,
@@ -416,7 +416,11 @@ class CommentServiceTest {
                         author.getProfileImage(),
                         author.getRole()
                 ),
-                comment.getCreatedAt() != null ? comment.getCreatedAt() : LocalDateTime.now()
+                comment.getCreatedAt() != null ? comment.getCreatedAt() : LocalDateTime.now(),
+                comment.getCreatedAt() != null ? comment.getCreatedAt() : LocalDateTime.now(),
+                null,
+                new java.util.ArrayList<>(),
+                0
         );
     }
 }

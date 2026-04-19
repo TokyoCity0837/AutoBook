@@ -14,5 +14,13 @@ public record UpdateBookRequest(
 
         PrivacyType privacy,
 
-        String coverImage
+        String coverImage,
+
+        String font,
+
+        Integer fontSize,
+
+        String lineHeight,
+
+        Integer paraStyle
 ) {}

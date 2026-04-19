@@ -17,7 +17,9 @@ public class UserMapper {
     public UserProfileResponse toProfileResponse(
             User user,
             List<BookCardResponse> books,
-            List<PostResponse> posts
+            List<PostResponse> posts,
+            long followers,
+            long friends
     ) {
         return new UserProfileResponse(
                 user.getId(),
@@ -28,6 +30,8 @@ public class UserMapper {
                 user.getPrivacy(),
                 user.getCreatedAt(),
                 user.getRole(),
+                followers,
+                friends,
                 books,
                 posts
         );
@@ -37,6 +41,7 @@ public class UserMapper {
         return new UserCardResponse(
                 user.getId(),
                 user.getVisibleName(),
+                user.getUsername(),
                 user.getProfileImage(),
                 user.getRole()
         );

@@ -192,15 +192,15 @@ public class ChapterServiceTest {
                 .withTitle("Chapter 2")
                 .build();
 
-        ChapterCardResponse response1 = new ChapterCardResponse(1L, "Chapter 1");
-        ChapterCardResponse response2 = new ChapterCardResponse(2L, "Chapter 2");
+        ChapterResponse response1 = new ChapterResponse(1L, "Chapter 1", "Content 1", LocalDateTime.now(), LocalDateTime.now());
+        ChapterResponse response2 = new ChapterResponse(2L, "Chapter 2", "Content 2", LocalDateTime.now(), LocalDateTime.now());
 
         when(chapterRepository.findByBookOrderByCreatedAtAsc(book))
                 .thenReturn(List.of(chapter1, chapter2));
-        when(chapterMapper.toCardResponse(chapter1)).thenReturn(response1);
-        when(chapterMapper.toCardResponse(chapter2)).thenReturn(response2);
+        when(chapterMapper.toResponse(chapter1)).thenReturn(response1);
+        when(chapterMapper.toResponse(chapter2)).thenReturn(response2);
 
-        List<ChapterCardResponse> result = chapterService.getChaptersByBookOrdered(book);
+        List<ChapterResponse> result = chapterService.getChaptersByBookOrdered(book);
 
         assertEquals(2, result.size());
         assertEquals("Chapter 1", result.get(0).title());

@@ -12,6 +12,8 @@ public record CreatePostRequest(
         String content,
 
         @NotNull
-        PostType postType
+        PostType postType,
+
+        String imageUrl
 
 ) {}
