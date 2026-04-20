@@ -30,6 +30,13 @@ public class CommentService {
         validateContent(request.content());
 
         Comment comment = commentFactory.create(request.content(), author, post);
+        
+        if (request.parentId() != null) {
+            Comment parent = commentRepository.findById(request.parentId())
+                .orElseThrow(() -> new CommentNotFoundException(request.parentId()));
+            comment.setParentComment(parent);
+        }
+
         Comment savedComment = commentRepository.save(comment);
 
         postRepository.incrementCommentCount(post.getId());
@@ -43,17 +50,48 @@ public class CommentService {
     }
 
     public List<CommentResponse> getCommentsByPost(Post post) {
-        return commentRepository.findByPostOrderByCreatedAtDesc(post)
-                .stream()
-                .map(commentMapper::toResponse)
-                .toList();
+        List<Comment> allComments = commentRepository.findByPostOrderByCreatedAtDesc(post);
+        return buildCommentTree(allComments);
+    }
+
+    private List<CommentResponse> buildCommentTree(List<Comment> allComments) {
+        java.util.Map<Long, CommentResponse> dtoMap = new java.util.HashMap<>();
+        List<CommentResponse> rootComments = new java.util.ArrayList<>();
+        
+        // Map all entities to DTOs first
+        for (Comment c : allComments) {
+            CommentResponse cr = commentMapper.toResponseLevel(c, new java.util.ArrayList<>());
+            if (cr != null) dtoMap.put(cr.id(), cr);
+        }
+        
+        // Link children to parents
+        for (CommentResponse cr : dtoMap.values()) {
+            if (cr.parentId() != null) {
+                CommentResponse parent = dtoMap.get(cr.parentId());
+                if (parent != null) {
+                    parent.replies().add(cr);
+                } else {
+                    rootComments.add(cr); // Parent not in this subset
+                }
+            } else {
+                rootComments.add(cr);
+            }
+        }
+        
+        // Sort root comments by creation time descending
+        rootComments.sort((a, b) -> b.createdAt().compareTo(a.createdAt()));
+        
+        // Sort replies ascending (oldest first)
+        for (CommentResponse cr : dtoMap.values()) {
+            cr.replies().sort((a, b) -> a.createdAt().compareTo(b.createdAt()));
+        }
+        
+        return rootComments;
     }
 
     public List<CommentResponse> getCommentsByAuthor(User author) {
-        return commentRepository.findByAuthorOrderByCreatedAtDesc(author)
-                .stream()
-                .map(commentMapper::toResponse)
-                .toList();
+        List<Comment> allComments = commentRepository.findByAuthorOrderByCreatedAtDesc(author);
+        return buildCommentTree(allComments);
     }
 
     @Transactional
@@ -85,6 +123,12 @@ public class CommentService {
 
         postRepository.decrementCommentCount(comment.getPost().getId());
         commentRepository.delete(comment);
+    }
+
+    @Transactional
+    public void incrementLikeCount(Long commentId) {
+        findCommentById(commentId);
+        commentRepository.incrementLikeCount(commentId);
     }
 
     private Comment findCommentById(Long commentId) {

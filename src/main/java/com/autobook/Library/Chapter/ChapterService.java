@@ -44,10 +44,10 @@ public class ChapterService {
                 .toList();
     }
 
-    public List<ChapterCardResponse> getChaptersByBookOrdered(Book book) {
+    public List<ChapterResponse> getChaptersByBookOrdered(Book book) {
         return chapterRepository.findByBookOrderByCreatedAtAsc(book)
                 .stream()
-                .map(chapterMapper::toCardResponse)
+                .map(chapterMapper::toResponse)
                 .toList();
     }
 

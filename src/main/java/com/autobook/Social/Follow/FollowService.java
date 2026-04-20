@@ -36,6 +36,20 @@ public class FollowService {
         return followMapper.toResponse(savedFollow);
     }
 
+    @Transactional
+    public FollowResponse directFollow(User follower, User following) {
+        validateFollowRequest(follower, following);
+
+        if (followRepository.existsByFollowerAndFollowing(follower, following)) {
+            throw new FollowAlreadyExistsException();
+        }
+
+        Follow followRequest = followFactory.create(follower, following, FollowStatus.ACCEPTED);
+        Follow savedFollow = followRepository.save(followRequest);
+
+        return followMapper.toResponse(savedFollow);
+    }
+
     public FollowResponse getFollowById(Long followId) {
         return followMapper.toResponse(getFollowEntityById(followId));
     }
@@ -57,6 +71,17 @@ public class FollowService {
     public List<FollowResponse> getFollowing(User user) {
         return followRepository.findByFollowerAndStatus(user, FollowStatus.ACCEPTED)
                 .stream()
+                .map(followMapper::toResponse)
+                .toList();
+    }
+
+    public List<FollowResponse> getFriends(User user) {
+        List<Follow> followers = followRepository.findByFollowingAndStatus(user, FollowStatus.ACCEPTED);
+        List<Follow> following = followRepository.findByFollowerAndStatus(user, FollowStatus.ACCEPTED);
+        List<Long> followingIds = following.stream().map(f -> f.getFollowing().getId()).toList();
+
+        return followers.stream()
+                .filter(f -> followingIds.contains(f.getFollower().getId()))
                 .map(followMapper::toResponse)
                 .toList();
     }

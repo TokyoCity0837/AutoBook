@@ -12,5 +12,9 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
 
     List<Comment> findByAuthorOrderByCreatedAtDesc(User author);
 
+    @org.springframework.data.jpa.repository.Modifying
+    @org.springframework.data.jpa.repository.Query("UPDATE Comment c SET c.likeCount = c.likeCount + 1 WHERE c.id = :id")
+    void incrementLikeCount(@org.springframework.data.repository.query.Param("id") Long id);
+
     void deleteByIdAndAuthor(Long id, User author);
 }

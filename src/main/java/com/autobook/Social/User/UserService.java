@@ -16,6 +16,7 @@ import com.autobook.Social.User.DTO.Request.UserRegisterRequest;
 import com.autobook.Social.User.DTO.Request.UserUpdateRequest;
 import com.autobook.Social.User.DTO.Response.UserCardResponse;
 import com.autobook.Social.User.DTO.Response.UserProfileResponse;
+import com.autobook.Social.Follow.FollowService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,6 +39,8 @@ public class UserService {
 
     private final PostRepository postRepository;
     private final PostMapper postMapper;
+
+    private final FollowService followService;
 
     @Transactional
     public UserProfileResponse createUser(UserRegisterRequest request) {
@@ -156,7 +159,11 @@ public class UserService {
                 .map(postMapper::toResponse)
                 .toList();
 
-        return userMapper.toProfileResponse(user, books, posts);
+        long followerCount = followService.countFollowers(user);
+        // Friends = mutual follows
+        long friendCount = followService.getFriends(user).size();
+
+        return userMapper.toProfileResponse(user, books, posts, followerCount, friendCount);
     }
 
     private User getUserEntityById(Long userId) {

@@ -17,7 +17,8 @@ public record UserProfileResponse(
     PrivacyType privacy,
     LocalDateTime createdAt,
     UserRole userRole,
+    long followers,
+    long friends,
     List<BookCardResponse> books,
     List<PostResponse> posts
-
 ) {}

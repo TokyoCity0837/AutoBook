@@ -8,11 +8,12 @@ import org.springframework.stereotype.Component;
 @Component
 public class PostFactory {
 
-    public Post create(String content, User author, PostType postType) {
+    public Post create(String content, User author, PostType postType, String imageUrl) {
         Post post = new Post();
         post.setContent(content);
         post.setAuthor(author);
         post.setPostType(postType);
+        post.setImageUrl(imageUrl);
         return post;
     }
 }

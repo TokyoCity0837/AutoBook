@@ -34,6 +34,14 @@ public class BookMapper {
                 book.getCoverImage(),
                 userMapper.toCardResponse(book.getAuthor()),
                 book.getDescription(),
+                book.getGenre(),
+                book.getPrivacy(),
+                book.getFont(),
+                book.getFontSize(),
+                book.getLineHeight(),
+                book.getParaStyle(),
+                book.getCreatedAt(),
+                book.getUpdatedAt(),
                 editRequests
         );
     }

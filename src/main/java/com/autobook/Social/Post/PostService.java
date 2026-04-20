@@ -31,7 +31,8 @@ public class PostService {
         Post post = postFactory.create(
                 request.content(),
                 author,
-                request.postType()
+                request.postType(),
+                request.imageUrl()
         );
 
         Post savedPost = postRepository.save(post);

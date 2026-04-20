@@ -56,7 +56,7 @@ class PostServiceTest {
                 .withBio("Java dev")
                 .build();
 
-        CreatePostRequest request = new CreatePostRequest("Hello bro", PostType.FEED);
+        CreatePostRequest request = new CreatePostRequest("Hello bro", PostType.FEED, null);
 
         Post post = new PostTestBuilder()
                 .withId(1L)
@@ -67,7 +67,7 @@ class PostServiceTest {
 
         PostDetailsResponse response = buildPostDetailsResponse(post);
 
-        when(postFactory.create("Hello bro", author, PostType.FEED)).thenReturn(post);
+        when(postFactory.create("Hello bro", author, PostType.FEED, null)).thenReturn(post);
         when(postRepository.save(post)).thenReturn(post);
         when(postMapper.toDetailsResponse(post)).thenReturn(response);
 
@@ -78,7 +78,7 @@ class PostServiceTest {
         assertEquals(PostType.FEED, result.postType());
         assertEquals("Anton", result.author().visibleName());
 
-        verify(postFactory).create("Hello bro", author, PostType.FEED);
+        verify(postFactory).create("Hello bro", author, PostType.FEED, null);
         verify(postRepository).save(post);
         verify(postMapper).toDetailsResponse(post);
     }
@@ -86,14 +86,14 @@ class PostServiceTest {
     @Test
     void createPost_emptyContent() {
         User author = new UserTestBuilder().build();
-        CreatePostRequest request = new CreatePostRequest(" ", PostType.FEED);
+        CreatePostRequest request = new CreatePostRequest(" ", PostType.FEED, null);
 
         assertThrows(
                 EmptyPostContentException.class,
                 () -> postService.createPost(request, author)
         );
 
-        verify(postFactory, never()).create(any(), any(), any());
+        verify(postFactory, never()).create(any(), any(), any(), any());
         verify(postRepository, never()).save(any(Post.class));
         verify(postMapper, never()).toDetailsResponse(any(Post.class));
     }
@@ -505,6 +505,8 @@ class PostServiceTest {
                         author.getRole()
                 ),
                 post.getPostType(),
+                null, // imageUrl
+                false, // hasImage
                 post.getCreatedAt() != null ? post.getCreatedAt() : LocalDateTime.now(),
                 post.getUpdatedAt() != null ? post.getUpdatedAt() : LocalDateTime.now(),
                 post.getLikeCount(),
@@ -534,6 +536,8 @@ class PostServiceTest {
                         author.getRole()
                 ),
                 post.getPostType(),
+                null, // imageUrl
+                false, // hasImage
                 post.getCreatedAt() != null ? post.getCreatedAt() : LocalDateTime.now(),
                 post.getUpdatedAt() != null ? post.getUpdatedAt() : LocalDateTime.now(),
                 post.getLikeCount(),
@@ -549,7 +553,11 @@ class PostServiceTest {
                                         author.getProfileImage(),
                                         author.getRole()
                                 ),
-                                LocalDateTime.now()
+                                LocalDateTime.now(),
+                                LocalDateTime.now(),
+                                null,
+                                new java.util.ArrayList<>(),
+                                0
                         )
                 )
         );

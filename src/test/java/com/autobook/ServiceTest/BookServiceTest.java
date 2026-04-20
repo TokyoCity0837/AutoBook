@@ -246,7 +246,8 @@ class BookServiceTest {
                 "New Description",
                 "Fantasy",
                 PrivacyType.PUBLIC,
-                "new.png"
+                "new.png",
+                null, null, null, null
         );
 
         BookDetailsResponse expectedResponse = mock(BookDetailsResponse.class);
@@ -285,7 +286,8 @@ class BookServiceTest {
                 null,
                 null,
                 null,
-                null
+                null,
+                null, null, null, null
         );
 
         BookDetailsResponse expectedResponse = mock(BookDetailsResponse.class);
@@ -320,7 +322,8 @@ class BookServiceTest {
                 null,
                 null,
                 null,
-                null
+                null,
+                null, null, null, null
         );
 
         when(bookRepository.findById(1L)).thenReturn(Optional.of(book));

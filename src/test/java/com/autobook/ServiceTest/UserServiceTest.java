@@ -21,6 +21,7 @@ import com.autobook.Social.User.User;
 import com.autobook.Social.User.UserMapper;
 import com.autobook.Social.User.UserRepository;
 import com.autobook.Social.User.UserService;
+import com.autobook.Social.Follow.FollowService;
 import com.autobook.util.UserTestBuilder;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -65,6 +66,9 @@ class UserServiceTest {
     @Mock
     private PostMapper postMapper;
 
+    @Mock
+    private FollowService followService;
+
     @InjectMocks
     private UserService userService;
 
@@ -97,6 +101,8 @@ class UserServiceTest {
                 createdUser.getPrivacy(),
                 createdUser.getCreatedAt(),
                 createdUser.getRole(),
+                0L,
+                0L,
                 books,
                 posts
         );
@@ -111,7 +117,7 @@ class UserServiceTest {
         when(bookRepository.findByAuthor(createdUser)).thenReturn(List.of());
         when(postRepository.findByAuthorOrderByCreatedAtDesc(createdUser)).thenReturn(List.of());
 
-        when(userMapper.toProfileResponse(createdUser, books, posts)).thenReturn(response);
+        when(userMapper.toProfileResponse(eq(createdUser), eq(books), eq(posts), anyLong(), anyLong())).thenReturn(response);
 
         UserProfileResponse result = userService.createUser(request);
 
@@ -124,7 +130,7 @@ class UserServiceTest {
         verify(userRepository).save(createdUser);
         verify(bookRepository).findByAuthor(createdUser);
         verify(postRepository).findByAuthorOrderByCreatedAtDesc(createdUser);
-        verify(userMapper).toProfileResponse(createdUser, books, posts);
+        verify(userMapper).toProfileResponse(eq(createdUser), eq(books), eq(posts), anyLong(), anyLong());
     }
 
     @Test
@@ -142,7 +148,7 @@ class UserServiceTest {
 
         verify(userRepository, never()).existsByUsername(anyString());
         verify(userRepository, never()).save(any(User.class));
-        verify(userMapper, never()).toProfileResponse(any(), any(), any());
+        verify(userMapper, never()).toProfileResponse(any(), any(), any(), anyLong(), anyLong());
     }
 
     @Test
@@ -160,7 +166,7 @@ class UserServiceTest {
         assertThrows(UsernameAlreadyExistsException.class, () -> userService.createUser(request));
 
         verify(userRepository, never()).save(any(User.class));
-        verify(userMapper, never()).toProfileResponse(any(), any(), any());
+        verify(userMapper, never()).toProfileResponse(any(), any(), any(), anyLong(), anyLong());
     }
 
     @Test
@@ -183,6 +189,8 @@ class UserServiceTest {
                 "Hello world",
                 new UserCardResponse(1L, "Anton", "user.png", UserRole.USER),
                 PostType.FEED,
+                null,
+                false,
                 LocalDateTime.now(),
                 LocalDateTime.now(),
                 0,
@@ -202,6 +210,8 @@ class UserServiceTest {
                 user.getPrivacy(),
                 user.getCreatedAt(),
                 user.getRole(),
+                0L,
+                0L,
                 books,
                 posts
         );
@@ -209,7 +219,7 @@ class UserServiceTest {
         when(userRepository.findById(1L)).thenReturn(Optional.of(user));
         when(bookRepository.findByAuthor(user)).thenReturn(List.of());
         when(postRepository.findByAuthorOrderByCreatedAtDesc(user)).thenReturn(List.of());
-        when(userMapper.toProfileResponse(user, books, posts)).thenReturn(response);
+        when(userMapper.toProfileResponse(eq(user), any(), any(), anyLong(), anyLong())).thenReturn(response);
 
         when(bookRepository.findByAuthor(user)).thenReturn(List.of(mock(com.autobook.Library.Book.Book.class)));
         when(postRepository.findByAuthorOrderByCreatedAtDesc(user)).thenReturn(List.of(mock(com.autobook.Social.Post.Post.class)));
@@ -253,6 +263,8 @@ class UserServiceTest {
                 user.getPrivacy(),
                 user.getCreatedAt(),
                 user.getRole(),
+                0L,
+                0L,
                 books,
                 posts
         );
@@ -260,7 +272,7 @@ class UserServiceTest {
         when(userRepository.findByUsername("anton")).thenReturn(Optional.of(user));
         when(bookRepository.findByAuthor(user)).thenReturn(List.of());
         when(postRepository.findByAuthorOrderByCreatedAtDesc(user)).thenReturn(List.of());
-        when(userMapper.toProfileResponse(user, books, posts)).thenReturn(response);
+        when(userMapper.toProfileResponse(eq(user), eq(books), eq(posts), anyLong(), anyLong())).thenReturn(response);
 
         UserProfileResponse result = userService.getUserProfileByUsername("anton");
 
@@ -422,6 +434,8 @@ class UserServiceTest {
                 PrivacyType.PUBLIC,
                 user.getCreatedAt(),
                 user.getRole(),
+                0L,
+                0L,
                 books,
                 posts
         );
@@ -430,7 +444,7 @@ class UserServiceTest {
         when(userRepository.save(user)).thenReturn(user);
         when(bookRepository.findByAuthor(user)).thenReturn(List.of());
         when(postRepository.findByAuthorOrderByCreatedAtDesc(user)).thenReturn(List.of());
-        when(userMapper.toProfileResponse(user, books, posts)).thenReturn(response);
+        when(userMapper.toProfileResponse(eq(user), eq(books), eq(posts), anyLong(), anyLong())).thenReturn(response);
 
         UserProfileResponse result = userService.updateProfile(1L, request);
 
@@ -440,7 +454,7 @@ class UserServiceTest {
         assertEquals(PrivacyType.PUBLIC, result.privacy());
 
         verify(userRepository).save(user);
-        verify(userMapper).toProfileResponse(user, books, posts);
+        verify(userMapper).toProfileResponse(eq(user), eq(books), eq(posts), anyLong(), anyLong());
     }
 
     @Test
@@ -462,7 +476,7 @@ class UserServiceTest {
         assertThrows(IllegalArgumentException.class, () -> userService.updateProfile(1L, request));
 
         verify(userRepository, never()).save(any(User.class));
-        verify(userMapper, never()).toProfileResponse(any(), any(), any());
+        verify(userMapper, never()).toProfileResponse(any(), any(), any(), anyLong(), anyLong());
     }
 
     @Test

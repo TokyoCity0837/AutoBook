@@ -6,6 +6,7 @@ import com.autobook.Enum.UserRole;
 public record UserCardResponse (
     Long id,
     String visibleName,
+    String username,
     String profileImage,
     UserRole userRole
 

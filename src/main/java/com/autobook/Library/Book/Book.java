@@ -38,6 +38,18 @@ public class Book {
     @Column(name = "cover_image")
     private String coverImage;
     
+    @Column(name = "font", length = 100)
+    private String font = "Georgia, serif";
+    
+    @Column(name = "font_size")
+    private Integer fontSize = 15;
+    
+    @Column(name = "line_height", length = 20)
+    private String lineHeight = "1.8";
+    
+    @Column(name = "para_style")
+    private Integer paraStyle = 0;
+    
     @CreationTimestamp
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
