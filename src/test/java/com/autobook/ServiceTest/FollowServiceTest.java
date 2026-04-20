@@ -51,8 +51,8 @@ class FollowServiceTest {
 
         FollowResponse response = new FollowResponse(
                 10L,
-                new UserCardResponse(1L,"anton", null, null),
-                new UserCardResponse(1L,"anna", null, null),
+                new UserCardResponse(1L, "anton", "anton", null, null),
+                new UserCardResponse(2L, "anna", "anna", null, null),
                 FollowStatus.PENDING,
                 LocalDateTime.now()
         );
@@ -102,8 +102,8 @@ class FollowServiceTest {
 
         FollowResponse response = new FollowResponse(
                 5L,
-                new UserCardResponse(1L,"anton", null, null),
-                new UserCardResponse(1L,"anna", null, null),
+                new UserCardResponse(1L, "anton", "anton", null, null),
+                new UserCardResponse(2L, "anna", "anna", null, null),
                 FollowStatus.PENDING,
                 LocalDateTime.now()
         );

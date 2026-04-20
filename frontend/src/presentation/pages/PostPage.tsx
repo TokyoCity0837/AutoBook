@@ -1,4 +1,5 @@
 import { usePostPage } from '../hooks/usePostPage';
+import { useProfile } from '../hooks/useProfile';
 import { Link, useParams } from 'react-router-dom';
 import { Post } from '../components/post/Post';
 import { CreationCommentInline, NestedCommentList } from '../components/post/CommentSection';
@@ -8,6 +9,8 @@ import '../../assets/styles/PostPage.css';
 
 function AuthorWidget({ author }: { author?: any }) {
     if (!author) return null;
+
+    const { isFollowing, followLoading, toggleFollow } = useProfile(author.id);
 
     const avatarUrl = author?.profileImage ? `${MEDIA_BASE_URL}${author.profileImage}` : null;
 
@@ -29,7 +32,17 @@ function AuthorWidget({ author }: { author?: any }) {
             <div className="authorBio">
                 {author.bio || "Fantasy writer. Coffee enthusiast. Creating worlds..."}
             </div>
-            <button className="followBtn">Follow</button>
+            {/* <button className="followBtn">Follow</button> */}
+
+            <div style={{ display: 'flex', gap: '14px', marginTop: '14px' }}>
+                <button
+                    className={isFollowing ? "followBtn following" : "followBtn follow"}
+                    onClick={toggleFollow}
+                    disabled={followLoading}
+                    style={{opacity: followLoading ? 0.6 : 1 }}>
+                    {followLoading ? '...' : (isFollowing ? 'Following' : 'Follow')}
+                </button>
+            </div>
         </div>
     );
 }

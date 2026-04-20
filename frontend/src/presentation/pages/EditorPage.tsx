@@ -2,7 +2,8 @@ import { useEditor, EditorContent } from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 import Placeholder from '@tiptap/extension-placeholder'
 import { Extension } from '@tiptap/core'
-import { TextStyleKit } from '@tiptap/extension-text-style'
+import { TextStyle } from '@tiptap/extension-text-style'
+import { FontFamily } from '@tiptap/extension-font-family'
 import TextAlign from '@tiptap/extension-text-align'
 import CharacterCount from '@tiptap/extension-character-count'
 import { PaginationPlus, PAGE_SIZES } from 'tiptap-pagination-plus'
@@ -100,6 +101,31 @@ const TabIndent = Extension.create({
                 this.editor.chain().focus().insertContent('    ').run()
                 return true
             },
+        }
+    },
+})
+
+// ─── FontSize Extension ───────────────────────────────────────────────────────
+
+const FontSize = Extension.create({
+    name: 'fontSize',
+    addOptions() { return { types: ['textStyle'] } },
+    addGlobalAttributes() {
+        return [{
+            types: this.options.types,
+            attributes: {
+                fontSize: {
+                    default: null,
+                    parseHTML: element => element.style.fontSize?.replace(/['"]+/g, ''),
+                    renderHTML: attributes => attributes.fontSize ? { style: `font-size: ${attributes.fontSize}` } : {},
+                },
+            },
+        }]
+    },
+    addCommands() {
+        return {
+            setFontSize: fontSize => ({ chain }) => chain().setMark('textStyle', { fontSize }).run(),
+            unsetFontSize: () => ({ chain }) => chain().setMark('textStyle', { fontSize: null }).removeEmptyTextStyle().run(),
         }
     },
 })
@@ -327,12 +353,68 @@ function Dropdown({ label, options, onSelect, width }: {
     )
 }
 
+function FontSizeDropdown({ editor, defaultSize }: { editor: any, defaultSize: number }) {
+    const rawVal = editor.getAttributes('textStyle')?.fontSize || `${defaultSize}px`
+    const numericMatch = rawVal.match(/\d+/)
+    const num = numericMatch ? parseInt(numericMatch[0]) : defaultSize
+
+    const [open, setOpen] = useState(false)
+    const [val, setVal] = useState(num.toString())
+    const ref = useRef<HTMLDivElement>(null)
+
+    useEffect(() => {
+        if (!open) {
+            setVal(num.toString())
+        }
+    }, [num, open])
+
+    useEffect(() => {
+        const fn = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+        document.addEventListener('mousedown', fn)
+        return () => document.removeEventListener('mousedown', fn)
+    }, [])
+
+    const apply = (v: string) => {
+        const parsed = parseInt(v)
+        if (!isNaN(parsed) && parsed > 0) {
+            editor.chain().focus().setFontSize(`${parsed}px`).run()
+            setVal(parsed.toString())
+        } else {
+            setVal(num.toString())
+        }
+        setOpen(false)
+    }
+
+    return (
+        <div className="tbDropdown" ref={ref}>
+            <div className="tbDropdownBtn" style={{ minWidth: 68, padding: '4px 6px' }}>
+                <input 
+                    value={val}
+                    onChange={e => { setVal(e.target.value); setOpen(true) }}
+                    onBlur={() => { setTimeout(() => apply(val), 150) }}
+                    onKeyDown={e => { if (e.key === 'Enter') apply(val) }}
+                    onClick={() => setOpen(true)}
+                    style={{ width: '28px', background: 'transparent', border: 'none', color: 'inherit', outline: 'none', textAlign: 'center', fontFamily: 'inherit', fontSize: '12px' }}
+                />
+                <span onClick={() => setOpen(!open)} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}><I.ChevronDown /></span>
+            </div>
+            {open && (
+                <div className="tbDropdownMenu" style={{ minWidth: 68 }}>
+                    {SIZES.map(s => (
+                        <div key={s} className="tbDropdownItem" onMouseDown={(e) => { e.preventDefault(); apply(s.toString()) }}>{s}px</div>
+                    ))}
+                </div>
+            )}
+        </div>
+    )
+}
+
 // ─── Toolbar ──────────────────────────────────────────────────────────────────
 
 function Toolbar({ editor, font, fontSize, lineHeight, paraStyle, focusMode,
-    setFontSize, setLineHeight, setParaStyle, setFocusMode }: {
+    setLineHeight, setParaStyle, setFocusMode }: {
         editor: any; font: string; fontSize: number; lineHeight: string; paraStyle: number; focusMode: boolean
-        setFontSize: (v: number) => void; setLineHeight: (v: string) => void
+        setLineHeight: (v: string) => void
         setParaStyle: (v: number) => void; setFocusMode: (v: boolean) => void
     }) {
     if (!editor) return null
@@ -342,12 +424,13 @@ function Toolbar({ editor, font, fontSize, lineHeight, paraStyle, focusMode,
     )
     const selectionFont = editor.getAttributes('textStyle')?.fontFamily || font
     const fontLabel = FONTS.find(f => f.value === selectionFont)?.label ?? selectionFont.split(',')[0].replace(/"/g, '').trim()
+    const selectionFontSize = editor.getAttributes('textStyle')?.fontSize || `${fontSize}px`
 
     return (
         <div className="editorToolbar">
-            {/* Font applies inline to selected text only — does NOT change document font */}
+            {/* Font applies inline to selected text only */}
             <Dropdown label={fontLabel} options={FONTS} onSelect={v => editor.chain().focus().setFontFamily(v).run()} width={130} />
-            <Dropdown label={`${fontSize}px`} options={SIZES.map(s => ({ label: `${s}px`, value: `${s}` }))} onSelect={v => setFontSize(+v)} width={68} />
+            <FontSizeDropdown editor={editor} defaultSize={fontSize} />
             <Dropdown label={`↕ ${lineHeight}`} options={LINE_HEIGHTS} onSelect={setLineHeight} width={120} />
             <Dropdown label={`¶ ${PARA_STYLES[paraStyle].label}`} options={PARA_STYLES.map((p, i) => ({ label: p.label, value: `${i}` }))} onSelect={v => setParaStyle(+v)} width={120} />
             <D />
@@ -506,7 +589,9 @@ export default function EditorPage() {
             StarterKit.configure({ heading: false }),  // disable default heading
             AnchorHeading.configure({ levels: [1, 2, 3] }),  // use ours with data-anchor-id
             Placeholder.configure({ placeholder: 'Start writing your chapter…' }),
-            TextStyleKit,
+            TextStyle,
+            FontFamily,
+            FontSize,
             TabIndent,
             TextAlign.configure({ types: ['heading', 'paragraph'] }),
             CharacterCount,
@@ -561,10 +646,6 @@ export default function EditorPage() {
                     genre: bd.genre,
                     privacy: bd.privacy,
                     coverImage: bd.coverImage,
-                    font: fontRef.current,
-                    fontSize: fontSizeRef.current,
-                    lineHeight: lineHeightRef.current,
-                    paraStyle: paraStyleRef.current,
                 })
             } catch (e) { console.error('Failed to save book', e) }
         }
@@ -786,7 +867,6 @@ export default function EditorPage() {
                         lineHeight={lineHeight}
                         paraStyle={paraStyle}
                         focusMode={focusMode}
-                        setFontSize={setFontSize}
                         setLineHeight={setLineHeight}
                         setParaStyle={setParaStyle}
                         setFocusMode={setFocusMode}

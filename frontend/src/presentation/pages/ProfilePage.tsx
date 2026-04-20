@@ -16,19 +16,14 @@ function BookForProfile({ book }: { book?: any }) {
                 {coverUrl ? (
                     <img src={coverUrl} alt={book.title} className='ImgBookProfile' width={150} height={190} style={{ objectFit: 'cover' }} />
                 ) : (
-                    <div className='ImgBookProfile' style={{
-                        width: 150, height: 190, background: DEFAULT_COVER_GRADIENT,
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        borderRadius: '6px', color: 'white', fontSize: '12px',
-                        textAlign: 'center', padding: '10px', fontWeight: 600
-                    }}>
+                    <div className='ImgBookProfileNoImage' style={{background: DEFAULT_COVER_GRADIENT}}>
                         {book.title}
                     </div>
                 )}
             </div>
             <div className="bookDescProfile">
                 <div className="bookTitleProfile">{book.title}</div>
-                <div className="bookAuthorsProfile">{book.author?.visibleName || "Author"}</div>
+                <div className="bookAuthorsProfile">{book.author?.visibleName || "..."}</div>
             </div>
         </Link>
     );
@@ -60,12 +55,12 @@ export default function ProfilePage() {
                             <div className="name">{profile.visibleName}</div>
                             <div className="nickname">@{profile.username}</div>
                             {id && profileMe && Number(id) !== profileMe.id && (
-                                <div style={{ display: 'flex', gap: '10px', marginTop: '10px' }}>
+                                <div style={{ display: 'flex', gap: '14px', marginTop: '14px' }}>
                                     <button
-                                        className={isFollowing ? "iconActionBtn" : "publishBtn"}
+                                        className={isFollowing ? "publishBtn following" : "publishBtn follow"}
                                         onClick={toggleFollow}
                                         disabled={followLoading}
-                                        style={{ padding: '8px 16px', fontSize: '14px', borderRadius: '20px', border: isFollowing ? '1px solid #444' : 'none', opacity: followLoading ? 0.6 : 1 }}>
+                                        style={{opacity: followLoading ? 0.6 : 1 }}>
                                         {followLoading ? '...' : (isFollowing ? 'Following' : 'Follow')}
                                     </button>
                                 </div>

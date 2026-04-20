@@ -14,7 +14,7 @@ body,
 
 :root {
   --bg-color: #191D26;
-  --accent-color: #12151C;
+  --accent-color: rgb(18, 21, 28);
 
   --surface-color: rgba(255, 255, 255, 0.05);
   --surface-hover: rgba(255, 255, 255, 0.08);
