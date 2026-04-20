@@ -501,6 +501,7 @@ class PostServiceTest {
                 new UserCardResponse(
                         author.getId(),
                         author.getVisibleName(),
+                        author.getUsername(),
                         author.getProfileImage(),
                         author.getRole()
                 ),
@@ -550,6 +551,7 @@ class PostServiceTest {
                                 new UserCardResponse(
                                         author.getId(),
                                         author.getVisibleName(),
+                                        author.getUsername(),
                                         author.getProfileImage(),
                                         author.getRole()
                                 ),

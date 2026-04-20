@@ -182,8 +182,8 @@ class CommentServiceTest {
 
         when(commentRepository.findByAuthorOrderByCreatedAtDesc(author))
                 .thenReturn(List.of(comment1, comment2));
-        when(commentMapper.toResponse(comment1)).thenReturn(response1);
-        when(commentMapper.toResponse(comment2)).thenReturn(response2);
+        when(commentMapper.toResponseLevel(eq(comment1), any())).thenReturn(response1);
+        when(commentMapper.toResponseLevel(eq(comment2), any())).thenReturn(response2);
 
         List<CommentResponse> result = commentService.getCommentsByAuthor(author);
 
@@ -192,8 +192,8 @@ class CommentServiceTest {
         assertEquals("Bye", result.get(1).content());
 
         verify(commentRepository).findByAuthorOrderByCreatedAtDesc(author);
-        verify(commentMapper).toResponse(comment1);
-        verify(commentMapper).toResponse(comment2);
+        verify(commentMapper).toResponseLevel(eq(comment1), any());
+        verify(commentMapper).toResponseLevel(eq(comment2), any());
     }
 
     @Test
@@ -217,8 +217,8 @@ class CommentServiceTest {
 
         when(commentRepository.findByPostOrderByCreatedAtDesc(post))
                 .thenReturn(List.of(comment1, comment2));
-        when(commentMapper.toResponse(comment1)).thenReturn(response1);
-        when(commentMapper.toResponse(comment2)).thenReturn(response2);
+        when(commentMapper.toResponseLevel(eq(comment1), any())).thenReturn(response1);
+        when(commentMapper.toResponseLevel(eq(comment2), any())).thenReturn(response2);
 
         List<CommentResponse> result = commentService.getCommentsByPost(post);
 
@@ -227,8 +227,8 @@ class CommentServiceTest {
         assertEquals("Bye", result.get(1).content());
 
         verify(commentRepository).findByPostOrderByCreatedAtDesc(post);
-        verify(commentMapper).toResponse(comment1);
-        verify(commentMapper).toResponse(comment2);
+        verify(commentMapper).toResponseLevel(eq(comment1), any());
+        verify(commentMapper).toResponseLevel(eq(comment2), any());
     }
 
     @Test
@@ -413,6 +413,7 @@ class CommentServiceTest {
                 new UserCardResponse(
                         author.getId(),
                         author.getVisibleName(),
+                        author.getUsername(),
                         author.getProfileImage(),
                         author.getRole()
                 ),

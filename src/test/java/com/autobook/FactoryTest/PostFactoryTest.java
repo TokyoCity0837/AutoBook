@@ -20,7 +20,7 @@ public class PostFactoryTest {
                                 .withUsername("anton")
                                 .build();
 
-        Post post = postFactory.create("Hello guys", author, PostType.PROFILE);
+        Post post = postFactory.create("Hello guys", author, PostType.PROFILE, null);
 
         assertNotNull(post);
         assertEquals(author, post.getAuthor());

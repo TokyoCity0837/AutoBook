@@ -97,19 +97,6 @@ public class BookService {
         if (request.coverImage() != null) {
             book.setCoverImage(request.coverImage());
         }
-        
-        if (request.font() != null) {
-            book.setFont(request.font());
-        }
-        if (request.fontSize() != null) {
-            book.setFontSize(request.fontSize());
-        }
-        if (request.lineHeight() != null) {
-            book.setLineHeight(request.lineHeight());
-        }
-        if (request.paraStyle() != null) {
-            book.setParaStyle(request.paraStyle());
-        }
 
         Book savedBook = bookRepository.save(book);
         return buildBookDetailsResponse(savedBook);

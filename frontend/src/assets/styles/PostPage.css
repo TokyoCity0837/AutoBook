@@ -298,6 +298,15 @@
     gap: 20px;
 }
 
+.follow {
+    background: rgba(255, 255, 255, 0.08);
+    border: 2px solid var(--bg-color);
+}
+.following {
+    background: linear-gradient(183deg, rgba(23, 23, 23, 0.9) 0%, rgba(25, 29, 38, 1) 50%);
+    border: 2px solid var(--accent-color);
+}
+
 /* in future wiil be changed */
 @media (max-width: 1000px) {
     .postPageLayout {

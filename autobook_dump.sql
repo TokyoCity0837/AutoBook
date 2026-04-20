@@ -1,8 +1,8 @@
--- MySQL dump 10.13  Distrib 9.6.0, for macos14.8 (x86_64)
+-- MySQL dump 10.13  Distrib 8.0.45, for Win64 (x86_64)
 --
--- Host: localhost    Database: autobook
+-- Host: 127.0.0.1    Database: autobook
 -- ------------------------------------------------------
--- Server version	9.4.0
+-- Server version	8.0.45
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
@@ -14,6 +14,31 @@
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
+
+--
+-- Table structure for table `book_comments`
+--
+
+DROP TABLE IF EXISTS `book_comments`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `book_comments` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `content` text NOT NULL,
+  `author_id` bigint NOT NULL,
+  `book_id` bigint NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `parent_comment_id` bigint DEFAULT NULL,
+  `like_count` int NOT NULL DEFAULT '0',
+  PRIMARY KEY (`id`),
+  KEY `FK_BOOK_COMMENTS_ON_AUTHOR` (`author_id`),
+  KEY `FK_BOOK_COMMENTS_ON_BOOK` (`book_id`),
+  KEY `FK_BOOK_COMMENTS_ON_PARENT_COMMENT` (`parent_comment_id`),
+  CONSTRAINT `FK_BOOK_COMMENTS_ON_AUTHOR` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `FK_BOOK_COMMENTS_ON_BOOK` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`),
+  CONSTRAINT `FK_BOOK_COMMENTS_ON_PARENT_COMMENT` FOREIGN KEY (`parent_comment_id`) REFERENCES `book_comments` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
 --
 -- Table structure for table `books`
@@ -35,7 +60,7 @@ CREATE TABLE `books` (
   PRIMARY KEY (`id`),
   KEY `fk_books_user` (`user_id`),
   CONSTRAINT `fk_books_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -55,7 +80,7 @@ CREATE TABLE `chapters` (
   PRIMARY KEY (`id`),
   KEY `fk_chapters_book` (`book_id`),
   CONSTRAINT `fk_chapters_book` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -71,12 +96,16 @@ CREATE TABLE `comments` (
   `author_id` bigint NOT NULL,
   `post_id` bigint NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `parent_comment_id` bigint DEFAULT NULL,
+  `like_count` int NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `fk_comments_author` (`author_id`),
   KEY `fk_comments_post` (`post_id`),
+  KEY `FK_COMMENTS_ON_PARENT_COMMENT` (`parent_comment_id`),
   CONSTRAINT `fk_comments_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_COMMENTS_ON_PARENT_COMMENT` FOREIGN KEY (`parent_comment_id`) REFERENCES `comments` (`id`),
   CONSTRAINT `fk_comments_post` FOREIGN KEY (`post_id`) REFERENCES `posts` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -112,14 +141,14 @@ CREATE TABLE `follows` (
   `id` bigint NOT NULL AUTO_INCREMENT,
   `follower_id` bigint NOT NULL,
   `following_id` bigint NOT NULL,
-  `status` varchar(20) NOT NULL DEFAULT 'PENDING',
+  `status` varchar(255) NOT NULL,
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_follows_pair` (`follower_id`,`following_id`),
   KEY `fk_follows_following` (`following_id`),
   CONSTRAINT `fk_follows_follower` FOREIGN KEY (`follower_id`) REFERENCES `users` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_follows_following` FOREIGN KEY (`following_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=65 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -139,10 +168,35 @@ CREATE TABLE `posts` (
   `like_count` int NOT NULL DEFAULT '0',
   `comment_count` int NOT NULL DEFAULT '0',
   `repost_count` int NOT NULL DEFAULT '0',
+  `image_url` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_posts_author` (`author_id`),
   CONSTRAINT `fk_posts_author` FOREIGN KEY (`author_id`) REFERENCES `users` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `saved_items`
+--
+
+DROP TABLE IF EXISTS `saved_items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!50503 SET character_set_client = utf8mb4 */;
+CREATE TABLE `saved_items` (
+  `id` bigint NOT NULL AUTO_INCREMENT,
+  `user_id` bigint NOT NULL,
+  `item_type` varchar(255) NOT NULL,
+  `book_id` bigint DEFAULT NULL,
+  `chapter_id` bigint DEFAULT NULL,
+  `saved_at` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`),
+  KEY `FK_SAVED_ITEMS_ON_BOOK` (`book_id`),
+  KEY `FK_SAVED_ITEMS_ON_CHAPTER` (`chapter_id`),
+  KEY `FK_SAVED_ITEMS_ON_USER` (`user_id`),
+  CONSTRAINT `FK_SAVED_ITEMS_ON_BOOK` FOREIGN KEY (`book_id`) REFERENCES `books` (`id`),
+  CONSTRAINT `FK_SAVED_ITEMS_ON_CHAPTER` FOREIGN KEY (`chapter_id`) REFERENCES `chapters` (`id`),
+  CONSTRAINT `FK_SAVED_ITEMS_ON_USER` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -160,13 +214,13 @@ CREATE TABLE `users` (
   `password` varchar(75) NOT NULL,
   `bio` text,
   `profile_image` varchar(255) DEFAULT NULL,
-  `role` varchar(20) NOT NULL DEFAULT 'USER',
+  `role` varchar(255) NOT NULL,
   `privacy` varchar(10) DEFAULT 'PUBLIC',
   `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `username` (`username`),
   UNIQUE KEY `email` (`email`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
 
@@ -178,4 +232,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-03-28 22:27:09
+-- Dump completed on 2026-04-21  1:17:56

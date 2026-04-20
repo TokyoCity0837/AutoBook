@@ -36,10 +36,6 @@ public class BookMapper {
                 book.getDescription(),
                 book.getGenre(),
                 book.getPrivacy(),
-                book.getFont(),
-                book.getFontSize(),
-                book.getLineHeight(),
-                book.getParaStyle(),
                 book.getCreatedAt(),
                 book.getUpdatedAt(),
                 editRequests

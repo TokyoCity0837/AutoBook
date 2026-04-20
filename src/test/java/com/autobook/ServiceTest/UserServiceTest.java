@@ -181,13 +181,13 @@ class UserServiceTest {
                 10L,
                 "My Book",
                 "cover.png",
-                new UserCardResponse(1L, "Anton", "user.png", UserRole.USER)
+                new UserCardResponse(1L, "Anton", "anton", "user.png", UserRole.USER)
         );
 
         PostResponse postResponse = new PostResponse(
                 20L,
                 "Hello world",
-                new UserCardResponse(1L, "Anton", "user.png", UserRole.USER),
+                new UserCardResponse(1L, "Anton", "anton", "user.png", UserRole.USER),
                 PostType.FEED,
                 null,
                 false,
@@ -303,8 +303,8 @@ class UserServiceTest {
                 .withRole(UserRole.ADMIN)
                 .build();
 
-        UserCardResponse response1 = new UserCardResponse(2L, "Anton", "anton.png", UserRole.USER);
-        UserCardResponse response2 = new UserCardResponse(3L, "Admin", "admin.png", UserRole.ADMIN);
+        UserCardResponse response1 = new UserCardResponse(2L, "Anton", "anton", "anton.png", UserRole.USER);
+        UserCardResponse response2 = new UserCardResponse(3L, "Admin", "admin", "admin.png", UserRole.ADMIN);
 
         when(userRepository.findAll()).thenReturn(List.of(user1, user2));
         when(userMapper.toCardResponse(user1)).thenReturn(response1);
@@ -326,7 +326,7 @@ class UserServiceTest {
                 .withProfileImage("admin.png")
                 .build();
 
-        UserCardResponse response = new UserCardResponse(1L, "Admin", "admin.png", UserRole.ADMIN);
+        UserCardResponse response = new UserCardResponse(1L, "Admin", "admin", "admin.png", UserRole.ADMIN);
 
         when(userRepository.findByRole(UserRole.ADMIN)).thenReturn(List.of(user));
         when(userMapper.toCardResponse(user)).thenReturn(response);
@@ -346,7 +346,7 @@ class UserServiceTest {
                 .withProfileImage("anton.png")
                 .build();
 
-        UserCardResponse response = new UserCardResponse(1L, "Anton", "anton.png", UserRole.USER);
+        UserCardResponse response = new UserCardResponse(1L, "Anton", "anton", "anton.png", UserRole.USER);
 
         when(userRepository.findByUsernameContainingIgnoreCase("ant")).thenReturn(List.of(user));
         when(userMapper.toCardResponse(user)).thenReturn(response);
@@ -366,7 +366,7 @@ class UserServiceTest {
                 .withProfileImage("anton.png")
                 .build();
 
-        UserCardResponse response = new UserCardResponse(1L, "Anton", "anton.png", UserRole.USER);
+        UserCardResponse response = new UserCardResponse(1L, "Anton", "anton", "anton.png", UserRole.USER);
 
         when(userRepository.findByPrivacy(PrivacyType.PUBLIC)).thenReturn(List.of(user));
         when(userMapper.toCardResponse(user)).thenReturn(response);

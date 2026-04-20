@@ -15,10 +15,6 @@ public record BookDetailsResponse(
         String description,
         String genre,
         PrivacyType privacy,
-        String font,
-        Integer fontSize,
-        String lineHeight,
-        Integer paraStyle,
         LocalDateTime createdAt,
         LocalDateTime updatedAt,
         List<EditResponse> editRequests

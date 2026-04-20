@@ -207,8 +207,8 @@ public class ChapterServiceTest {
         assertEquals("Chapter 2", result.get(1).title());
 
         verify(chapterRepository).findByBookOrderByCreatedAtAsc(book);
-        verify(chapterMapper).toCardResponse(chapter1);
-        verify(chapterMapper).toCardResponse(chapter2);
+        verify(chapterMapper).toResponse(chapter1);
+        verify(chapterMapper).toResponse(chapter2);
     }
 
     @Test
