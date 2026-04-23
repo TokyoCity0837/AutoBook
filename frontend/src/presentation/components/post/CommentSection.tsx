@@ -56,11 +56,12 @@ export function CreationCommentInline({ placeholder = "Leave a comment...", plac
         <div className={`commentCreationInline ${isFocused ? 'focused' : ''}`}>
             {avatarUrl ? (
                 <div
-                    className="profileImage"
                     style={{
                         backgroundImage: `url(${avatarUrl})`,
                         backgroundSize: 'cover',
-                        backgroundPosition: 'center'
+                        backgroundPosition: 'center',
+                        width: '46px',
+                        height: '46px',
                     }}
                 />
             ) : (
@@ -123,11 +124,13 @@ export function CommentItem({ author, text, date, likes, replies, onReplySubmit,
                     <div className="user">
                         {avatarUrl ? (
                             <div
-                                className="profileImage"
+                                className='profileImage'
                                 style={{
                                     backgroundImage: `url(${avatarUrl})`,
                                     backgroundSize: 'cover',
-                                    backgroundPosition: 'center'
+                                    backgroundPosition: 'center',
+                                    width: '46px',
+                                    height: '46px',
                                 }}
                             />
                         ) : (

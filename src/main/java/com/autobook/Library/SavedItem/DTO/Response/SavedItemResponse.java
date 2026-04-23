@@ -1,6 +1,8 @@
-package com.autobook.Library.SavedItem;
+package com.autobook.Library.SavedItem.DTO.Response;
 
 import com.autobook.Library.Book.DTO.Response.BookCardResponse;
+import com.autobook.Library.SavedItem.SavedItem;
+
 import java.time.LocalDateTime;
 
 public record SavedItemResponse(

@@ -1,5 +1,6 @@
 package com.autobook.Library.BookComment;
 
+import com.autobook.Library.BookComment.DTO.Response.BookCommentResponse;
 import com.autobook.Social.User.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;

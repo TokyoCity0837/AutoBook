@@ -6,6 +6,7 @@ import com.autobook.Library.Book.BookMapper;
 import com.autobook.Library.Book.BookRepository;
 import com.autobook.Library.Chapter.Chapter;
 import com.autobook.Library.Chapter.ChapterRepository;
+import com.autobook.Library.SavedItem.DTO.Response.SavedItemResponse;
 import com.autobook.Social.User.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

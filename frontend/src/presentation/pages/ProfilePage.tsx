@@ -57,10 +57,7 @@ export default function ProfilePage() {
                                 }}
                             />
                         ) : (
-                            <div className="profileImage"
-                                 style={{
-                                    marginTop: '-55px'
-                                 }}>
+                            <div className="profileImage">
                                 <DefaultAvatar name={profile.visibleName} size={64} />
                             </div>
                         )}
