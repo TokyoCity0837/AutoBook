@@ -34,14 +34,11 @@ export interface BookUpdateRequest {
   genre?: string;
   privacy?: string;
   coverImage?: string;
-  font?: string;
-  fontSize?: number;
-  lineHeight?: number;
-  paraStyle?: number;
 }
 
 export interface BookCreateRequest {
   title: string;
   privacy: string;
   description: string;
+  genre?: string; 
 }

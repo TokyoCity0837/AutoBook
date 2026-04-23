@@ -12,6 +12,7 @@ import ProfilePage from '../presentation/pages/ProfilePage';
 import BookPage from '../presentation/pages/BookPage';
 import EditorPage from '../presentation/pages/EditorPage';
 import PostPage from '../presentation/pages/PostPage';
+import BookReadPage from '../presentation/pages/BookReadPage';
 
 import { UserProvider } from '../shared/contexts/UserContext';
 import { ProtectedRoute } from './ProtectedRoute';
@@ -45,6 +46,7 @@ export default function Autobook() {
           <Route path="/editor" element={<EditorPage />} />
           <Route path="/editor/:id" element={<EditorPage />} />
           <Route path="/post/:id" element={<PostPage />} />
+          <Route path="/book/:id/read" element={<BookReadPage />} />
         </Route>
       </Routes>
     </Router>

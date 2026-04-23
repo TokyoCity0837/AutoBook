@@ -2,11 +2,11 @@ import React, { useState, useEffect, useRef, useCallback } from 'react'
 import { useUser } from '../../shared/contexts/UserContext'
 import { userRepository, storageRepository } from '../../data/repositories'
 import { MEDIA_BASE_URL } from '../../shared/constants/config'
-import { IconUser, IconLock, IconEye, IconEyeOff, IconShield, IconTrash, IconCheck } from '../components/ui/Icons'
+import { IconUser, IconShield, IconTrash, IconCheck } from '../components/ui/Icons'
 import '../../assets/styles/pages.css'
 import '../../assets/styles/settingsPage.css'
+import { DefaultAvatar } from '../components/user/UserInfoForPost'
 
-// ─── Avatar Crop Modal ──────────────────────────────────
 function AvatarCropModal({ imageUrl, onCrop, onClose }: { imageUrl: string, onCrop: (blob: Blob) => void, onClose: () => void }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
     const imgRef = useRef<HTMLImageElement>(null);
@@ -15,6 +15,7 @@ function AvatarCropModal({ imageUrl, onCrop, onClose }: { imageUrl: string, onCr
     const [dragging, setDragging] = useState(false);
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
     const [imgLoaded, setImgLoaded] = useState(false);
+    
     const CROP_SIZE = 280;
 
     const draw = useCallback(() => {
@@ -84,17 +85,41 @@ export default function SettingsPage() {
     const [showCrop, setShowCrop] = useState(false);
     const [cropImageUrl, setCropImageUrl] = useState<string | null>(null);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [username, setUsername] = useState('');
+    const [usernameAvailable, setUsernameAvailable] = useState<boolean | null>(null);
+    const [usernameChecking, setUsernameChecking] = useState(false);
 
     useEffect(() => {
         if (!profileMe) return;
+        setUsername(profileMe.username || '');
         setDisplayName(profileMe.visibleName || '');
         setBio(profileMe.bio || '');
         setProfileImage(profileMe.profileImage || null);
         setPrivacy(profileMe.privacy || 'PUBLIC');
     }, [profileMe]);
 
+    useEffect(() => {
+        if (!username || username === profileMe?.username) {
+            setUsernameAvailable(null);
+            return;
+        }
+        setUsernameChecking(true);
+        const timer = setTimeout(async () => {
+            try {
+                const results = await userRepository.search(username);
+                const taken = results.some((u: any) => u.username === username);
+                setUsernameAvailable(!taken);
+            } catch {
+                setUsernameAvailable(null);
+            } finally {
+                setUsernameChecking(false);
+            }
+        }, 500);
+        return () => clearTimeout(timer);
+    }, [username, profileMe?.username]);
+
     const userId = profileMe?.id ?? null;
-    const username = profileMe?.username ? `@${profileMe.username}` : '@username';
+    // const username = profileMe?.username ? `@${profileMe.username}` : '@username';
     const showSaved = () => { setToast(true); setTimeout(() => setToast(false), 2200); };
 
     const handleAvatarFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,14 +146,38 @@ export default function SettingsPage() {
     };
 
     const handleSaveProfile = async () => {
-        if (!userId) return; setSaving(true);
-        try { await userRepository.update(userId, { visibleName: displayName, bio, privacyType: privacy }); await refreshProfile(); showSaved(); }
-        catch (err) { console.error(err); } finally { setSaving(false); }
+        if (!userId) return;
+        setSaving(true);
+        try {
+            await userRepository.update(userId, {
+                visibleName: displayName,
+                bio,
+                privacyType: privacy,
+                username: username !== profileMe?.username ? username : undefined,
+            });
+            await refreshProfile();
+            showSaved();
+        } catch (err: any) {
+            if (err.response?.status === 409) alert('Username is already taken');
+            console.error(err);
+        } finally {
+            setSaving(false);
+        }
     };
+    
 
     const avatarUrl = profileImage ? `${MEDIA_BASE_URL}${profileImage}` : null;
     if (userLoading) return <div className="settingsWrap">Loading...</div>;
     if (!profileMe) return <div className="settingsWrap">Not authorized</div>;
+
+
+    const inputStyle = username !== profileMe?.username
+    ? {
+        borderColor: usernameChecking ? 'rgba(255,255,255,0.2)'
+            : usernameAvailable === true ? '#4ade80'
+            : usernameAvailable === false ? '#f87171' : undefined
+      }
+    : {};
 
     return (
         <div className="settingsWrap">
@@ -138,7 +187,20 @@ export default function SettingsPage() {
             <div className="settingsGrid">
                 <Section icon={<IconUser />} title="Profile">
                     <div className="settingsAvatarRow">
-                        <div className="settingsAvatar" style={avatarUrl ? { backgroundImage: `url(${avatarUrl})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}>{!avatarUrl && <IconUser />}</div>
+                        <div className="settingsAvatar">
+                            {avatarUrl ? (
+                                <div
+                                    className="profileImage"
+                                    style={{
+                                        backgroundImage: `url(${avatarUrl})`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center'
+                                    }}
+                                />
+                            ) : (
+                                <DefaultAvatar name={profileMe?.visibleName ? profileMe?.visibleName : ''} size={64} />
+                            )}
+                        </div>
                         <div className="settingsAvatarActions">
                             <button className="settingsBtnSecondary" onClick={() => fileInputRef.current?.click()} disabled={saving}>Change photo</button>
                             <button className="settingsBtnGhost" onClick={handleRemoveAvatar} disabled={saving}>Remove</button>
@@ -146,12 +208,43 @@ export default function SettingsPage() {
                         </div>
                     </div>
                     <Field label="Display name"><input className="settingsInput" value={displayName} onChange={e => setDisplayName(e.target.value)} /></Field>
-                    <Field label="Username" hint="Cannot be changed"><input className="settingsInput" value={username} disabled /></Field>
+                    <Field label="Username" hint="Unique identifier">
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                className="settingsInput"
+                                value={username}
+                                onChange={e => setUsername(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))}
+                                placeholder="username"
+                                style={inputStyle}
+                            />
+                            {username !== profileMe?.username && (
+                                <span style={{
+                                    position: 'absolute', right: '12px', top: '50%',
+                                    transform: 'translateY(-50%)', fontSize: '13px',
+                                    color: usernameChecking ? 'rgba(255,255,255,0.4)'
+                                        : usernameAvailable === true ? '#4ade80'
+                                        : usernameAvailable === false ? '#f87171' : 'transparent'
+                                }}>
+                                    {usernameChecking ? '...'
+                                        : usernameAvailable === true ? 'Available'
+                                        : usernameAvailable === false ? 'Taken' : ''}
+                                </span>
+                            )}
+                        </div>
+                        <span className="settingsFieldHint" style={{ marginTop: '4px', display: 'block' }}>
+                            Only letters, numbers and underscores
+                        </span>
+                    </Field>
                     <Field label="Bio">
                         <textarea className="settingsTextarea" value={bio} onChange={e => setBio(e.target.value)} placeholder="Tell something about yourself..." rows={3} />
                         <span className="settingsCharCount">{bio.length} / 300</span>
                     </Field>
-                    <button className="settingsBtnPrimary" onClick={handleSaveProfile} disabled={saving}>Save profileMe</button>
+                    <button
+                        className="settingsBtnPrimary"
+                        onClick={handleSaveProfile}
+                        disabled={saving || usernameAvailable === false}>
+                        Save
+                    </button>
                 </Section>
 
                 <Section icon={<IconShield />} title="Privacy">

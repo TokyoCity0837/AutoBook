@@ -17,6 +17,7 @@ public record PostResponse(
         LocalDateTime updatedAt,
         int likeCount,
         int commentCount,
-        int repostCount
-
+        int repostCount,
+        boolean likedByMe,
+        boolean repostedByMe
 ) {}

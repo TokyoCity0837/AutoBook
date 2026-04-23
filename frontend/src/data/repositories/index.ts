@@ -7,3 +7,4 @@ export { commentRepository } from './commentRepository';
 export { followRepository } from './followRepository';
 export { libraryRepository } from './libraryRepository';
 export { storageRepository } from './storageRepository';
+export { aiRepository } from './aiRepository';

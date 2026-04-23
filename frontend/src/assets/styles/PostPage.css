@@ -52,8 +52,8 @@
 }
 
 .profileLarge {
-    width: 65px;
-    height: 65px;
+    width: 64px;
+    height: 64px;
     border-radius: 50%;
     background-color: white;
 }
@@ -164,7 +164,7 @@
     border: 1px solid rgba(255, 255, 255, 0.05);
     border-radius: 20px;
     padding: 12px 18px;
-    color: antiquewhite;
+    color: #fff;
     font-size: 16px;
     resize: none;
     height: 50px;

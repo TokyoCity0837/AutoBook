@@ -14,4 +14,6 @@ public interface ChapterRepository extends JpaRepository<Chapter, Long> {
     Long countByBook(Book book);
 
     List<Chapter> findByContentContainingIgnoreCase(String text);
+
+    List<Chapter> findByBookIdOrderByCreatedAtAsc(Long bookId);
 }

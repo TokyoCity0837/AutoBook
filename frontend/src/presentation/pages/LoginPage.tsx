@@ -77,11 +77,12 @@ export default function LoginPage() {
                 <div className="authDivider"><span>or login with</span></div>
 
                 <div className="authSocial">
-                    <button className="authSocialBtn" type="button" aria-label="Google">
+                    <button
+                        className="authSocialBtn"
+                        type="button"
+                        onClick={() => window.location.href = 'http://localhost:8080/oauth2/authorization/google'}
+                        aria-label="Google">
                         <GoogleIcon />
-                    </button>
-                    <button className="authSocialBtn" type="button" aria-label="Facebook">
-                        <FacebookIcon />
                     </button>
                 </div>
 

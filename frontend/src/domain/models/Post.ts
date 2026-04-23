@@ -1,6 +1,6 @@
 import type { UserCard } from './User';
 
-// ─── Post ───────────────────────────────────────────────
+// Post
 
 export interface Post {
   id: number;
@@ -14,6 +14,8 @@ export interface Post {
   likeCount: number;
   commentCount: number;
   repostCount: number;
+  likedByMe: boolean;
+  repostedByMe: boolean;
 }
 
 export interface PostDetails extends Post {
@@ -26,7 +28,7 @@ export interface CreatePostRequest {
   imageUrl: string | null;
 }
 
-// ─── Comment ────────────────────────────────────────────
+// Comment
 
 export interface Comment {
   id: number;

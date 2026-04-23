@@ -24,6 +24,8 @@ function CreateBookModal({ open, onClose, onCreated }: {
     const [privacy, setPrivacy] = useState('PUBLIC');
     const [creating, setCreating] = useState(false);
     const [error, setError] = useState('');
+    const [genre, setGenre] = useState('');
+
 
     if (!open) return null;
 
@@ -32,8 +34,8 @@ function CreateBookModal({ open, onClose, onCreated }: {
         setCreating(true);
         setError('');
         try {
-            await bookRepository.create({ title, privacy, description: desc });
-            setTitle(''); setDesc(''); setPrivacy('PUBLIC');
+            await bookRepository.create({ title, privacy, description: desc, genre });
+            setTitle(''); setDesc(''); setPrivacy('PUBLIC'); setGenre('');
             onCreated();
             onClose();
         } catch (err) {
@@ -76,6 +78,16 @@ function CreateBookModal({ open, onClose, onCreated }: {
                             value={desc}
                             onChange={e => setDesc(e.target.value)}
                             rows={4}
+                        />
+                    </div>
+
+                    <div className="modalField">
+                        <label className="modalLabel">Genre <span style={{ color: 'rgba(255,255,255,0.3)', fontWeight: 400 }}>(optional)</span></label>
+                        <input
+                            className="modalInput"
+                            placeholder="e.g. Fantasy, Romance, Sci-Fi..."
+                            value={genre}
+                            onChange={e => setGenre(e.target.value)}
                         />
                     </div>
 

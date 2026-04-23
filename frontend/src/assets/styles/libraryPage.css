@@ -46,6 +46,26 @@
     font-size: 22px;
     max-width: 120px;
     font-weight: 500;
+    
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.noImageTitle {
+    color: white;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    padding: 0 16px;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    word-break: break-word;
 }
 
 .bookAuthors {
@@ -297,7 +317,7 @@
 }
 
 .modalSegmentBtn.active {
-    background: rgba(18, 21, 28, 0.6);
+    background: var(--highlight-color);
     border-color: rgba(18, 21, 28, 0.1);
     color: #fff;
 }
@@ -314,6 +334,7 @@
 }
 
 .modalFooter {
+    margin-top: 30px;
     display: flex;
     justify-content: flex-end;
     gap: 10px;
@@ -340,7 +361,7 @@
 
 .modalBtnPrimary {
     padding: 12px 28px;
-    background: var(--accent-color);
+    background: var(--highlight-color);
     border: none;
     border-radius: 12px;
     color: #fff;
@@ -355,9 +376,9 @@
 }
 
 .modalBtnPrimary:hover {
-    background: var(--bg-color);
+    background: var(--highlight-hover);
     transform: translateY(-1px);
-    box-shadow: 0 4px 15px var(--bg-color);
+        box-shadow: 0 4px 15px var(--accent-color);
 }
 
 .modalBtnPrimary:disabled {

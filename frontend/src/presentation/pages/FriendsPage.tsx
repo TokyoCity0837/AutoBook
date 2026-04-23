@@ -5,7 +5,7 @@ import '../../assets/styles/index.css';
 import '../../assets/styles/friendsPage.css';
 
 export default function FriendsPage() {
-    const { friends, following, loading } = useFriends();
+    const { friends, following, loading, followers } = useFriends();
 
     if (loading) return <div className='friendsPageWrap'>Loading Social Space...</div>;
 
@@ -21,6 +21,13 @@ export default function FriendsPage() {
             <div className="YBText">Following</div>
             <div className="friendsWrap">
                 {following.map((user: any) => (
+                    <FriendCard key={user.id} user={user} friend={false} />
+                ))}
+            </div>
+
+            <div className="YBText">Followers</div>
+            <div className="friendsWrap">
+                {followers.map((user: any) => (
                     <FriendCard key={user.id} user={user} friend={false} />
                 ))}
             </div>

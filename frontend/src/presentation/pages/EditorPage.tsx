@@ -12,6 +12,7 @@ import { Document, Paragraph, TextRun, HeadingLevel, Packer, AlignmentType } fro
 import { saveAs } from 'file-saver'
 import { pdf, Document as PdfDocument, Page, Text, StyleSheet } from '@react-pdf/renderer'
 import { useParams } from 'react-router-dom'
+import { aiRepository } from '../../data/repositories'
 import Heading from '@tiptap/extension-heading'
 import '../../assets/styles/editorPage.css'
 import apiClient from '../../data/api/apiClient'
@@ -424,7 +425,7 @@ function Toolbar({ editor, font, fontSize, lineHeight, paraStyle, focusMode,
     )
     const selectionFont = editor.getAttributes('textStyle')?.fontFamily || font
     const fontLabel = FONTS.find(f => f.value === selectionFont)?.label ?? selectionFont.split(',')[0].replace(/"/g, '').trim()
-    const selectionFontSize = editor.getAttributes('textStyle')?.fontSize || `${fontSize}px`
+    // const selectionFontSize = editor.getAttributes('textStyle')?.fontSize || `${fontSize}px`
 
     return (
         <div className="editorToolbar">
@@ -514,26 +515,140 @@ function ChaptersSidebar({ chapters, activeAnchorId, onScrollTo, onAdd, onRename
 
 // ─── Right Panel ──────────────────────────────────────────────────────────────
 
-function RightPanel({ wordCount, charCount }: { wordCount: number; charCount: number }) {
-    const [tab, setTab] = useState<'stats' | 'edits'>('stats')
+function RightPanel({
+                        wordCount,
+                        charCount,
+                        styleProfile,
+                        aiSuggestions,
+                        aiError,
+                        aiLoading,
+                        onAnalyze,
+                        onSuggest,
+                        onContinue,
+                        onInsertSuggestion,
+                    }: {
+    wordCount: number
+    charCount: number
+    styleProfile?: any
+    aiSuggestions?: any
+    aiError?: string | null
+    aiLoading?: boolean
+    onAnalyze: () => void
+    onSuggest: () => void
+    onContinue: () => void
+    onInsertSuggestion: (text: string) => void
+}) {
+    const [tab, setTab] = useState<'stats' | 'ai'>('stats')
     const readingMinutes = Math.max(1, Math.round(wordCount / 200))
+
+    const styleWords = styleProfile?.style_words?.slice(0, 8) ?? []
+    const thematicWords = styleProfile?.thematic_words?.slice(0, 8) ?? []
+    const vocabularyWords = styleProfile?.vocabulary?.slice(0, 10) ?? []
+    const suggestPhrases = aiSuggestions?.phrase_suggestions?.slice(0, 6) ?? []
+    const suggestWords = aiSuggestions?.word_suggestions?.slice(0, 10) ?? []
+
+    const subjectivity = styleProfile?.tone_metrics?.subjectivity
+    const avgSentence = styleProfile?.complexity_metrics?.avg_sentence_len
+
+    const toneLabel =
+        subjectivity == null ? 'Unknown'
+            : subjectivity > 0.65 ? 'Emotional'
+                : subjectivity < 0.35 ? 'Objective'
+                    : 'Balanced'
+
+    const complexityLabel =
+        avgSentence == null ? 'Unknown'
+            : avgSentence < 12 ? 'Simple'
+                : avgSentence < 20 ? 'Medium'
+                    : 'Advanced'
+
     return (
         <div className="editorRightPanel">
             <div className="rightPanelTabs">
                 <button className={`rightPanelTab${tab === 'stats' ? ' active' : ''}`} onClick={() => setTab('stats')}>Stats</button>
-                <button className={`rightPanelTab${tab === 'edits' ? ' active' : ''}`} onClick={() => setTab('edits')}>Edits</button>
+                <button className={`rightPanelTab${tab === 'ai' ? ' active' : ''}`} onClick={() => setTab('ai')}>AI Assistant</button>
             </div>
+
             <div className="rightPanelContent">
-                {tab === 'stats' ? (
+                {tab === 'stats' && (
                     <div className="vcStats">
                         <div className="vcStatItem"><span className="vcStatLabel">Words</span><span className="vcStatValue">{wordCount}</span></div>
                         <div className="vcStatItem"><span className="vcStatLabel">Characters</span><span className="vcStatValue">{charCount}</span></div>
                         <div className="vcStatItem"><span className="vcStatLabel">Reading time</span><span className="vcStatValue">~{readingMinutes} min</span></div>
                     </div>
-                ) : (
-                    <div className="editsList">
-                        <div className="updateWrap"><div className="updateText">Suggest changing opening paragraph for better hook</div></div>
-                        <div className="updateWrap"><div className="updateText">Grammar fix in second sentence</div></div>
+                )}
+
+                {tab === 'ai' && (
+                    <div className="aiPanelClean">
+                        <div className="aiActionsRow">
+                            <button className="aiActionBtn" onClick={onAnalyze} disabled={aiLoading}>Analyze</button>
+                            <button className="aiActionBtn" onClick={onSuggest} disabled={aiLoading}>Suggest</button>
+                            <button className="aiActionBtn primary" onClick={onContinue} disabled={aiLoading}>Continue</button>
+                        </div>
+
+                        {aiLoading && <div className="aiHint">Working...</div>}
+                        {aiError && <div className="aiError">{aiError}</div>}
+
+                        <div className="aiCard">
+                            <div className="aiTitle">Style snapshot</div>
+                            <div className="aiRow"><b>Tone:</b> {toneLabel}</div>
+                            <div className="aiRow"><b>Complexity:</b> {complexityLabel}</div>
+
+                            <div className="aiSubTitle">Style words</div>
+                            <div className="chipWrap">
+                                {styleWords.length ? styleWords.map((w: any, i: number) => (
+                                    <span className="aiChip" key={`sw-${i}`}>{w.word}</span>
+                                )) : <span className="aiMuted">No style words yet</span>}
+                            </div>
+
+                            <div className="aiSubTitle">Thematic words</div>
+                            <div className="chipWrap">
+                                {thematicWords.length ? thematicWords.map((w: any, i: number) => (
+                                    <span className="aiChip" key={`tw-${i}`}>{w.word}</span>
+                                )) : <span className="aiMuted">No thematic words yet</span>}
+                            </div>
+                        </div>
+
+                        <div className="aiCard">
+                            <div className="aiTitle">Suggestions (click to insert)</div>
+
+                            <div className="aiSubTitle">Phrases</div>
+                            <div className="aiListBtns">
+                                {suggestPhrases.length ? suggestPhrases.map((p: any, i: number) => (
+                                    <button
+                                        key={`sp-${i}`}
+                                        className="aiPhraseBtn"
+                                        onClick={() => onInsertSuggestion(p.phrase)}
+                                        title="Insert phrase at cursor"
+                                    >
+                                        {p.phrase}
+                                    </button>
+                                )) : <div className="aiMuted">Press “Suggest” to generate phrases</div>}
+                            </div>
+
+                            <div className="aiSubTitle">Word ideas</div>
+                            <div className="chipWrap">
+                                {suggestWords.length ? suggestWords.map((w: any, i: number) => (
+                                    <button
+                                        key={`ww-${i}`}
+                                        className="aiChipBtn"
+                                        onClick={() => onInsertSuggestion(w.word)}
+                                        title="Insert word at cursor"
+                                    >
+                                        {w.word}
+                                    </button>
+                                )) : <span className="aiMuted">No word suggestions yet</span>}
+                            </div>
+                        </div>
+
+                        <div className="aiCard">
+                            <div className="aiTitle">Vocabulary</div>
+                            <div className="chipWrap">
+                                {vocabularyWords.length ? vocabularyWords.map((w: any, i: number) => (
+                                    <span className="aiChip" key={`vw-${i}`}>{w.word}</span>
+                                )) : <span className="aiMuted">Vocabulary not enriched yet</span>}
+                            </div>
+                        </div>
                     </div>
                 )}
             </div>
@@ -576,12 +691,21 @@ export default function EditorPage() {
     const paraStyleRef = useRef(0)
     const editorRef = useRef<any>(null)
 
+    const [styleProfile, setStyleProfile] = useState<any>(null)
+    const [aiLoading, setAiLoading] = useState(false)
+    const [aiError, setAiError] = useState<string | null>(null)
+    const [aiSuggestions, setAiSuggestions] = useState<any>(null)
+
+    const isLikelyEnglish = (text: string) => !/[А-Яа-яІіЇїЄєҐґ]/.test(text)
+
     useEffect(() => { bookDataRef.current = bookData }, [bookData])
     useEffect(() => { bookTitleRef.current = bookTitle }, [bookTitle])
     useEffect(() => { fontRef.current = font }, [font])
     useEffect(() => { fontSizeRef.current = fontSize }, [fontSize])
     useEffect(() => { lineHeightRef.current = lineHeight }, [lineHeight])
     useEffect(() => { paraStyleRef.current = paraStyle }, [paraStyle])
+
+
 
     // ── Editor ────────────────────────────────────────────────────────────
     const editor = useEditor({
@@ -841,6 +965,69 @@ export default function EditorPage() {
         };
     }, []);
 
+    const handleAnalyzeStyle = useCallback(async () => {
+        if (!id) return
+        setAiError(null)
+        setAiLoading(true)
+        try {
+            const data = await aiRepository.analyzeStyle(Number(id))
+            setStyleProfile(data)
+        } catch (e: any) {
+            setAiError(e?.response?.data?.message || 'Failed to analyze style')
+        } finally {
+            setAiLoading(false)
+        }
+    }, [id])
+
+    const handleContinueWriting = useCallback(async () => {
+        if (!id || !editor) return
+        const text = editor.getText() || ''
+        const context = text.slice(Math.max(0, text.length - 1800))
+
+        if (!isLikelyEnglish(context)) {
+            setAiError('Only English text is supported for AI generation.')
+            return
+        }
+
+        setAiError(null)
+        setAiLoading(true)
+        try {
+            const data = await aiRepository.continueText(Number(id), context, 3, 0.8)
+            const generated = data?.generated_text || ''
+            if (generated) editor.chain().focus().insertContent(` ${generated}`).run()
+        } catch (e: any) {
+            setAiError(e?.response?.data?.message || 'Failed to generate continuation')
+        } finally {
+            setAiLoading(false)
+        }
+    }, [id, editor])
+
+    const handleInsertSuggestion = useCallback((text: string) => {
+        if (!editor || !text?.trim()) return
+        editor.chain().focus().insertContent(` ${text.trim()}`).run()
+    }, [editor])
+
+    const handleSuggestions = useCallback(async () => {
+        if (!id || !editor) return
+        const full = editor.getText() || ''
+        const cursorContext = full.slice(Math.max(0, full.length - 500))
+        if (!isLikelyEnglish(full)) {
+            setAiError('Only English text is supported for AI suggestions.')
+            return
+        }
+
+        setAiError(null)
+        setAiLoading(true)
+        try {
+            const data = await aiRepository.getSuggestions(Number(id), full.slice(-3000), cursorContext)
+            setAiSuggestions(data)
+        } catch (e: any) {
+            setAiError(e?.response?.data?.message || 'Failed to load suggestions')
+        } finally {
+            setAiLoading(false)
+        }
+    }, [id, editor])
+
     const ps = PARA_STYLES[paraStyle] || PARA_STYLES[0]
     const wordCount = editor?.storage.characterCount?.words() ?? 0
     const charCount = editor?.storage.characterCount?.characters() ?? 0
@@ -882,6 +1069,7 @@ export default function EditorPage() {
                             {saveStatus === 'saving' ? 'Saving…' : saveStatus === 'saved' ? <><I.Check /> Saved</> : 'Save'}
                         </button>
                     </div>
+
                 </div>
             )}
 
@@ -928,7 +1116,20 @@ export default function EditorPage() {
                     </div>
                 </div>
 
-                {!focusMode && showRight && <RightPanel wordCount={wordCount} charCount={charCount} />}
+                {!focusMode && showRight && (
+                    <RightPanel
+                        wordCount={wordCount}
+                        charCount={charCount}
+                        styleProfile={styleProfile}
+                        aiSuggestions={aiSuggestions}
+                        aiError={aiError}
+                        aiLoading={aiLoading}
+                        onAnalyze={handleAnalyzeStyle}
+                        onSuggest={handleSuggestions}
+                        onContinue={handleContinueWriting}
+                        onInsertSuggestion={handleInsertSuggestion}
+                    />
+                )}
             </div>
 
             {!focusMode && (

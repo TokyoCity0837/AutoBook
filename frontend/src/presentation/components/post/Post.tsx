@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { postRepository } from '../../../data/repositories';
 import { UserInfoForPost } from '../user/UserInfoForPost';
 import { MEDIA_BASE_URL } from '../../../shared/constants/config';
 import BookImage from '../../../assets/pictures/BookImage.jpeg';
 import '../../../assets/styles/Posts.css';
-import type { Post as PostType } from '../../../domain/models';
+import type {Post as PostType} from '../../../domain/models';
 
 // ─── Icon components (local) ────────────────────────────
 
@@ -17,9 +17,9 @@ function IconComment({ size = 17 }) {
     );
 }
 
-function IconShare({ size = 17 }) {
+function IconShare({ filled, size = 22 }: { filled: boolean; size?: number }) {
     return (
-        <svg width={size} height={size} viewBox="0 0 24 24" fill="none">
+        <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'rgba(255,255,255,0.75)' : 'none'}>
             <path d="M13.47 4.14C12.74 4.36 12.28 5.96 12.09 7.91C6.78 7.91 2 13.48 2 20.08C4.19 14.08 8.99 12.45 12.14 12.45C12.34 14.21 12.79 15.62 13.47 15.82C15.57 16.43 22 12.44 22 9.98C22 7.52 15.57 3.53 13.47 4.14Z" stroke="rgba(255,255,255,0.45)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
         </svg>
     );
@@ -43,44 +43,66 @@ function HeartIcon({ filled, size = 22 }: { filled: boolean; size?: number }) {
 
 // ─── Post component ─────────────────────────────────────
 
-interface PostProps {
-    post?: PostType;
+interface RepostMeta {
+    isRepost: boolean;
+    repostedBy?: {
+        username?: string;
+        visibleName?: string;
+    } | null;
+    repostedAt?: string | null;
 }
 
-export function Post({ post }: PostProps) {
+interface PostProps {
+    post?: PostType;
+    repostMeta?: RepostMeta;
+}
+
+function Post({ post, repostMeta }: PostProps) {
     const navigate = useNavigate();
 
     const data = post || {
         id: 1, content: "", author: null,
         likeCount: 0, commentCount: 0, repostCount: 0, hasImage: false, imageUrl: null
-    } as any;
+    } as unknown as PostType;
+
+    const [reposts, setReposts] = useState(data.repostCount);
+    const [isReposted, setIsReposted] = useState(data.repostedByMe);
 
     const [likes, setLikes] = useState(data.likeCount);
-    const [isLiked, setIsLiked] = useState(false);
-    const [reposts, setReposts] = useState(data.repostCount || 0);
+    const [isLiked, setIsLiked] = useState(data.likedByMe);
 
     const handleLike = (e: React.MouseEvent) => {
         e.stopPropagation();
-        if (isLiked) {
-            postRepository.unlike(data.id)
-                .then(() => { setLikes((l: number) => Math.max(0, l - 1)); setIsLiked(false); })
-                .catch(console.error);
-        } else {
-            postRepository.like(data.id)
-                .then(() => { setLikes((l: number) => l + 1); setIsLiked(true); })
-                .catch(console.error);
-        }
+        postRepository.toggleLike(data.id)
+            .then((liked: boolean) => {
+                setIsLiked(liked);
+                setLikes((l: number) => liked ? l + 1 : Math.max(0, l - 1));
+            })
+            .catch(console.error);
     };
 
     const handleRepost = (e: React.MouseEvent) => {
         e.stopPropagation();
-        postRepository.repost(data.id)
-            .then(() => setReposts((r: number) => r + 1))
+        postRepository.toggleRepost(data.id)
+            .then((reposted: boolean) => {
+                setIsReposted(reposted);
+                setReposts((r: number) => reposted ? r + 1 : Math.max(0, r - 1));
+            })
             .catch(console.error);
     };
 
     return (
         <div className="Post">
+            {repostMeta?.isRepost && repostMeta.repostedBy && (
+                <div className="repostHeader">
+                    <IconShare size={16} filled={true} />
+                    <span className="repostHeaderText">
+                        <b>{repostMeta.repostedBy.visibleName || repostMeta.repostedBy.username}</b>
+                        {" shared a post"}
+                    </span>
+                </div>
+            )}
+
             <UserInfoForPost author={data.author} />
             <div className="postContentWrap" onClick={() => navigate(`/post/${data.id}`)}>
                 <div className="PostText">{data.content}</div>
@@ -104,10 +126,12 @@ export function Post({ post }: PostProps) {
                     <IconComment size={22} /><span className="CommentsAmount">{data.commentCount || 0}</span>
                 </div>
                 <div className="ShareActivity" onClick={handleRepost} style={{ cursor: 'pointer' }}>
-                    <IconShare size={22} /><span className="ShareAmount">{reposts}</span>
+                    <IconShare filled={isReposted} size={22} /><span className="ShareAmount">{reposts}</span>
                 </div>
                 <div className="MoreActivity"><IconMore size={26} /></div>
             </div>
         </div>
     );
 }
+
+export default Post

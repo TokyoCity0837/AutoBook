@@ -3,28 +3,32 @@ import type { Comment, CreateCommentRequest } from '../../domain/models';
 
 export const commentRepository = {
   // ─── Post comments ────────────────────────────────────
-  getByPost(postId: number): Promise<Comment[]> {
-    return apiClient.get(`/comments/post/${postId}`).then(r => r.data);
+  async getByPost(postId: number): Promise<Comment[]> {
+    const r = await apiClient.get(`/comments/post/${postId}`);
+    return r.data;
   },
 
-  createForPost(postId: number, data: CreateCommentRequest): Promise<Comment> {
-    return apiClient.post(`/comments/post/${postId}`, data).then(r => r.data);
+  async createForPost(postId: number, data: CreateCommentRequest): Promise<Comment> {
+    const r = await apiClient.post(`/comments/post/${postId}`, data);
+    return r.data;
   },
 
-  likePostComment(commentId: number): Promise<void> {
-    return apiClient.put(`/comments/${commentId}/like`).then(() => {});
+  async likePostComment(commentId: number): Promise<void> {
+    await apiClient.put(`/comments/${commentId}/like`);
   },
 
   // ─── Book comments ────────────────────────────────────
-  getByBook(bookId: number): Promise<Comment[]> {
-    return apiClient.get(`/book-comments/book/${bookId}`).then(r => r.data);
+  async getByBook(bookId: number): Promise<Comment[]> {
+    const r = await apiClient.get(`/book-comments/book/${bookId}`);
+    return r.data;
   },
 
-  createForBook(bookId: number, data: CreateCommentRequest): Promise<Comment> {
-    return apiClient.post(`/book-comments/book/${bookId}`, data).then(r => r.data);
+  async createForBook(bookId: number, data: CreateCommentRequest): Promise<Comment> {
+    const r = await apiClient.post(`/book-comments/book/${bookId}`, data);
+    return r.data;
   },
 
-  likeBookComment(commentId: number): Promise<void> {
-    return apiClient.put(`/book-comments/${commentId}/like`).then(() => {});
+  async likeBookComment(commentId: number): Promise<void> {
+    await apiClient.put(`/book-comments/${commentId}/like`);
   },
 };

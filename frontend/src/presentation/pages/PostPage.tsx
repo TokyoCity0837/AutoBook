@@ -1,11 +1,12 @@
 import { usePostPage } from '../hooks/usePostPage';
 import { useProfile } from '../hooks/useProfile';
 import { Link, useParams } from 'react-router-dom';
-import { Post } from '../components/post/Post';
+import Post from '../components/post/Post';
 import { CreationCommentInline, NestedCommentList } from '../components/post/CommentSection';
 import { MEDIA_BASE_URL } from '../../shared/constants/config';
 import '../../assets/styles/pages.css';
 import '../../assets/styles/PostPage.css';
+import { DefaultAvatar } from '../components/user/UserInfoForPost';
 
 function AuthorWidget({ author }: { author?: any }) {
     if (!author) return null;
@@ -16,21 +17,28 @@ function AuthorWidget({ author }: { author?: any }) {
 
     return (
         <div className="authorWidget">
+            
             <Link to={author?.id ? `/profile/${author.id}` : "#"} className="authorWidgetTop Nickname">
-                <div
-                className="ProfileImage profileLarge"
-                style={avatarUrl ? {
-                    backgroundImage: `url(${avatarUrl})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                } : {}}/>
+                {avatarUrl ? (
+                    <div
+                        className="profileImage"
+                        style={{
+                            backgroundImage: `url(${avatarUrl})`,
+                            backgroundSize: 'cover',
+                            backgroundPosition: 'center'
+                        }}
+                    />
+                ) : (
+                    <DefaultAvatar name={author.visibleName ? author.visibleName : ''} size={64} />
+                )}
+
                 <div className="authorWidgetInfo">
                     <div className="Nickname">{author.visibleName}</div>
                 </div>
             </Link>
 
             <div className="authorBio">
-                {author.bio || "Fantasy writer. Coffee enthusiast. Creating worlds..."}
+                {author.bio || ""}
             </div>
             {/* <button className="followBtn">Follow</button> */}
 

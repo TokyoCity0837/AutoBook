@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { useFeed, useUserSearch } from '../hooks/useFeed';
-import { Post } from '../components/post/Post';
+import Post from '../components/post/Post';
 import { CreationPost } from '../components/post/CreationPost';
 // import { Update } from '../components/ui/Updates';
 import { MEDIA_BASE_URL } from '../../shared/constants/config';
@@ -36,16 +36,16 @@ export default function FeedPage() {
             onBlur={e => e.target.placeholder = 'Search for authors and books'}
           />
           {results.length > 0 && query && (
-            <div className="searchDropdown" style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#1c1c1c', border: '1px solid #333', borderRadius: '8px', zIndex: 10, maxHeight: '300px', overflowY: 'auto' }}>
+            <div className="searchDropdown" style={{ position: 'absolute', top: '100%', left: 0, right: 0, background: '#12151c', border: '1.5px solid rgba(255, 255, 255, 0.05)', borderRadius: '20px', zIndex: 10, maxHeight: '300px', overflowY: 'auto' }}>
               {results.map((u: any) => (
-                <div key={u.id} style={{ padding: '10px 15px', borderBottom: '1px solid #333', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => navigate(`/profile/${u.id}`)}>
+                <div key={u.id} style={{ padding: '10px 15px', borderBottom: '1.5px solid rgba(255, 255, 255, 0.05)', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px' }} onClick={() => navigate(`/profile/${u.id}`)}>
                   <div style={{
                     width: '30px', height: '30px', borderRadius: '50%',
-                    background: u.profileImage ? `url(${MEDIA_BASE_URL}${u.profileImage}) center/cover` : '#ff7700'
+                    background: u.profileImage ? `url(${MEDIA_BASE_URL}${u.profileImage}) center/cover` : '#fff'
                   }} />
                   <div>
-                    <div style={{ fontSize: '14px', color: '#fff' }}>{u.visibleName}</div>
-                    <div style={{ fontSize: '12px', color: '#888' }}>@{u.username}</div>
+                    <div style={{ fontSize: '16px', color: '#fff' }}>{u.visibleName}</div>
+                    <div style={{ fontSize: '14px', color: '#888' }}>@{u.username}</div>
                   </div>
                 </div>
               ))}
@@ -53,7 +53,7 @@ export default function FeedPage() {
           )}
         </div>
         <div className="UpdatesWrapper">
-          <div className="UpdatesContainer" />
+          {/* <div className="UpdatesContainer" /> */}
         </div>
       </div>
 

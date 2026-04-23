@@ -2,19 +2,27 @@ import apiClient from '../api/apiClient';
 import type { BookDetails, BookCard, BookCreateRequest, BookUpdateRequest } from '../../domain/models';
 
 export const bookRepository = {
-  getById(id: number): Promise<BookDetails> {
-    return apiClient.get(`/books/${id}`).then(r => r.data);
+  async getById(id: number): Promise<BookDetails> {
+    const r = await apiClient.get(`/books/${id}`);
+    return r.data;
   },
 
-  getMyBooks(): Promise<BookCard[]> {
-    return apiClient.get('/books/author/me').then(r => r.data);
+  async getMyBooks(): Promise<BookCard[]> {
+    const r = await apiClient.get('/books/author/me');
+    return r.data;
   },
 
-  create(data: BookCreateRequest): Promise<BookDetails> {
-    return apiClient.post('/books', data).then(r => r.data);
+  async create(data: BookCreateRequest): Promise<BookDetails> {
+    const r = await apiClient.post('/books', data);
+    return r.data;
   },
 
-  update(id: number, data: BookUpdateRequest): Promise<BookDetails> {
-    return apiClient.put(`/books/${id}`, data).then(r => r.data);
+  async update(id: number, data: BookUpdateRequest): Promise<BookDetails> {
+    const r = await apiClient.put(`/books/${id}`, data);
+    return r.data;
+  },
+
+  async delete(bookId: number): Promise<void> {
+    await apiClient.delete(`/books/${bookId}`);
   },
 };

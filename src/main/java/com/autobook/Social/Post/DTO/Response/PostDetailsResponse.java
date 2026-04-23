@@ -19,5 +19,7 @@ public record PostDetailsResponse(
         int likeCount,
         int commentCount,
         int repostCount,
-        List<CommentResponse> comments
+        List<CommentResponse> comments,
+        boolean likedByMe,
+        boolean repostedByMe
 ) {}

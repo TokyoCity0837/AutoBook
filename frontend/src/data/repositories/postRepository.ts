@@ -2,27 +2,28 @@ import apiClient from '../api/apiClient';
 import type { Post, PostDetails, CreatePostRequest } from '../../domain/models';
 
 export const postRepository = {
-  getFeed(): Promise<Post[]> {
-    return apiClient.get('/posts/feed').then(r => r.data);
+  async getFeed(): Promise<Post[]> {
+    const r = await apiClient.get('/posts/feed');
+    return r.data;
   },
 
-  getById(id: number): Promise<PostDetails> {
-    return apiClient.get(`/posts/${id}`).then(r => r.data);
+  async getById(id: number): Promise<PostDetails> {
+    const r = await apiClient.get(`/posts/${id}`);
+    return r.data;
   },
 
-  create(data: CreatePostRequest): Promise<PostDetails> {
-    return apiClient.post('/posts', data).then(r => r.data);
+  async create(data: CreatePostRequest): Promise<PostDetails> {
+    const r = await apiClient.post('/posts', data);
+    return r.data;
   },
 
-  like(id: number): Promise<void> {
-    return apiClient.put(`/posts/${id}/like`).then(() => {});
+  async toggleLike(id: number): Promise<boolean> {
+    const r = await apiClient.post(`/posts/${id}/like`);
+    return r.data;
   },
 
-  unlike(id: number): Promise<void> {
-    return apiClient.delete(`/posts/${id}/like`).then(() => {});
-  },
-
-  repost(id: number): Promise<void> {
-    return apiClient.put(`/posts/${id}/repost`).then(() => {});
-  },
+  async toggleRepost(postId: number): Promise<boolean> {
+    const { data } = await apiClient.post<boolean>(`/posts/${postId}/repost`);
+    return data;
+  }
 };
