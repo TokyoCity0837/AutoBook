@@ -2,27 +2,36 @@ import apiClient from '../api/apiClient';
 import type { FollowResponse } from '../../domain/models';
 
 export const followRepository = {
-  getStatus(userId: number): Promise<boolean> {
-    return apiClient.get(`/follows/status/${userId}`).then(r => r.data);
+  async getStatus(userId: number): Promise<boolean> {
+    const r = await apiClient.get(`/follows/status/${userId}`);
+    return r.data;
   },
 
-  follow(userId: number): Promise<FollowResponse> {
-    return apiClient.post(`/follows/direct/${userId}`).then(r => r.data);
+  async follow(userId: number): Promise<FollowResponse> {
+    const r = await apiClient.post(`/follows/direct/${userId}`);
+    return r.data;
   },
 
-  unfollow(userId: number): Promise<void> {
-    return apiClient.delete(`/follows/remove/${userId}`).then(() => {});
+  async unfollow(userId: number): Promise<void> {
+    await apiClient.delete(`/follows/unfollow/${userId}`);
   },
 
-  getFriends(): Promise<FollowResponse[]> {
-    return apiClient.get('/follows/friends/me').then(r => r.data);
+  async removeFriend(userId: number): Promise<void> {
+      await apiClient.delete(`/follows/remove/${userId}`);
   },
 
-  getFollowing(): Promise<FollowResponse[]> {
-    return apiClient.get('/follows/following').then(r => r.data);
+  async getFriends(): Promise<FollowResponse[]> {
+    const r = await apiClient.get('/follows/friends/me');
+    return r.data;
   },
 
-  getFollowers(): Promise<FollowResponse[]> {
-    return apiClient.get('/follows/followers').then(r => r.data);
+  async getFollowing(): Promise<FollowResponse[]> {
+    const r = await apiClient.get('/follows/following');
+    return r.data;
+  },
+
+  async getFollowers(): Promise<FollowResponse[]> {
+    const r = await apiClient.get('/follows/followers');
+    return r.data;
   },
 };

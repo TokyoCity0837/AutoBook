@@ -93,4 +93,13 @@ public class FollowController {
         User secondUser = userRepository.findById(secondUserId).orElseThrow(() -> new UserNotFoundException("User not found"));
         followService.removeConnection(firstUser, secondUser);
     }
+
+    @DeleteMapping("/unfollow/{followingId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unfollow(@PathVariable Long followingId, Principal principal) {
+        User follower = getAuthenticatedUser(principal);
+        User following = userRepository.findById(followingId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        followService.unfollow(follower, following);
+    }
 }

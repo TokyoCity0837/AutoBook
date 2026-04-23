@@ -24,12 +24,12 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         if (user == null) {
             user = userRepository.findByEmail(usernameOrEmail)
-                    .orElseThrow(() -> new UsernameNotFoundException("User not found with username or email: " + usernameOrEmail));
+                    .orElseThrow(() -> new UsernameNotFoundException("User not found: " + usernameOrEmail));
         }
 
         return new org.springframework.security.core.userdetails.User(
                 user.getUsername(),
-                user.getPassword(),
+                user.getPassword() != null ? user.getPassword() : "", // ← фікс
                 Collections.singletonList(new SimpleGrantedAuthority("ROLE_" + user.getRole().name()))
         );
     }

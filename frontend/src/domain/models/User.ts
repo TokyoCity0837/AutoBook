@@ -1,16 +1,25 @@
 // ─── User ───────────────────────────────────────────────
 
+export interface ProfilePostItem {
+  type: 'POST' | 'REPOST';
+  post: Post;
+  repostedBy: UserCard | null;
+  repostedAt: string | null;
+  activityAt: string;
+}
+
 export interface UserCard {
   id: number;
   visibleName: string;
   username: string;
   profileImage: string | null;
   role: string;
+  isFriend: boolean;
 }
 
 export interface UserProfile {
   id: number;
-  username: string; 
+  username: string;
   visibleName: string;
   bio: string;
   profileImage: string | null;
@@ -20,7 +29,9 @@ export interface UserProfile {
   followers: number;
   friends: number;
   books: BookCard[];
-  posts: Post[];
+  posts: ProfilePostItem[];
+  isFriend?: boolean;
+  isPrivate?: boolean;
 }
 
 export interface UserUpdateRequest {
@@ -28,6 +39,7 @@ export interface UserUpdateRequest {
   bio?: string;
   privacyType?: 'PUBLIC' | 'PRIVATE';
   profileImage?: string;
+  username?: string;
 }
 
 export interface LoginRequest {

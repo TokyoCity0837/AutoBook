@@ -3,6 +3,7 @@ import { postRepository, storageRepository } from '../../../data/repositories';
 import { userRepository } from '../../../data/repositories';
 import { MEDIA_BASE_URL } from '../../../shared/constants/config';
 import { useUser } from '../../../shared/contexts/UserContext';
+import { DefaultAvatar } from '../user/UserInfoForPost'
 import '../../../assets/styles/Posts.css';
 
 function IconAddPhoto() {
@@ -85,13 +86,18 @@ export function CreationPost({ onPostCreated }: CreationPostProps) {
             }}
         >
             <div className="newPostTop">
+            {avatarUrl ? (
                 <div
-                className="ProfileImage"
-                style={avatarUrl ? {
-                    backgroundImage: `url(${avatarUrl})`,
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center'
-                } : {}}/>
+                    className="profileImage"
+                    style={{
+                        backgroundImage: `url(${avatarUrl})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                    }}
+                />
+            ) : (
+                <DefaultAvatar name={authorName} size={64} />
+            )}
                 <div className="Nickname">{authorName}</div>
             </div>
             <textarea

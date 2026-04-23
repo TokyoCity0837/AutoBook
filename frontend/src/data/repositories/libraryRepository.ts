@@ -2,15 +2,17 @@ import apiClient from '../api/apiClient';
 import type { SavedItem } from '../../domain/models';
 
 export const libraryRepository = {
-  getMySaved(): Promise<SavedItem[]> {
-    return apiClient.get('/library/my').then(r => r.data);
+  async getMySaved(): Promise<SavedItem[]> {
+    const r = await apiClient.get('/library/my');
+    return r.data;
   },
 
-  getBookStatus(bookId: number): Promise<boolean> {
-    return apiClient.get(`/library/book/${bookId}/status`).then(r => r.data);
+  async getBookStatus(bookId: number): Promise<boolean> {
+    const r = await apiClient.get(`/library/book/${bookId}/status`);
+    return r.data;
   },
 
-  toggleBook(bookId: number): Promise<void> {
-    return apiClient.post(`/library/book/${bookId}`).then(() => {});
+  async toggleBook(bookId: number): Promise<void> {
+    await apiClient.post(`/library/book/${bookId}`);
   },
 };

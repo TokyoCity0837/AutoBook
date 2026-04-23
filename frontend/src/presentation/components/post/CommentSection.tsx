@@ -4,6 +4,7 @@ import type { UserCard } from '../../../domain/models';
 import { MEDIA_BASE_URL } from '../../../shared/constants/config';
 import { useUser } from '../../../shared/contexts/UserContext';
 import '../../../assets/styles/Posts.css';
+import { DefaultAvatar } from '../user/UserInfoForPost';
 
 // ─── Small icons ────────────────────────────────────────
 
@@ -53,13 +54,18 @@ export function CreationCommentInline({ placeholder = "Leave a comment...", plac
 
     return (
         <div className={`commentCreationInline ${isFocused ? 'focused' : ''}`}>
-            <div
-            className="ProfileImage profileSmall"
-            style={avatarUrl ? {
-                backgroundImage: `url(${avatarUrl})`,
-                backgroundSize: 'cover',
-                backgroundPosition: 'center'
-            } : {}}/>
+            {avatarUrl ? (
+                <div
+                    className="profileImage"
+                    style={{
+                        backgroundImage: `url(${avatarUrl})`,
+                        backgroundSize: 'cover',
+                        backgroundPosition: 'center'
+                    }}
+                />
+            ) : (
+                <DefaultAvatar name={profileMe?.visibleName ? profileMe?.visibleName : ''} size={46} />
+            )}
             <div className="inputArea">
                 <textarea
                     className="commentCreationInputInline"
@@ -115,15 +121,18 @@ export function CommentItem({ author, text, date, likes, replies, onReplySubmit,
             <div className="commentContent">
                 <div className="userAndDate">
                     <div className="user">
-                        <div
-                        className="ProfileImage profileSmall"
-                        style={avatarUrl ? {
-                            backgroundImage: `url(${avatarUrl})`,
-                            backgroundSize: 'cover',
-                            backgroundPosition: 'center'
-                        } : {}}
-                         />
-
+                        {avatarUrl ? (
+                            <div
+                                className="profileImage"
+                                style={{
+                                    backgroundImage: `url(${avatarUrl})`,
+                                    backgroundSize: 'cover',
+                                    backgroundPosition: 'center'
+                                }}
+                            />
+                        ) : (
+                            <DefaultAvatar name={author?.visibleName ? author?.visibleName : ''} size={46} />
+                        )}
                         <div className="userInfoSmall">
                             <div className="NicknameForDecs">
                                 {author.visibleName} <span className="statusWrap"><IconFriends size={14} /></span>

@@ -175,4 +175,15 @@ public class FollowService {
             throw new InvalidFollowException();
         }
     }
+
+    @Transactional
+    public void unfollow(User follower, User following) {
+        followRepository.findByFollowerAndFollowing(follower, following)
+                .ifPresent(followRepository::delete);
+    }
+
+    public boolean areFriends(User a, User b) {
+        return followRepository.existsByFollowerAndFollowingAndStatus(a, b, FollowStatus.ACCEPTED)
+                && followRepository.existsByFollowerAndFollowingAndStatus(b, a, FollowStatus.ACCEPTED);
+    }
 }

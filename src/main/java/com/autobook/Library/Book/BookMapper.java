@@ -20,7 +20,8 @@ public class BookMapper {
                 book.getId(),
                 book.getTitle(),
                 book.getCoverImage(),
-                userMapper.toCardResponse(book.getAuthor())
+                userMapper.toCardResponse(book.getAuthor()),
+                book.getPrivacy()
         );
     }
 

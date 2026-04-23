@@ -12,15 +12,21 @@ import com.autobook.Library.Book.DTO.Response.BookCardResponse;
 import com.autobook.Social.Post.PostMapper;
 import com.autobook.Social.Post.PostRepository;
 import com.autobook.Social.Post.DTO.Response.PostResponse;
+import com.autobook.Social.Post.PostReposts.PostRepostRepository;
 import com.autobook.Social.User.DTO.Request.UserRegisterRequest;
 import com.autobook.Social.User.DTO.Request.UserUpdateRequest;
 import com.autobook.Social.User.DTO.Response.UserCardResponse;
 import com.autobook.Social.User.DTO.Response.UserProfileResponse;
 import com.autobook.Social.Follow.FollowService;
+import com.autobook.Social.Post.PostLikes.PostLikeRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import com.autobook.Social.User.DTO.Response.ProfilePostItemResponse;
+import java.util.Comparator;
+import java.util.stream.Stream;
 
 import java.util.List;
 
@@ -38,6 +44,8 @@ public class UserService {
     private final BookMapper bookMapper;
 
     private final PostRepository postRepository;
+    private final PostLikeRepository postLikeRepository;
+    private final PostRepostRepository postRepostRepository;
     private final PostMapper postMapper;
 
     private final FollowService followService;
@@ -119,6 +127,16 @@ public class UserService {
     public UserProfileResponse updateProfile(Long userId, UserUpdateRequest request) {
         User user = getUserEntityById(userId);
 
+        if (request.username() != null) {
+            if (request.username().isBlank()) {
+                throw new IllegalArgumentException("Username cannot be blank");
+            }
+            if (!request.username().equals(user.getUsername()) &&
+                    userRepository.existsByUsername(request.username())) {
+                throw new UsernameAlreadyExistsException(request.username());
+            }
+            user.setUsername(request.username());
+        }
         if (request.visibleName() != null) {
             if (request.visibleName().isBlank()) {
                 throw new IllegalArgumentException("Visible name cannot be blank");
@@ -149,21 +167,85 @@ public class UserService {
     }
 
     private UserProfileResponse buildUserProfileResponse(User user) {
-        List<BookCardResponse> books = bookRepository.findByAuthor(user)
+        var auth = SecurityContextHolder.getContext().getAuthentication();
+        boolean isAuthenticated = auth != null && auth.isAuthenticated() && !auth.getName().equals("anonymousUser");
+
+        User currentUser;
+        if (isAuthenticated) {
+            currentUser = userRepository.findByUsername(auth.getName()).orElse(null);
+        } else {
+            currentUser = null;
+        }
+
+        boolean isOwner = currentUser != null && currentUser.getId().equals(user.getId());
+        boolean isFriend = currentUser != null && !isOwner && followService.areFriends(currentUser, user);
+        boolean isPrivate = user.getPrivacy() == PrivacyType.PRIVATE;
+        boolean canSeeContent = isOwner || isFriend || !isPrivate;
+
+        List<BookCardResponse> books = canSeeContent
+                ? bookRepository.findByAuthor(user)
                 .stream()
                 .map(bookMapper::toCardResponse)
-                .toList();
+                .filter(p -> p.privacy() == PrivacyType.PUBLIC)
+                .toList()
+                : List.of();
 
-        List<PostResponse> posts = postRepository.findByAuthorOrderByCreatedAtDesc(user)
-                .stream()
-                .map(postMapper::toResponse)
-                .toList();
+        List<ProfilePostItemResponse> posts = canSeeContent
+                ? buildProfileTimeline(user, currentUser)
+                : List.of();
 
         long followerCount = followService.countFollowers(user);
-        // Friends = mutual follows
         long friendCount = followService.getFriends(user).size();
 
-        return userMapper.toProfileResponse(user, books, posts, followerCount, friendCount);
+        return userMapper.toProfileResponse(
+                user, books, posts, followerCount, friendCount, isFriend, isPrivate && !canSeeContent
+        );
+    }
+
+    private List<ProfilePostItemResponse> buildProfileTimeline(User profileOwner, User currentUser) {
+        var ownPosts = postRepository.findByAuthorOrderByCreatedAtDesc(profileOwner)
+                .stream()
+                .map(post -> {
+                    boolean liked = currentUser != null &&
+                            postLikeRepository.existsByUserIdAndPostId(currentUser.getId(), post.getId());
+                    boolean reposted = currentUser != null &&
+                            postRepostRepository.existsByIdUserIdAndIdPostId(currentUser.getId(), post.getId());
+
+                    PostResponse postResponse = postMapper.toResponse(post, liked, reposted);
+
+                    return new ProfilePostItemResponse(
+                            "POST",
+                            postResponse,
+                            null,
+                            null,
+                            post.getCreatedAt()
+                    );
+                });
+
+        var reposts = postRepostRepository.findByUserOrderByCreatedAtDesc(profileOwner)
+                .stream()
+                .map(repost -> {
+                    var originalPost = repost.getPost();
+
+                    boolean liked = currentUser != null &&
+                            postLikeRepository.existsByUserIdAndPostId(currentUser.getId(), originalPost.getId());
+                    boolean repostedByMe = currentUser != null &&
+                            postRepostRepository.existsByIdUserIdAndIdPostId(currentUser.getId(), originalPost.getId());
+
+                    PostResponse postResponse = postMapper.toResponse(originalPost, liked, repostedByMe);
+
+                    return new ProfilePostItemResponse(
+                            "REPOST",
+                            postResponse,
+                            userMapper.toCardResponse(profileOwner),
+                            repost.getCreatedAt(),
+                            repost.getCreatedAt()
+                    );
+                });
+
+        return Stream.concat(ownPosts, reposts)
+                .sorted(Comparator.comparing(ProfilePostItemResponse::activityAt).reversed())
+                .toList();
     }
 
     private User getUserEntityById(Long userId) {

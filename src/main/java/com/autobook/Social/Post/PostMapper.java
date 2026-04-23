@@ -14,7 +14,7 @@ public class PostMapper {
     private final UserMapper userMapper;
     private final CommentMapper commentMapper;
 
-    public PostResponse toResponse(Post post) {
+    public PostResponse toResponse(Post post, boolean likedByMe, boolean repostedByMe) {
         return new PostResponse(
                 post.getId(),
                 post.getContent(),
@@ -26,11 +26,15 @@ public class PostMapper {
                 post.getUpdatedAt(),
                 post.getLikeCount(),
                 post.getCommentCount(),
-                post.getRepostCount()
+                post.getRepostCount(),
+                likedByMe,
+                repostedByMe
         );
     }
 
-    public PostDetailsResponse toDetailsResponse(Post post) {
+
+
+    public PostDetailsResponse toDetailsResponse(Post post, boolean likedByMe, boolean repostedByMe) {
         return new PostDetailsResponse(
                 post.getId(),
                 post.getContent(),
@@ -45,7 +49,9 @@ public class PostMapper {
                 post.getRepostCount(),
                 post.getComments().stream()
                         .map(commentMapper::toResponse)
-                        .toList()
+                        .toList(),
+                likedByMe,
+                repostedByMe
         );
     }
 }

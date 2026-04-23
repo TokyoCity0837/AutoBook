@@ -31,6 +31,7 @@
     border-radius: 50%;
     background-color: white;
     margin: 0 auto;
+    text-decoration: none;
 
     transition: transform 0.15s, box-shadow 0.15s;
     cursor: pointer;
@@ -163,4 +164,74 @@
 .logout svg {
     width: 28px;
     height: 28px;
+}
+
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100000;
+}
+
+.modalContent {
+    background: #1a1d24;
+    padding: 24px 32px;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+    text-align: center;
+    color: white;
+    min-width: 300px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.modalContent h3 {
+    margin: 0 0 12px 0;
+    font-size: 20px;
+}
+
+.modalContent p {
+    margin: 0 0 24px 0;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 15px;
+}
+
+.modalActions {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+}
+
+.modalBtn {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s;
+    font-family: inherit;
+}
+
+.cancelBtn {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+}
+
+.cancelBtn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.confirmBtn {
+    background: #ff5050;
+    color: white;
+}
+
+.confirmBtn:hover {
+    background: #ff3333;
 }

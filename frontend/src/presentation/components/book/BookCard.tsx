@@ -31,14 +31,13 @@ export function BookCard({ book, edit = false }: BookCardProps) {
                 {coverUrl ? (
                     <img src={coverUrl} alt={book.title} className='ImgBook' width={220} height={270} style={{ objectFit: 'cover' }} />
                 ) : (
-                    <div className='ImgBook' style={{
+                    <div className='ImgBook noImage' style={{
                         width: 220, height: 270,
                         background: DEFAULT_COVER_GRADIENT,
                         display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        borderRadius: '20px', color: 'white', fontSize: '20px',
-                        textAlign: 'center', fontWeight: 600, borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px'
+                        borderRadius: '20px', borderBottomLeftRadius: '0px', borderBottomRightRadius: '0px'
                     }}>
-                        {book.title}
+                        <span className="noImageTitle">{book.title}</span>
                     </div>
                 )}
             </div>

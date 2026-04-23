@@ -8,6 +8,7 @@ public record UserCardResponse (
     String visibleName,
     String username,
     String profileImage,
-    UserRole userRole
+    UserRole userRole,
+    boolean isFriend
 
 ){}

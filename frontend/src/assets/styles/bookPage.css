@@ -57,21 +57,90 @@
     margin-bottom: 4vh;
 }
 
-.addToLibrary {
+.bookMeta {
     display: flex;
-    flex-direction: row;
-    background: var(--accent-color);
-    border-radius: 20px;
-    box-shadow: var(--shadow);
-    padding: 15px 30px;
+    gap: 8px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
 
-    width: fit-content;
-
+.bookMetaBadge {
+    display: inline-flex;
     align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+}
 
+.bookActions {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+}
+
+.bookPrimaryBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: none;
+    background: var(--highlight-color);
     color: #fff;
-    font-size: 26px;
-    gap: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, transform 0.1s;
+}
+
+.bookPrimaryBtn:hover {
+    background: var(--highlight-hover);
+    transform: translateY(-1px);
+}
+
+.bookPrimaryBtn:active {
+    transform: translateY(0);
+}
+
+.bookSecondaryBtn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.07);
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    font-family: inherit;
+    transition: background 0.2s, border-color 0.2s, transform 0.1s;
+}
+
+.bookSecondaryBtn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.3);
+    transform: translateY(-1px);
+}
+
+.bookSecondaryBtn.saved {
+    background: rgba(74, 222, 128, 0.12);
+    border-color: rgba(74, 222, 128, 0.35);
+    color: #4ade80;
+}
+
+.bookSecondaryBtn.saved:hover {
+    background: rgba(74, 222, 128, 0.2);
 }
 
 .updatesBlock {
@@ -124,7 +193,7 @@
     height: 4px;
     border-radius: 100px;
     background: var(--accent-color);
-    margin-top: 50px;
+    margin-top: 30px;
 }
 
 .comments {
@@ -228,7 +297,170 @@
     margin-right: 4px;
     margin-left: 20px;
 }
+.modalOverlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
 
+.modalContent {
+    background: #16161e;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 20px;
+    padding: 36px;
+    width: 420px;
+    max-width: 90vw;
+    color: #fff;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+.modalContent h3 {
+    margin: 0 0 10px 0;
+    font-size: 22px;
+    font-weight: 700;
+}
+
+.modalContent p {
+    margin: 0 0 28px 0;
+    font-size: 15px;
+    color: rgba(255, 255, 255, 0.6);
+    line-height: 1.6;
+}
+
+.modalActions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
+
+.modalBtn {
+    padding: 11px 26px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-family: inherit;
+    transition: filter 0.2s, background 0.2s;
+}
+
+.cancelBtn {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #fff;
+}
+
+.cancelBtn:hover {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+.confirmBtn {
+    background: #c0392b;
+    color: #fff;
+}
+
+.confirmBtn:hover {
+    background: hsl(6, 63%, 26%);
+}
+
+.bookOwnerActions {
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    width: 90%;
+    padding: 0 10px;
+    box-sizing: border-box;
+    padding-bottom: 60px;
+}
+
+.bookActionBtn {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 15px;
+    font-weight: 500;
+    border-radius: 12px;
+    /* border: 1px solid rgba(255, 255, 255, 0.15); */
+    border: none;
+    background: rgba(255, 255, 255, 0.07);
+    color: #fff;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+
+.bookActionBtn:hover {
+    background: rgba(255, 255, 255, 0.13);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+.bookActionBtn.primary {
+    background: var(--highlight-color);
+    border-color: transparent;
+}
+
+.bookActionBtn.primary:hover {
+    background: var(--highlight-hover);
+}
+
+.bookActionBtn.danger {
+    background: rgba(220, 53, 53, 0.12);
+    border-color: rgba(220, 53, 53, 0.35);
+    color: #ff6b6b;
+}
+
+.bookActionBtn.danger:hover {
+    background: rgba(220, 53, 53, 0.25);
+    border-color: rgba(220, 53, 53, 0.6);
+}
+
+.editFormGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-bottom: 16px;
+}
+
+.editFormGroup label {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.editFormGroup input,
+.editFormGroup textarea,
+.editFormGroup select {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 8px;
+    color: white;
+    padding: 10px 14px;
+    font-size: 15px;
+    outline: none;
+    resize: vertical;
+}
+
+.editFormGroup input:focus,
+.editFormGroup textarea:focus,
+.editFormGroup select:focus {
+    border-color: rgba(99, 102, 241, 0.6);
+}
+
+.editFormGroup select option {
+    background: #1a1a2e;
+}
+.modalFooterSplit {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
 /* in future wiil be changed */
 @media (max-width: 1100px) {
     .ImgBookDecs {

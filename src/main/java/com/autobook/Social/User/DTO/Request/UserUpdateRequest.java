@@ -7,6 +7,6 @@ public record UserUpdateRequest (
     String visibleName,
     String bio,
     String profileImage,
-    PrivacyType privacyType
-
+    PrivacyType privacyType,
+    String username
 ){}
