@@ -1,0 +1,238 @@
+.readerWrap {
+    display: flex;
+    min-height: 100vh;
+    background: var(--bg-color);
+    color: #fff;
+    /* gap: 20px; */
+}
+
+.readerSidebar {
+    width: 280px;
+    min-width: 280px;
+    background: var(--accent-color);
+    border-right: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+    transition: all 0.3s ease;
+    margin-right: 40px;
+    border-radius: 30px;
+}
+
+.readerSidebar.closed {
+    width: 48px;      
+    min-width: 48px;
+}
+
+.readerSidebar.closed .readerBookInfo,
+.readerSidebar.closed .readerChapterList,
+.readerSidebar.closed .readerBackBtn span,
+.readerSidebar.closed .readerBackBtn svg,
+.readerSidebar.closed .readerBackBtn {
+    display: none;
+}
+
+.readerSidebarHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    min-height: 60px;
+    position: sticky;  /* ← додай */
+    top: 0;            /* ← додай */
+    background: var(--accent-color); /* ← щоб не просвічував список під ним */
+    z-index: 1;
+}
+
+.readerSidebar.closed .readerSidebarHeader {
+    justify-content: center;
+    padding: 20px 8px;
+}
+
+.readerBackBtn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 14px;
+    cursor: pointer;
+    font-family: inherit;
+    transition: color 0.2s;
+}
+
+.readerBackBtn:hover { color: #fff; }
+
+.readerSidebarToggle {
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.4);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    padding: 4px;
+    border-radius: 6px;
+    transition: all 0.2s;
+}
+
+.readerSidebarToggle:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.readerBookInfo {
+    padding: 20px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.readerCover {
+    width: 180px;
+    height: 260px;
+    object-fit: cover;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    align-self: center;
+}
+
+.readerBookTitle {
+    font-size: 20px;
+    text-align: center;
+    font-weight: 600;
+    line-height: 1.4;
+}
+
+.readerBookAuthor {
+    font-size: 14px;
+    color: rgba(255, 255, 255, 0.4);
+    text-align: center;
+}
+
+.readerChapterList {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 12px 8px 30px;
+}
+
+.readerChapterItem {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    background: none;
+    border: none;
+    color: rgba(255, 255, 255, 0.5);
+    font-size: 14px;
+    text-align: left;
+    cursor: pointer;
+    font-family: inherit;
+    transition: all 0.2s;
+}
+
+.readerChapterItem:hover {
+    background: rgba(255, 255, 255, 0.06);
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.readerChapterItem.active {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-weight: 500;
+}
+
+.readerChapterNum {
+    font-size: 12px;
+    color: rgba(255, 255, 255, 0.3);
+    min-width: 18px;
+}
+
+.readerContent {
+    flex: 1;
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #2a2e3a;
+    min-height: 100vh;
+}
+
+.readerPaper {
+    background: #fff;
+    color: #1a1a1a;
+    width: 794px;
+    max-width: 100%;
+    min-height: 1122px;
+    padding: 76px 68px;
+    box-sizing: border-box;
+    box-shadow: 0 4px 40px rgba(0, 0, 0, 0.4);
+    border-radius: 2px;
+    overflow: hidden; /* ← додай */
+}
+
+.readerBody * {
+    max-width: 100%;  /* ← додай */
+    overflow-wrap: break-word; /* ← додай */
+    word-break: break-word; /* ← додай */
+}
+
+.readerBody {
+    font-family: Georgia, serif;
+    font-size: 15px;
+    line-height: 1.8;
+    color: #1a1a1a;
+    z-index: 999;
+}
+
+.readerBody h1 {
+    font-size: 28px;
+    font-weight: 700;
+    margin: 60px 0 20px;
+    color: #111;
+    page-break-before: always;
+}
+
+.readerBody h1:first-child {
+    margin-top: 0;
+}
+
+.readerBody h2 {
+    font-size: 20px;
+    font-weight: 600;
+    margin: 40px 0 16px;
+    color: #222;
+}
+
+.readerBody h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 30px 0 12px;
+}
+
+.readerBody p {
+    margin-bottom: 1em;
+    text-align: justify;
+}
+
+.readerBody blockquote {
+    border-left: 3px solid #ccc;
+    padding-left: 20px;
+    color: #555;
+    font-style: italic;
+    margin: 1.5em 0;
+}
+
+
+@media (max-width: 768px) {
+    .readerSidebar { display: none; }
+    .readerContent { padding: 30px 20px; }
+    .readerBody { font-size: 16px; }
+}
