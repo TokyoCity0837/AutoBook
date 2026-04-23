@@ -402,10 +402,10 @@ class CommentServiceTest {
         User author = comment.getAuthor() != null
                 ? comment.getAuthor()
                 : new UserTestBuilder()
-                        .withId(100L)
-                        .withVisibleName("Anton")
-                        .withProfileImage("avatar.png")
-                        .build();
+                .withId(100L)
+                .withVisibleName("Anton")
+                .withProfileImage("avatar.png")
+                .build();
 
         return new CommentResponse(
                 comment.getId(),
@@ -415,7 +415,8 @@ class CommentServiceTest {
                         author.getVisibleName(),
                         author.getUsername(),
                         author.getProfileImage(),
-                        author.getRole()
+                        author.getRole(),
+                        false
                 ),
                 comment.getCreatedAt() != null ? comment.getCreatedAt() : LocalDateTime.now(),
                 comment.getCreatedAt() != null ? comment.getCreatedAt() : LocalDateTime.now(),

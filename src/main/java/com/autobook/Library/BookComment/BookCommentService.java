@@ -3,6 +3,8 @@ package com.autobook.Library.BookComment;
 import com.autobook.Exception.CommentNotFoundException;
 import com.autobook.Exception.EmptyCommentContentException;
 import com.autobook.Library.Book.Book;
+import com.autobook.Library.BookComment.DTO.Request.CreateBookCommentRequest;
+import com.autobook.Library.BookComment.DTO.Response.BookCommentResponse;
 import com.autobook.Social.User.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

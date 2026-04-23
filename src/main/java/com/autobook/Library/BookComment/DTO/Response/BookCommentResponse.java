@@ -1,4 +1,4 @@
-package com.autobook.Library.BookComment;
+package com.autobook.Library.BookComment.DTO.Response;
 
 import com.autobook.Social.User.DTO.Response.UserCardResponse;
 import java.time.LocalDateTime;

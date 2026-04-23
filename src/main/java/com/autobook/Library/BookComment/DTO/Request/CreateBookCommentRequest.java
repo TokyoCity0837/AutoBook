@@ -1,4 +1,4 @@
-package com.autobook.Library.BookComment;
+package com.autobook.Library.BookComment.DTO.Request;
 
 import jakarta.validation.constraints.NotBlank;
 
