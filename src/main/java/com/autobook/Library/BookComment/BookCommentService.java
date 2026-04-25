@@ -12,6 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Service for managing comments on {@link com.autobook.Library.Book.Book} entities.
+ * <p>
+ * Builds a nested comment tree (parent-child) from a flat list returned
+ * by the repository, supporting arbitrarily deep reply chains.
+ * Content validation is enforced before persisting any comment.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

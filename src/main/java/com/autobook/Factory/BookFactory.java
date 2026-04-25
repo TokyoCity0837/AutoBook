@@ -5,6 +5,12 @@ import com.autobook.Library.Book.Book;
 import com.autobook.Social.User.User;
 import org.springframework.stereotype.Component;
 
+/**
+ * Factory component for creating {@link Book} entities.
+ * <p>
+ * Defaults privacy to {@link com.autobook.Enum.PrivacyType#PRIVATE} when
+ * none is specified. Implements the Factory design pattern.
+ */
 @Component
 public class BookFactory {
 

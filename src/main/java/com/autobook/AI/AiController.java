@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/api/ai")
@@ -26,7 +27,7 @@ public class AiController {
     }
 
     @PostMapping("/books/{bookId}/analyze-style")
-    public Map<String, Object> analyzeStyle(@PathVariable Long bookId, Principal principal) {
+    public CompletableFuture<Map<String, Object>> analyzeStyle(@PathVariable Long bookId, Principal principal) {
         return aiService.analyzeStyle(bookId, getAuthenticatedUser(principal));
     }
 
@@ -36,7 +37,7 @@ public class AiController {
     }
 
     @PostMapping("/books/{bookId}/suggestions")
-    public Map<String, Object> suggestions(
+    public CompletableFuture<Map<String, Object>> suggestions(
             @PathVariable Long bookId,
             @RequestBody(required = false) SuggestionsBody body
     ) {
@@ -46,7 +47,7 @@ public class AiController {
     }
 
     @PostMapping("/books/{bookId}/continue")
-    public Map<String, Object> continueText(
+    public CompletableFuture<Map<String, Object>> continueText(
             @PathVariable Long bookId,
             @RequestBody(required = false) ContinueTextBody body,
             Principal principal

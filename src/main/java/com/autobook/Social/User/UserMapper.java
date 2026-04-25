@@ -2,7 +2,6 @@ package com.autobook.Social.User;
 
 import com.autobook.Library.Book.DTO.Response.BookCardResponse;
 import com.autobook.Social.Follow.FollowService;
-import com.autobook.Social.Post.DTO.Response.PostResponse;
 import com.autobook.Social.User.DTO.Response.ProfilePostItemResponse;
 import com.autobook.Social.User.DTO.Response.UserCardResponse;
 import com.autobook.Social.User.DTO.Response.UserPostDetailsResponse;
@@ -10,12 +9,18 @@ import com.autobook.Social.User.DTO.Response.UserProfileResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-
 import java.util.List;
 
+import com.autobook.Generic.GenericMapper;
+
+/**
+ * Mapper class responsible for converting User entities to various DTO
+ * representations.
+ * Handles the mapping of users for profile views, cards, and post details.
+ */
 @Component
 @RequiredArgsConstructor
-public class UserMapper {
+public class UserMapper implements GenericMapper<User, UserCardResponse> {
 
     private final FollowService followService;
     private final UserRepository userRepository;
@@ -27,8 +32,7 @@ public class UserMapper {
             long followers,
             long friends,
             boolean isFriend,
-            boolean isPrivate
-    ) {
+            boolean isPrivate) {
         return new UserProfileResponse(
                 user.getId(),
                 user.getUsername(),
@@ -43,8 +47,7 @@ public class UserMapper {
                 books,
                 posts,
                 isFriend,
-                isPrivate
-        );
+                isPrivate);
     }
 
     public UserCardResponse toCardResponse(User user) {
@@ -64,10 +67,8 @@ public class UserMapper {
                 user.getUsername(),
                 user.getProfileImage(),
                 user.getRole(),
-                isFriend
-        );
+                isFriend);
     }
-
 
     public UserPostDetailsResponse toPostDetailsResponse(User user) {
         return new UserPostDetailsResponse(
@@ -75,7 +76,6 @@ public class UserMapper {
                 user.getVisibleName(),
                 user.getProfileImage(),
                 user.getBio(),
-                user.getRole()
-        );
+                user.getRole());
     }
 }

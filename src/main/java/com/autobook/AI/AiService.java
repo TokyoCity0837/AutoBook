@@ -5,14 +5,24 @@ import com.autobook.Library.Chapter.Chapter;
 import com.autobook.Library.Chapter.ChapterRepository;
 import com.autobook.Social.User.User;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.concurrent.CompletableFuture;
+import org.springframework.scheduling.annotation.Async;
 
+/**
+ * Service for communicating with the external AutoBook AI Python microservice.
+ * <p>
+ * Sends book chapter texts for style analysis, retrieves writing suggestions
+ * and generates text continuations. All AI feature inputs must be in English;
+ * Cyrillic text is rejected with an {@link IllegalArgumentException}.
+ * HTTP communication is performed via raw {@link java.net.HttpURLConnection}
+ * to avoid blocking the Spring thread pool.
+ */
 @Service
 @RequiredArgsConstructor
 public class AiService {
@@ -23,7 +33,8 @@ public class AiService {
 
     private static final Pattern CYRILLIC = Pattern.compile(".*[\\p{IsCyrillic}].*");
 
-    public Map<String, Object> analyzeStyle(Long bookId, User user) {
+    @Async
+    public CompletableFuture<Map<String, Object>> analyzeStyle(Long bookId, User user) {
         List<Chapter> chapters = chapterRepository.findByBookIdOrderByCreatedAtAsc(bookId);
 
         List<String> texts = chapters.stream()
@@ -32,18 +43,20 @@ public class AiService {
                 .filter(s -> !s.isBlank())
                 .toList();
 
-        if (texts.isEmpty()) return Map.of("message", "No chapter text to analyze");
+        if (texts.isEmpty())
+            return CompletableFuture.completedFuture(Map.of("message", "No chapter text to analyze"));
 
         Map<String, Object> payload = Map.of(
                 "book_id", String.valueOf(bookId),
                 "author_id", String.valueOf(user.getId()),
-                "texts", texts
-        );
+                "texts", texts);
 
-        return post("/api/v1/analyze", payload);
+        return CompletableFuture.completedFuture(post("/api/v1/analyze", payload));
     }
 
-    public Map<String, Object> getSuggestions(Long bookId, String currentText, String cursorContext) {
+    @Async
+    public CompletableFuture<Map<String, Object>> getSuggestions(Long bookId, String currentText,
+            String cursorContext) {
         String text = safe(currentText);
         String ctx = safe(cursorContext);
         enforceEnglish(text + " " + ctx);
@@ -51,13 +64,14 @@ public class AiService {
         Map<String, Object> payload = Map.of(
                 "book_id", String.valueOf(bookId),
                 "current_text", text,
-                "cursor_context", ctx
-        );
+                "cursor_context", ctx);
 
-        return post("/api/v1/suggest", payload);
+        return CompletableFuture.completedFuture(post("/api/v1/suggest", payload));
     }
 
-    public Map<String, Object> generateContinuation(Long bookId, User user, String context, Integer maxSentences, Double temperature) {
+    @Async
+    public CompletableFuture<Map<String, Object>> generateContinuation(Long bookId, User user, String context,
+            Integer maxSentences, Double temperature) {
         String ctx = safe(context);
         enforceEnglish(ctx);
 
@@ -65,10 +79,9 @@ public class AiService {
                 "author_id", String.valueOf(bookId),
                 "context", ctx,
                 "max_sentences", maxSentences == null ? 3 : maxSentences,
-                "temperature", temperature == null ? 0.8 : temperature
-        );
+                "temperature", temperature == null ? 0.8 : temperature);
 
-        return post("/api/v1/generate", payload);
+        return CompletableFuture.completedFuture(post("/api/v1/generate", payload));
     }
 
     public Object styleProfileExists(Long bookId) {
@@ -79,7 +92,8 @@ public class AiService {
     private Map<String, Object> post(String path, Map<String, Object> payload) {
         try {
             String base = props.getBaseUrl();
-            if (base.endsWith("/")) base = base.substring(0, base.length() - 1);
+            if (base.endsWith("/"))
+                base = base.substring(0, base.length() - 1);
 
             String p = path.startsWith("/") ? path : "/" + path;
 
@@ -112,7 +126,8 @@ public class AiService {
                     new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8))) {
                 StringBuilder sb = new StringBuilder();
                 String line;
-                while ((line = br.readLine()) != null) sb.append(line);
+                while ((line = br.readLine()) != null)
+                    sb.append(line);
                 responseBody = sb.toString();
             }
 
@@ -128,13 +143,16 @@ public class AiService {
     }
 
     private void enforceEnglish(String text) {
-        if (text == null || text.isBlank()) return;
+        if (text == null || text.isBlank())
+            return;
         if (CYRILLIC.matcher(text).matches()) {
             throw new IllegalArgumentException("Only English text is supported for AI features.");
         }
     }
 
-    private String safe(String v) { return v == null ? "" : v; }
+    private String safe(String v) {
+        return v == null ? "" : v;
+    }
 
     private String stripHtml(String html) {
         return html.replaceAll("<[^>]*>", " ").replaceAll("\\s+", " ").trim();

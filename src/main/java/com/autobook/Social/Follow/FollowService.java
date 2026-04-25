@@ -13,6 +13,13 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+/**
+ * Service responsible for managing follow relationships between users.
+ * <p>
+ * Supports both direct following (public profiles) and follow request flow
+ * (private profiles). Provides bidirectional friend detection: two users
+ * are considered friends when both have accepted each other's follow.
+ */
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)

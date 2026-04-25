@@ -9,9 +9,16 @@ import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+import com.autobook.Generic.GenericMapper;
+
+/**
+ * Mapper class for mapping Book entities to various data transfer objects
+ * (DTOs).
+ * Used primarily for translating database representations into API responses.
+ */
 @Component
 @RequiredArgsConstructor
-public class BookMapper {
+public class BookMapper implements GenericMapper<Book, BookCardResponse> {
 
     private final UserMapper userMapper;
 
@@ -21,14 +28,12 @@ public class BookMapper {
                 book.getTitle(),
                 book.getCoverImage(),
                 userMapper.toCardResponse(book.getAuthor()),
-                book.getPrivacy()
-        );
+                book.getPrivacy());
     }
 
     public BookDetailsResponse toDetailsResponse(
             Book book,
-            List<EditResponse> editRequests
-    ) {
+            List<EditResponse> editRequests) {
         return new BookDetailsResponse(
                 book.getId(),
                 book.getTitle(),
@@ -39,7 +44,6 @@ public class BookMapper {
                 book.getPrivacy(),
                 book.getCreatedAt(),
                 book.getUpdatedAt(),
-                editRequests
-        );
+                editRequests);
     }
 }

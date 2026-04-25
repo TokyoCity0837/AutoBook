@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -418,6 +419,102 @@ public class EditServiceTest {
         editService.deleteEditRequest(1L);
 
         verify(editRepository).findById(1L);
+        verify(editRepository).delete(edit);
+    }
+
+    @Test
+    void getEditRequestsByBook_Ok() {
+        Book book = new Book();
+        book.setId(10L);
+        Edit edit = new Edit();
+
+        when(editRepository.findByBook(book)).thenReturn(List.of(edit));
+        when(editMapper.toResponse(edit)).thenReturn(null);
+
+        assertEquals(1, editService.getEditRequestsByBook(book).size());
+    }
+
+    @Test
+    void getPendingEditRequestsByBook_Ok() {
+        Book book = new Book();
+        Edit edit = new Edit();
+        when(editRepository.findByBookAndStatus(book, EditStatus.PENDING)).thenReturn(List.of(edit));
+        assertEquals(1, editService.getPendingEditRequestsByBook(book).size());
+    }
+
+    @Test
+    void getEditRequestsByUser_Ok() {
+        User user = new UserTestBuilder().withId(1L).build();
+        Edit edit = new Edit();
+        when(editRepository.findByFromUser(user)).thenReturn(List.of(edit));
+        assertEquals(1, editService.getEditRequestsByUser(user).size());
+    }
+
+    @Test
+    void getPendingEditRequestsByUser_Ok() {
+        User user = new UserTestBuilder().withId(1L).build();
+        Edit edit = new Edit();
+        when(editRepository.findByFromUserAndStatus(user, EditStatus.PENDING)).thenReturn(List.of(edit));
+        assertEquals(1, editService.getPendingEditRequestsByUser(user).size());
+    }
+
+    @Test
+    void getReceivedEditRequests_Ok() {
+        User author = new UserTestBuilder().withId(1L).build();
+        Edit edit = new Edit();
+        when(editRepository.findByBook_Author(author)).thenReturn(List.of(edit));
+        assertEquals(1, editService.getReceivedEditRequests(author).size());
+    }
+
+    @Test
+    void getReceivedPendingEditRequests_Ok() {
+        User author = new UserTestBuilder().withId(1L).build();
+        Edit edit = new Edit();
+        when(editRepository.findByBook_AuthorAndStatus(author, EditStatus.PENDING)).thenReturn(List.of(edit));
+        assertEquals(1, editService.getReceivedPendingEditRequests(author).size());
+    }
+
+    @Test
+    void countPendingRequests_Ok() {
+        when(editRepository.countByStatus(EditStatus.PENDING)).thenReturn(5L);
+        assertEquals(5L, editService.countPendingRequests());
+    }
+
+    @Test
+    void countPendingRequestsByBook_Ok() {
+        Book book = new Book();
+        when(editRepository.countByBookAndStatus(book, EditStatus.PENDING)).thenReturn(3L);
+        assertEquals(3L, editService.countPendingRequestsByBook(book));
+    }
+
+    @Test
+    void rejectEditRequest_Ok() {
+        Edit edit = new Edit();
+        edit.setStatus(EditStatus.PENDING);
+
+        when(editRepository.findById(1L)).thenReturn(Optional.of(edit));
+        when(editRepository.save(edit)).thenReturn(edit);
+
+        editService.rejectEditRequest(1L);
+        assertEquals(EditStatus.REJECTED, edit.getStatus());
+    }
+
+    @Test
+    void rejectEditRequest_ThrowsWhenNotPending() {
+        Edit edit = new Edit();
+        edit.setStatus(EditStatus.ACCEPTED); // not pending
+
+        when(editRepository.findById(1L)).thenReturn(Optional.of(edit));
+
+        assertThrows(InvalidEditRequestException.class, () -> editService.rejectEditRequest(1L));
+    }
+
+    @Test
+    void deleteEditRequest_Ok() {
+        Edit edit = new Edit();
+        when(editRepository.findById(1L)).thenReturn(Optional.of(edit));
+
+        editService.deleteEditRequest(1L);
         verify(editRepository).delete(edit);
     }
 }

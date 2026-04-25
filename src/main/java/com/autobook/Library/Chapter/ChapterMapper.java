@@ -4,8 +4,10 @@ import com.autobook.Library.Chapter.DTO.Response.ChapterCardResponse;
 import com.autobook.Library.Chapter.DTO.Response.ChapterResponse;
 import org.springframework.stereotype.Component;
 
+import com.autobook.Generic.GenericMapper;
+
 @Component
-public class ChapterMapper {
+public class ChapterMapper implements GenericMapper<Chapter, ChapterCardResponse> {
 
     public ChapterCardResponse toCardResponse(Chapter chapter) {
         return new ChapterCardResponse(

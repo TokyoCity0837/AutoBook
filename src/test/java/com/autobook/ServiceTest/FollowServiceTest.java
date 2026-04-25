@@ -22,6 +22,7 @@ import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
+import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(MockitoExtension.class)
 class FollowServiceTest {
@@ -54,8 +55,7 @@ class FollowServiceTest {
                 new UserCardResponse(1L, "anton", "anton", null, null, false),
                 new UserCardResponse(2L, "anna", "anna", null, null, false),
                 FollowStatus.PENDING,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         when(followRepository.existsByFollowerAndFollowing(follower, following)).thenReturn(false);
         when(followFactory.create(follower, following, FollowStatus.PENDING)).thenReturn(follow);
@@ -105,8 +105,7 @@ class FollowServiceTest {
                 new UserCardResponse(1L, "anton", "anton", null, null, false),
                 new UserCardResponse(2L, "anna", "anna", null, null, false),
                 FollowStatus.PENDING,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         when(followRepository.findById(5L)).thenReturn(Optional.of(follow));
         when(followMapper.toResponse(follow)).thenReturn(response);
@@ -137,8 +136,7 @@ class FollowServiceTest {
                 null,
                 null,
                 FollowStatus.PENDING,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         when(followRepository.findByFollowingAndStatus(user, FollowStatus.PENDING))
                 .thenReturn(List.of(follow));
@@ -172,8 +170,7 @@ class FollowServiceTest {
                 null,
                 null,
                 FollowStatus.ACCEPTED,
-                LocalDateTime.now()
-        );
+                LocalDateTime.now());
 
         when(followRepository.findById(100L)).thenReturn(Optional.of(request));
         when(followRepository.save(request)).thenReturn(request);

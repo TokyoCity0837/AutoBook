@@ -7,6 +7,10 @@ import com.autobook.Social.User.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapper component for translating Post domain entities into client-facing DTOs.
+ * Ensures the Presentation layer receives appropriately formatted data.
+ */
 @Component
 @RequiredArgsConstructor
 public class PostMapper {
