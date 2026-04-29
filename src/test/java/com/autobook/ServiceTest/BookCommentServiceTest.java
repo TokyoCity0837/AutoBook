@@ -2,6 +2,7 @@ package com.autobook.ServiceTest;
 
 import com.autobook.Enum.PrivacyType;
 import com.autobook.Exception.EmptyCommentContentException;
+import com.autobook.Factory.BookFactory;
 import com.autobook.Library.Book.Book;
 import com.autobook.Library.Book.BookMapper;
 import com.autobook.Library.Book.BookRepository;
@@ -12,6 +13,8 @@ import com.autobook.Library.BookComment.BookCommentRepository;
 import com.autobook.Library.BookComment.BookCommentService;
 import com.autobook.Library.BookComment.DTO.Request.CreateBookCommentRequest;
 import com.autobook.Library.BookComment.DTO.Response.BookCommentResponse;
+import com.autobook.Library.Edit.EditMapper;
+import com.autobook.Library.Edit.EditRepository;
 import com.autobook.Social.User.User;
 import com.autobook.util.UserTestBuilder;
 import org.junit.jupiter.api.Test;
@@ -42,7 +45,16 @@ class BookCommentServiceTest {
     private BookRepository bookRepository;
 
     @Mock
+    private BookFactory bookFactory;
+
+    @Mock
     private BookMapper bookMapper;
+
+    @Mock
+    private EditRepository editRepository;
+
+    @Mock
+    private EditMapper editMapper;
 
     @InjectMocks
     private BookService bookService;
@@ -104,7 +116,7 @@ class BookCommentServiceTest {
         List<BookCommentResponse> result = bookCommentService.getCommentsByBook(book);
 
         assertEquals(1, result.size());
-        assertEquals(1L, result.get(0).id());
+        assertEquals(1L, result.getFirst().id());
     }
 
     @Test

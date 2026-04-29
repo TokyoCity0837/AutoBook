@@ -96,4 +96,26 @@ class AiServiceTest {
         assertEquals("yes", aiService.styleProfileExists(1L));
     }
 
+    @Test
+    void getSuggestions_throwsIfCyrillic() {
+        assertThrows(IllegalArgumentException.class,
+                () -> aiService.getSuggestions(1L, "Привіт світ", "context"));
+    }
+
+    @Test
+    void generateContinuation_throwsIfCyrillic() {
+        User user = new UserTestBuilder().withId(1L).build();
+        assertThrows(IllegalArgumentException.class,
+                () -> aiService.generateContinuation(1L, user, "Контекст", 3, 0.5));
+    }
+
+    @Test
+    void styleProfileExists() {
+        when(props.getBaseUrl()).thenReturn("http://localhost:5000");
+        when(aiRestTemplate.getForObject("http://localhost:5000/api/v1/analyze/10/exists", Object.class)).thenReturn(true);
+
+        Object result = aiService.styleProfileExists(10L);
+        assert(result != null);
+    }
+
 }

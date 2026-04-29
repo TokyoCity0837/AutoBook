@@ -79,6 +79,25 @@ class UserMapperTest {
     }
 
     @Test
+    void toCardResponse_whenAuthenticatedAndIsFriend() {
+        User user = new UserTestBuilder().withId(1L).withUsername("friend").withRole(UserRole.USER).build();
+        User currentUser = new UserTestBuilder().withId(2L).withUsername("me").withRole(UserRole.USER).build();
+
+        SecurityContext context = mock(SecurityContext.class);
+        Authentication auth = mock(Authentication.class);
+        when(context.getAuthentication()).thenReturn(auth);
+        when(auth.isAuthenticated()).thenReturn(true);
+        when(auth.getName()).thenReturn("me");
+        SecurityContextHolder.setContext(context);
+
+        when(userRepository.findByUsername("me")).thenReturn(java.util.Optional.of(currentUser));
+        when(followService.areFriends(currentUser, user)).thenReturn(true);
+
+        UserCardResponse response = userMapper.toCardResponse(user);
+        assertEquals(true, response.isFriend());
+    }
+
+    @Test
     void toPostDetailsResponse() {
         User user = new UserTestBuilder().withId(1L).withUsername("testuser").withRole(UserRole.USER).build();
         user.setVisibleName("Test User");

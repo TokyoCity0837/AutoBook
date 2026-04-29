@@ -462,4 +462,5 @@ class BookServiceTest {
                 when(bookRepository.findByGenreOrderByCreatedAtDesc("Fantasy")).thenReturn(List.of(book));
                 assertEquals(1, bookService.getBooksByGenre("Fantasy").size());
         }
+
 }

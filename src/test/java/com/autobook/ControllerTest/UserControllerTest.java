@@ -94,4 +94,36 @@ class UserControllerTest {
         userController.deleteUser(1L);
         verify(userService).deleteUserById(1L);
     }
+
+    @Test
+    void getProfile() {
+        UserProfileResponse response = new UserProfileResponse(1L, "testuser", null, null, null, PrivacyType.PUBLIC,
+                null, UserRole.USER, 0, 0, null, null, false, false);
+        when(userService.getUserProfileById(1L)).thenReturn(response);
+
+        UserProfileResponse result = userController.getProfile(1L);
+        assertEquals(1L, result.id());
+    }
+
+    @Test
+    void searchUsers() {
+        when(userService.searchUsersByUsername("test")).thenReturn(List.of());
+        List<UserCardResponse> result = userController.searchUsers("test");
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void getUsersByPrivacy() {
+        when(userService.getUsersByPrivacy(PrivacyType.PUBLIC)).thenReturn(List.of());
+        List<UserCardResponse> result = userController.getUsersByPrivacy(PrivacyType.PUBLIC);
+        assertEquals(0, result.size());
+    }
+
+    @Test
+    void countUsersByPrivacy() {
+        when(userService.countUsersByPrivacy(PrivacyType.PUBLIC)).thenReturn(42L);
+        long result = userController.countUsersByPrivacy(PrivacyType.PUBLIC);
+        assertEquals(42L, result);
+    }
 }
+

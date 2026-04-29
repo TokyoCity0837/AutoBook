@@ -639,4 +639,6 @@ class PostServiceTest {
         assertThrows(PostNotFoundException.class, () -> postService.incrementRepostCount(5L));
         verify(postRepository, never()).incrementRepostCount(any());
     }
+
+
 }

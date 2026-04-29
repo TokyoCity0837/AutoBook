@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 class ExceptionTest {
 
+    // comment color
+
     @Test
     void testExceptions() {
         assertNotNull(new BookNotFoundException(1L));

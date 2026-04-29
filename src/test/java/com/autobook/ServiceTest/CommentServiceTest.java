@@ -24,6 +24,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -169,12 +170,14 @@ class CommentServiceTest {
                                 .withContent("Hello")
                                 .withAuthor(author)
                                 .build();
+                comment1.setCreatedAt(java.time.LocalDateTime.now().minusDays(1)); // Older
 
                 Comment comment2 = new CommentTestBuilder()
                                 .withId(2L)
                                 .withContent("Bye")
                                 .withAuthor(author)
                                 .build();
+                comment2.setCreatedAt(java.time.LocalDateTime.now()); // Newer
 
                 CommentResponse response1 = buildCommentResponse(comment1);
                 CommentResponse response2 = buildCommentResponse(comment2);
@@ -187,8 +190,8 @@ class CommentServiceTest {
                 List<CommentResponse> result = commentService.getCommentsByAuthor(author);
 
                 assertEquals(2, result.size());
-                assertEquals("Hello", result.get(0).content());
-                assertEquals("Bye", result.get(1).content());
+                assertEquals("Bye", result.get(0).content());
+                assertEquals("Hello", result.get(1).content());
 
                 verify(commentRepository).findByAuthorOrderByCreatedAtDesc(author);
                 verify(commentMapper).toResponseLevel(eq(comment1), any());
@@ -204,12 +207,14 @@ class CommentServiceTest {
                                 .withContent("Hello")
                                 .withPostConnected(post)
                                 .build();
+                comment1.setCreatedAt(java.time.LocalDateTime.now().minusDays(1));
 
                 Comment comment2 = new CommentTestBuilder()
                                 .withId(2L)
                                 .withContent("Bye")
                                 .withPostConnected(post)
                                 .build();
+                comment2.setCreatedAt(java.time.LocalDateTime.now());
 
                 CommentResponse response1 = buildCommentResponse(comment1);
                 CommentResponse response2 = buildCommentResponse(comment2);
@@ -222,8 +227,8 @@ class CommentServiceTest {
                 List<CommentResponse> result = commentService.getCommentsByPost(post);
 
                 assertEquals(2, result.size());
-                assertEquals("Hello", result.get(0).content());
-                assertEquals("Bye", result.get(1).content());
+                assertEquals("Bye", result.get(0).content());
+                assertEquals("Hello", result.get(1).content());
 
                 verify(commentRepository).findByPostOrderByCreatedAtDesc(post);
                 verify(commentMapper).toResponseLevel(eq(comment1), any());
@@ -417,6 +422,71 @@ class CommentServiceTest {
         }
 
         @Test
+        void deleteCommentByIdAndAuthor() {
+                User author = new UserTestBuilder().withId(1L).build();
+
+                Comment comment = new Comment();
+                comment.setId(10L);
+                comment.setAuthor(author);
+
+                com.autobook.Social.Post.Post post = new com.autobook.Social.Post.Post();
+                post.setId(99L);
+                comment.setPost(post);
+
+                when(commentRepository.findById(10L)).thenReturn(Optional.of(comment));
+
+                commentService.deleteCommentByIdAndAuthor(10L, author);
+
+                verify(postRepository).decrementCommentCount(99L);
+                verify(commentRepository).delete(comment);
+        }
+
+        @Test
+        void deleteCommentByIdAndAuthor_delete() {
+                User author = new UserTestBuilder().withId(1L).build();
+                User wrongAuthor = new UserTestBuilder().withId(2L).build();
+
+                Comment comment = new Comment();
+                comment.setId(10L);
+                comment.setAuthor(author);
+
+                when(commentRepository.findById(10L)).thenReturn(Optional.of(comment));
+
+                assertThrows(CommentNotFoundException.class,
+                                () -> commentService.deleteCommentByIdAndAuthor(10L, wrongAuthor));
+        }
+
+        @Test
+        void incrementLikeCount_Ok() {
+                Comment comment = new Comment();
+                comment.setId(10L);
+
+                when(commentRepository.findById(10L)).thenReturn(Optional.of(comment));
+
+                commentService.incrementLikeCount(10L);
+
+                verify(commentRepository).incrementLikeCount(10L);
+        }
+
+        @Test
+        void getCommentsByAuthor_Ok() {
+                User author = new UserTestBuilder().withId(1L).build();
+
+                Comment c1 = new Comment();
+                c1.setId(10L);
+                c1.setCreatedAt(LocalDateTime.now());
+
+                CommentResponse c1Resp = new CommentResponse(10L, "text", null, LocalDateTime.now(),
+                                LocalDateTime.now(), 0L, new ArrayList<>(), 0);
+
+                when(commentRepository.findByAuthorOrderByCreatedAtDesc(author)).thenReturn(List.of(c1));
+                when(commentMapper.toResponseLevel(eq(c1), anyList())).thenReturn(c1Resp);
+
+                List<CommentResponse> result = commentService.getCommentsByAuthor(author);
+                assertEquals(1, result.size());
+        }
+
+        @Test
         void deleteCommentByIdAndAuthor_Ok() {
                 User author = new UserTestBuilder().withId(1L).build();
 
@@ -452,7 +522,7 @@ class CommentServiceTest {
         }
 
         @Test
-        void incrementLikeCount_Ok() {
+        void incrementLikeCount_increment() {
                 Comment comment = new Comment();
                 comment.setId(10L);
 

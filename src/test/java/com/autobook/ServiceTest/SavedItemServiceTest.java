@@ -1,6 +1,5 @@
 package com.autobook.ServiceTest;
 
-import com.autobook.Exception.BookNotFoundException;
 import com.autobook.Library.Book.Book;
 import com.autobook.Library.Book.BookMapper;
 import com.autobook.Library.Book.BookRepository;
