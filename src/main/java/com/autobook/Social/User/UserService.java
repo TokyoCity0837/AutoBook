@@ -20,6 +20,7 @@ import com.autobook.Social.User.DTO.Response.UserProfileResponse;
 import com.autobook.Social.Follow.FollowService;
 import com.autobook.Social.Post.PostLikes.PostLikeRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,22 @@ import java.util.stream.Stream;
 
 import java.util.List;
 
+/**
+ * Service layer for managing {@link User} entities.
+ * <p>
+ * This class implements the <b>Facade</b> design pattern by providing a
+ * simplified interface
+ * to complex user interactions. It encapsulates user registration, profile
+ * retrieval, profile updates,
+ * and timeline generation logic. Uses <b>Factory Method</b> pattern through
+ * {@link UserFactory}
+ * for consistent object creation.
+ * </p>
+ *
+ * @see UserRepository
+ * @see User
+ */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
@@ -50,13 +67,31 @@ public class UserService {
 
     private final FollowService followService;
 
+    private final com.autobook.Generic.AsyncActivityLogger asyncActivityLogger;
+
+    /**
+     * Registers a new user in the system.
+     * <p>
+     * Demonstrates <b>Encapsulation</b> of the hashing algorithm and <b>Factory</b>
+     * usage.
+     * Logs at INFO level on success and ERROR on duplicates.
+     * </p>
+     *
+     * @param request the registration details (username, email, password)
+     * @return a profile view of the newly created user
+     * @throws EmailAlreadyInUseException     if the email is already registered
+     * @throws UsernameAlreadyExistsException if the username is taken
+     */
     @Transactional
     public UserProfileResponse createUser(UserRegisterRequest request) {
+        log.info("Attempting to register new user with email: {}", request.email());
         if (userRepository.existsByEmail(request.email())) {
+            log.error("Registration failed: Email already in use - {}", request.email());
             throw new EmailAlreadyInUseException(request.email());
         }
 
         if (userRepository.existsByUsername(request.username())) {
+            log.error("Registration failed: Username already exists - {}", request.username());
             throw new UsernameAlreadyExistsException(request.username());
         }
 
@@ -66,14 +101,24 @@ public class UserService {
                 request.username(),
                 request.visibleName(),
                 request.email(),
-                encodedPassword
-        );
+                encodedPassword);
 
         User savedUser = userRepository.save(user);
+        log.info("User registered successfully with ID: {}", savedUser.getId());
+
+        asyncActivityLogger.logRegistrationAsync(savedUser.getUsername());
+
         return buildUserProfileResponse(savedUser);
     }
 
+    /**
+     * Retrieves the profile of a user by their unique identifier.
+     *
+     * @param userId the ID of the user to fetch
+     * @return the profile response built contextually for the requesting user
+     */
     public UserProfileResponse getUserProfileById(Long userId) {
+        log.debug("Fetching user profile by ID: {}", userId);
         User user = getUserEntityById(userId);
         return buildUserProfileResponse(user);
     }
@@ -123,22 +168,37 @@ public class UserService {
         return userRepository.existsByEmail(email);
     }
 
+    /**
+     * Updates an existing user's profile information.
+     * <p>
+     * Applies <b>Encapsulation</b> to validate and mutate the internal state of the
+     * User entity selectively without exposing setters globally.
+     * </p>
+     *
+     * @param userId  the ID of the user to update
+     * @param request the requested changes
+     * @return the updated profile response
+     */
     @Transactional
     public UserProfileResponse updateProfile(Long userId, UserUpdateRequest request) {
+        log.info("Updating profile for user ID: {}", userId);
         User user = getUserEntityById(userId);
 
         if (request.username() != null) {
             if (request.username().isBlank()) {
+                log.error("Attempted to set a blank username for user ID: {}", userId);
                 throw new IllegalArgumentException("Username cannot be blank");
             }
             if (!request.username().equals(user.getUsername()) &&
                     userRepository.existsByUsername(request.username())) {
+                log.error("Username update failed: Username {} already exists", request.username());
                 throw new UsernameAlreadyExistsException(request.username());
             }
             user.setUsername(request.username());
         }
         if (request.visibleName() != null) {
             if (request.visibleName().isBlank()) {
+                log.error("Attempted to set a blank visible name for user ID: {}", userId);
                 throw new IllegalArgumentException("Visible name cannot be blank");
             }
             user.setVisibleName(request.visibleName());
@@ -157,13 +217,21 @@ public class UserService {
         }
 
         User savedUser = userRepository.save(user);
+        log.debug("User profile updated successfully: {}", savedUser.getUsername());
         return buildUserProfileResponse(savedUser);
     }
 
+    /**
+     * Deletes a user by their identifier.
+     *
+     * @param userId the ID of the user to delete
+     */
     @Transactional
     public void deleteUserById(Long userId) {
+        log.info("Deleting user with ID: {}", userId);
         User user = getUserEntityById(userId);
         userRepository.delete(user);
+        log.debug("User deleted successfully");
     }
 
     private UserProfileResponse buildUserProfileResponse(User user) {
@@ -184,10 +252,10 @@ public class UserService {
 
         List<BookCardResponse> books = canSeeContent
                 ? bookRepository.findByAuthor(user)
-                .stream()
-                .map(bookMapper::toCardResponse)
-                .filter(p -> p.privacy() == PrivacyType.PUBLIC)
-                .toList()
+                        .stream()
+                        .map(bookMapper::toCardResponse)
+                        .filter(p -> p.privacy() == PrivacyType.PUBLIC)
+                        .toList()
                 : List.of();
 
         List<ProfilePostItemResponse> posts = canSeeContent
@@ -198,8 +266,7 @@ public class UserService {
         long friendCount = followService.getFriends(user).size();
 
         return userMapper.toProfileResponse(
-                user, books, posts, followerCount, friendCount, isFriend, isPrivate && !canSeeContent
-        );
+                user, books, posts, followerCount, friendCount, isFriend, isPrivate && !canSeeContent);
     }
 
     private List<ProfilePostItemResponse> buildProfileTimeline(User profileOwner, User currentUser) {
@@ -218,8 +285,7 @@ public class UserService {
                             postResponse,
                             null,
                             null,
-                            post.getCreatedAt()
-                    );
+                            post.getCreatedAt());
                 });
 
         var reposts = postRepostRepository.findByUserOrderByCreatedAtDesc(profileOwner)
@@ -239,8 +305,7 @@ public class UserService {
                             postResponse,
                             userMapper.toCardResponse(profileOwner),
                             repost.getCreatedAt(),
-                            repost.getCreatedAt()
-                    );
+                            repost.getCreatedAt());
                 });
 
         return Stream.concat(ownPosts, reposts)
@@ -250,14 +315,21 @@ public class UserService {
 
     private User getUserEntityById(Long userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User with provided ID was not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found for ID: {}", userId);
+                    return new UserNotFoundException("User with provided ID was not found");
+                });
     }
 
     private User getUserEntityByUsername(String username) {
         return userRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("User with provided username was not found"));
+                .orElseThrow(() -> {
+                    log.error("User not found for username: {}", username);
+                    return new UserNotFoundException("User with provided username was not found");
+                });
     }
 
+    // for dev only
     private User getUserEntityByEmail(String email) {
         return userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("User with provided email was not found"));

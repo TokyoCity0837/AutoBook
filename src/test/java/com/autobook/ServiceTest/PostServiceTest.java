@@ -12,6 +12,8 @@ import com.autobook.Social.Post.DTO.Response.PostResponse;
 import com.autobook.Social.Post.Post;
 import com.autobook.Social.Post.PostMapper;
 import com.autobook.Social.Post.PostRepository;
+import com.autobook.Social.Post.PostLikes.PostLike;
+import com.autobook.Social.Post.PostLikes.PostLikeId;
 import com.autobook.Social.Post.PostLikes.PostLikeRepository;
 import com.autobook.Social.Post.PostReposts.PostRepostId;
 import com.autobook.Social.Post.PostReposts.PostRepostRepository;
@@ -60,10 +62,10 @@ class PostServiceTest {
         User author = post.getAuthor() != null
                 ? post.getAuthor()
                 : new UserTestBuilder()
-                .withId(100L)
-                .withVisibleName("Anton")
-                .withProfileImage("avatar.png")
-                .build();
+                        .withId(100L)
+                        .withVisibleName("Anton")
+                        .withProfileImage("avatar.png")
+                        .build();
 
         return new PostResponse(
                 post.getId(),
@@ -74,8 +76,7 @@ class PostServiceTest {
                         author.getUsername(),
                         author.getProfileImage(),
                         author.getRole(),
-                        false
-                ),
+                        false),
                 post.getPostType(),
                 null,
                 false,
@@ -85,8 +86,7 @@ class PostServiceTest {
                 post.getCommentCount(),
                 post.getRepostCount(),
                 false,
-                false
-        );
+                false);
     }
 
     @Test
@@ -131,8 +131,7 @@ class PostServiceTest {
 
         assertThrows(
                 EmptyPostContentException.class,
-                () -> postService.createPost(request, author)
-        );
+                () -> postService.createPost(request, author));
 
         verify(postFactory, never()).create(any(), any(), any(), any());
         verify(postRepository, never()).save(any(Post.class));
@@ -229,13 +228,16 @@ class PostServiceTest {
         User author = new UserTestBuilder().build();
         User currentUser = new UserTestBuilder().withId(99L).build();
 
-        Post post1 = new PostTestBuilder().withId(1L).withContent("Hi!").withAuthor(author).withPostType(PostType.PROFILE).build();
-        Post post2 = new PostTestBuilder().withId(2L).withContent("Bye!").withAuthor(author).withPostType(PostType.PROFILE).build();
+        Post post1 = new PostTestBuilder().withId(1L).withContent("Hi!").withAuthor(author)
+                .withPostType(PostType.PROFILE).build();
+        Post post2 = new PostTestBuilder().withId(2L).withContent("Bye!").withAuthor(author)
+                .withPostType(PostType.PROFILE).build();
 
         PostResponse response1 = buildPostResponse(post1);
         PostResponse response2 = buildPostResponse(post2);
 
-        when(postRepository.findByAuthorAndPostTypeOrderByCreatedAtDesc(author, PostType.PROFILE)).thenReturn(List.of(post1, post2));
+        when(postRepository.findByAuthorAndPostTypeOrderByCreatedAtDesc(author, PostType.PROFILE))
+                .thenReturn(List.of(post1, post2));
         when(postMapper.toResponse(eq(post1), anyBoolean(), anyBoolean())).thenReturn(response1);
         when(postMapper.toResponse(eq(post2), anyBoolean(), anyBoolean())).thenReturn(response2);
 
@@ -289,9 +291,12 @@ class PostServiceTest {
 
         List<User> authors = List.of(author1, author2);
 
-        Post post1 = new PostTestBuilder().withId(1L).withContent("Hi!").withPostType(PostType.FEED).withAuthor(author1).build();
-        Post post2 = new PostTestBuilder().withId(2L).withContent("Bye!").withPostType(PostType.FEED).withAuthor(author1).build();
-        Post post3 = new PostTestBuilder().withId(3L).withContent("Hi-Bye!!").withPostType(PostType.FEED).withAuthor(author2).build();
+        Post post1 = new PostTestBuilder().withId(1L).withContent("Hi!").withPostType(PostType.FEED).withAuthor(author1)
+                .build();
+        Post post2 = new PostTestBuilder().withId(2L).withContent("Bye!").withPostType(PostType.FEED)
+                .withAuthor(author1).build();
+        Post post3 = new PostTestBuilder().withId(3L).withContent("Hi-Bye!!").withPostType(PostType.FEED)
+                .withAuthor(author2).build();
 
         PostResponse response1 = buildPostResponse(post1);
         PostResponse response2 = buildPostResponse(post2);
@@ -350,8 +355,7 @@ class PostServiceTest {
                         .withContent("New content")
                         .withAuthor(post.getAuthor())
                         .withPostType(post.getPostType())
-                        .build()
-        );
+                        .build());
 
         when(postRepository.findById(1L)).thenReturn(Optional.of(post));
         when(postRepository.save(post)).thenReturn(post);
@@ -378,8 +382,7 @@ class PostServiceTest {
 
         assertThrows(
                 EmptyPostContentException.class,
-                () -> postService.updatePostContent(1L, request, User)
-        );
+                () -> postService.updatePostContent(1L, request, User));
 
         verify(postRepository, never()).findById(anyLong());
         verify(postRepository, never()).save(any(Post.class));
@@ -399,8 +402,7 @@ class PostServiceTest {
 
         assertThrows(
                 PostNotFoundException.class,
-                () -> postService.updatePostContent(1L, request, User)
-        );
+                () -> postService.updatePostContent(1L, request, User));
 
         verify(postRepository).findById(1L);
         verify(postRepository, never()).save(any(Post.class));
@@ -427,8 +429,7 @@ class PostServiceTest {
 
         assertThrows(
                 PostNotFoundException.class,
-                () -> postService.deletePost(1L)
-        );
+                () -> postService.deletePost(1L));
 
         verify(postRepository).findById(1L);
         verify(postRepository, never()).delete(any(Post.class));
@@ -452,8 +453,7 @@ class PostServiceTest {
 
         assertThrows(
                 PostNotFoundException.class,
-                () -> postService.incrementCommentCount(1L)
-        );
+                () -> postService.incrementCommentCount(1L));
 
         verify(postRepository).findById(1L);
         verify(postRepository, never()).incrementCommentCount(anyLong());
@@ -477,8 +477,7 @@ class PostServiceTest {
 
         assertThrows(
                 PostNotFoundException.class,
-                () -> postService.decrementCommentCount(1L)
-        );
+                () -> postService.decrementCommentCount(1L));
 
         verify(postRepository).findById(1L);
         verify(postRepository, never()).decrementCommentCount(anyLong());
@@ -532,17 +531,15 @@ class PostServiceTest {
         verify(postRepository, never()).decrementRepostCount(anyLong());
     }
 
-
-
     private PostDetailsResponse buildPostDetailsResponse(Post post) {
         User author = post.getAuthor() != null
                 ? post.getAuthor()
                 : new UserTestBuilder()
-                .withId(100L)
-                .withVisibleName("Anton")
-                .withProfileImage("avatar.png")
-                .withBio("Default bio")
-                .build();
+                        .withId(100L)
+                        .withVisibleName("Anton")
+                        .withProfileImage("avatar.png")
+                        .withBio("Default bio")
+                        .build();
 
         return new PostDetailsResponse(
                 post.getId(),
@@ -552,8 +549,7 @@ class PostServiceTest {
                         author.getVisibleName(),
                         author.getProfileImage(),
                         author.getBio(),
-                        author.getRole()
-                ),
+                        author.getRole()),
                 post.getPostType(),
                 null, // imageUrl
                 false, // hasImage
@@ -571,17 +567,78 @@ class PostServiceTest {
                                         author.getVisibleName(),
                                         author.getUsername(),
                                         author.getProfileImage(),
-                                        author.getRole(), false
-                                ),
+                                        author.getRole(), false),
                                 LocalDateTime.now(),
                                 LocalDateTime.now(),
                                 null,
                                 new java.util.ArrayList<>(),
-                                0
-                        )
-                ),
+                                0)),
                 false,
-                false
-        );
+                false);
     }
+
+    // toggleLike
+
+    @Test
+    void toggleLike_addsLike_whenNotLiked() {
+        User user = new UserTestBuilder().withId(1L).build();
+        Post post = new PostTestBuilder().withId(10L).build();
+
+        PostLikeId id = new PostLikeId(user.getId(), 10L);
+        when(postRepository.findById(10L)).thenReturn(Optional.of(post));
+        when(postLikeRepository.existsById(id)).thenReturn(false);
+
+        boolean result = postService.toggleLike(10L, user);
+
+        assertTrue(result);
+        verify(postLikeRepository).save(any(PostLike.class));
+        verify(postRepository).incrementLikeCount(10L);
+    }
+
+    @Test
+    void toggleLike_removesLike_whenAlreadyLiked() {
+        User user = new UserTestBuilder().withId(1L).build();
+        Post post = new PostTestBuilder().withId(10L).build();
+
+        PostLikeId id = new PostLikeId(user.getId(), 10L);
+        when(postRepository.findById(10L)).thenReturn(Optional.of(post));
+        when(postLikeRepository.existsById(id)).thenReturn(true);
+
+        boolean result = postService.toggleLike(10L, user);
+
+        assertFalse(result);
+        verify(postLikeRepository).deleteById(id);
+        verify(postRepository).decrementLikeCount(10L);
+    }
+
+    @Test
+    void toggleLike_throwsWhenPostNotFound() {
+        User user = new UserTestBuilder().withId(1L).build();
+        when(postRepository.findById(99L)).thenReturn(Optional.empty());
+
+        assertThrows(PostNotFoundException.class, () -> postService.toggleLike(99L, user));
+        verify(postLikeRepository, never()).save(any());
+        verify(postLikeRepository, never()).deleteById(any());
+    }
+
+    // incrementRepostCount
+
+    @Test
+    void incrementRepostCount_ok() {
+        Post post = new PostTestBuilder().withId(5L).build();
+        when(postRepository.findById(5L)).thenReturn(Optional.of(post));
+
+        postService.incrementRepostCount(5L);
+
+        verify(postRepository).incrementRepostCount(5L);
+    }
+
+    @Test
+    void incrementRepostCount_throwsWhenPostNotFound() {
+        when(postRepository.findById(5L)).thenReturn(Optional.empty());
+        assertThrows(PostNotFoundException.class, () -> postService.incrementRepostCount(5L));
+        verify(postRepository, never()).incrementRepostCount(any());
+    }
+
+
 }

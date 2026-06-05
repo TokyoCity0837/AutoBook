@@ -5,6 +5,12 @@ import com.autobook.Social.Post.Post;
 import com.autobook.Social.User.User;
 import org.springframework.stereotype.Component;
 
+/**
+ * Factory component for creating post {@link Comment} entities.
+ * <p>
+ * Separates comment object construction from business logic.
+ * Implements the Factory design pattern.
+ */
 @Component
 public class CommentFactory {
 

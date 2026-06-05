@@ -5,4 +5,8 @@ public class InvalidFollowException extends RuntimeException {
     public InvalidFollowException() {
         super("Invalid follow request");
     }
+
+    public InvalidFollowException(String string) {
+        super("Invalid follow request" + string);
+    }
 }

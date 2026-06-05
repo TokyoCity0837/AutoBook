@@ -7,6 +7,10 @@ import com.autobook.Social.User.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+/**
+ * Mapper class responsible for converting Follow entities to DTO responses.
+ * Follows the Single Responsibility Principle by isolating mapping logic from services.
+ */
 @Component
 @RequiredArgsConstructor
 public class FollowMapper {

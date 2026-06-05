@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Table(name = "users")
 @Getter
 @Setter
-public class User {
+public class User implements java.io.Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

@@ -10,6 +10,13 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Global exception handler for the AutoBook REST API.
+ * <p>
+ * Intercepts all thrown exceptions across controllers and returns
+ * structured JSON error responses with appropriate HTTP status codes.
+ * Uses Spring's {@code @ControllerAdvice} to apply globally.
+ */
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
