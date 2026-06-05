@@ -66,4 +66,5 @@ data/profiles/
 *.swp
 *.swo
 
-uploads/
+uploads/hs_err_pid*
+replay_pid*
